@@ -39,7 +39,7 @@ export default function Home() {
             <UserButton afterSignOutUrl="/" />
           </div>
 
-          {/* Chat Interface */}
+          {/* Convex Chat Interface */}
           <ChatInterface />
         </div>
       </SignedIn>

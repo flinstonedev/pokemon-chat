@@ -19,6 +19,26 @@ export default defineSchema({
     threadId: v.id("threads"),
     role: v.union(v.literal("user"), v.literal("assistant"), v.literal("tool")),
     content: v.optional(v.string()),
+    // New: content segments for inline tool call support
+    contentSegments: v.optional(v.array(v.union(
+      v.object({
+        type: v.literal("text"),
+        content: v.string(),
+      }),
+      v.object({
+        type: v.literal("tool_call"),
+        toolCall: v.object({
+          id: v.string(),
+          name: v.string(),
+          arguments: v.string(),
+        }),
+      }),
+      v.object({
+        type: v.literal("tool_result"),
+        toolCallId: v.string(),
+        content: v.string(),
+      })
+    ))),
     toolCalls: v.optional(v.array(v.object({
       id: v.string(),
       name: v.string(),
