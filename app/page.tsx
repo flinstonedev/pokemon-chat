@@ -35,7 +35,13 @@ export default function Home() {
       <SignedIn>
         <div className="relative h-screen">
           {/* Header */}
-          <div className="absolute top-4 right-4 z-10">
+          <div className="absolute top-4 right-4 z-10 flex items-center gap-4">
+            <a
+              href="/assistant-ui"
+              className="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-md hover:bg-blue-50 transition-colors shadow-sm"
+            >
+              Try Assistant UI →
+            </a>
             <UserButton afterSignOutUrl="/" />
           </div>
 
