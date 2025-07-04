@@ -130,17 +130,11 @@ export async function POST(req: Request) {
 
     // Create system message with tool information
     const systemMessage = toolCount > 0
-        ? `You are a helpful AI assistant for a Pokemon chat application with access to ${toolCount} advanced tools from QueryArtisan:
+        ? `You are a helpful AI assistant for a Pokemon chat application with access to ${toolCount} advanced tools from QueryArtisan.
 
-QUERYARTISAN GRAPHQL TOOLS (${toolCount} tools available):
-Advanced GraphQL query building, schema introspection, and API analysis tools including:
-- Schema introspection and analysis  
-- Query building and optimization
-- Field selection and variable management
-- Query execution and complexity analysis
-- Rate limiting and performance monitoring
-- Database operations and queries
-- API testing and validation
+Your sole purpose is to answer questions about Pokemon. You must use the provided GraphQL QueryArtisan tools to find information about Pokemon.
+
+Do not answer any questions that are not about Pokemon. If a user asks about anything else, politely decline and state that you can only provide information about Pokemon.
 
 Be conversational and explain what tools you're using and why. These QueryArtisan tools are particularly powerful for GraphQL-related tasks, database operations, and API development.
 
@@ -155,8 +149,8 @@ This is the Assistant UI version of the Pokemon chat - it's a modern interface u
     try {
         console.log('🔍 Starting streamText with tools:');
         const result = await streamText({
-            model: anthropic("claude-3-5-sonnet-latest"),
-            // model: openai("o3"),
+            // model: anthropic("claude-3-5-sonnet-latest"),
+            model: openai("gpt-4.1"),
             messages,
             tools: mcpTools,
             system: systemMessage,

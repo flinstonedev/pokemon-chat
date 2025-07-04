@@ -62,27 +62,38 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
         if (!result) return 'Tool completed';
 
         try {
+            // Handle nested results from the AI SDK
             let data = result;
             if (data?.content && Array.isArray(data.content) && data.content[0]?.text) {
                 data = data.content[0].text;
             }
 
             const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+
+            // Generic check for a 'message' property, which is a common pattern for success feedback.
             if (parsed?.message) return parsed.message;
 
-            if (toolName === 'start-query-session') {
-                return `Session ${parsed.sessionId ? 'started successfully' : 'failed'}`;
+            // Specific handlers for different tools to provide more meaningful summaries.
+            switch (toolName) {
+                case 'start-query-session':
+                    return `Session started successfully with ID: ${parsed.sessionId?.substring(0, 8)}...`;
+                case 'get-current-query':
+                    return `Current query: ${parsed.query ? 'Available' : 'Not available'}`;
+                case 'validate-query':
+                    return `Query validation ${parsed.valid ? 'passed' : 'failed'}`;
+                case 'execute-query':
+                    return `Query execution ${parsed.data ? 'succeeded' : 'failed'}`;
+                case 'analyze-query-complexity':
+                    return `Query complexity is ${parsed.complexity || 'not available'}`;
+                case 'introspect-schema':
+                    return `Schema analyzed: ${Object.keys(parsed?.types || {}).length || 0} types found`;
+                default:
+                    // If no specific handler, return a generic success message.
+                    // This avoids the incorrect "Invalid" message.
+                    return 'Tool executed successfully';
             }
-
-            if (toolName.includes('schema')) {
-                return `Schema analyzed: ${Object.keys(parsed?.types || {}).length || 0} types found`;
-            } else if (toolName.includes('query')) {
-                return `Query processed: ${parsed?.query ? 'Valid' : 'Invalid'}`;
-            } else if (toolName.includes('execute')) {
-                return `Execution ${parsed?.success ? 'successful' : 'failed'}`;
-            }
-            return 'Tool executed successfully';
         } catch {
+            // Fallback for non-JSON results or parsing errors.
             const resultStr = result?.toString() || '';
             return resultStr.length > 50 ? `${resultStr.substring(0, 50)}...` : resultStr;
         }

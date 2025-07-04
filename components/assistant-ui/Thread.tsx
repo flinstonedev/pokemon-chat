@@ -58,7 +58,7 @@ export function Thread() {
                 <ThreadPrimitive.Empty>
                     <div className="flex h-full flex-col items-center justify-center space-y-4">
                         <div className="rounded-full bg-gray-700 p-4">
-                            <div className="h-8 w-8 text-blue-400">🤖</div>
+                            <div className="h-8 w-8 text-blue-400 flex items-center justify-center">🤖</div>
                         </div>
                         <div className="text-center">
                             <h3 className="text-lg font-semibold text-white">Welcome to Assistant UI Chat</h3>
