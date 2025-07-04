@@ -1,12 +1,17 @@
-import { anthropic } from "@ai-sdk/anthropic";
 import { openai } from "@ai-sdk/openai";
-import { streamText, experimental_createMCPClient } from "ai";
+import { streamText, experimental_createMCPClient, Tool } from "ai";
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 
 export const maxDuration = 30;
 
+// Define a type for the MCP client to avoid using `any`.
+interface MCPClient {
+    tools: () => Promise<Record<string, Tool>>;
+    close: () => Promise<void>;
+}
+
 // Create MCP client for QueryArtisan server (same as in convex/ai.ts)
-async function createQueryArtisanClient() {
+async function createQueryArtisanClient(): Promise<MCPClient | null> {
     const mcpUrl = 'https://agent-query-builder-toolbox.vercel.app/mcp';
     const clientName = 'pokemon-chat-client';
 
@@ -71,7 +76,7 @@ async function createQueryArtisanClient() {
             setTimeout(() => reject(new Error(`HTTP client creation timeout after 10s`)), 10000)
         );
 
-        const client = await Promise.race([clientPromise, timeoutPromise]);
+        const client = await Promise.race([clientPromise, timeoutPromise]) as MCPClient;
 
         console.log('✅ MCP client created successfully!');
         console.log('🎯 Client type:', typeof client);
@@ -94,8 +99,8 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
 
     // Set up MCP tools
-    let mcpTools = {};
-    let mcpClient: any = null;
+    let mcpTools: Record<string, Tool> = {};
+    let mcpClient: MCPClient | null = null;
 
     console.log('🔧 Starting MCP tool setup for Assistant UI...');
 
@@ -114,7 +119,7 @@ export async function POST(req: Request) {
             // Log details about each tool
             Object.entries(mcpTools).forEach(([name, tool]) => {
                 console.log(`🛠️  Tool: ${name}`, {
-                    description: (tool as any)?.description || 'No description',
+                    description: tool.description || 'No description',
                 });
             });
         } else {
@@ -138,11 +143,15 @@ Do not answer any questions that are not about Pokemon. If a user asks about any
 
 Be conversational and explain what tools you're using and why. These QueryArtisan tools are particularly powerful for GraphQL-related tasks, database operations, and API development.
 
+If a tool call results in an error, analyze the error message, adjust your query or approach, and try again. Be persistent in solving the user's request.
+
 This is the Assistant UI version of the Pokemon chat - it's a modern interface using Assistant UI components!`
         : `You are a helpful AI assistant for a Pokemon chat application.
 
 Note: QueryArtisan MCP tools are temporarily unavailable.
 I can still help you with general questions and conversation.
+
+If a tool call results in an error, analyze the error message, adjust your query or approach, and try again. Be persistent in solving the user's request.
 
 This is the Assistant UI version of the Pokemon chat - it's a modern interface using Assistant UI components!`;
 
@@ -160,7 +169,7 @@ This is the Assistant UI version of the Pokemon chat - it's a modern interface u
         // Clean up MCP client when done
         if (mcpClient) {
             result.finishReason.then(() => {
-                mcpClient.close().catch((closeError: any) => {
+                mcpClient.close().catch((closeError: unknown) => {
                     console.error('⚠️  Error closing MCP client:', closeError);
                 });
             }).catch((error) => {

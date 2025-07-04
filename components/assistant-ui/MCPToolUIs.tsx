@@ -14,8 +14,23 @@ import {
     Clock
 } from "lucide-react";
 
+// Match the exact types that @assistant-ui/react expects
+type ToolStatus =
+    | { readonly type: "running" }
+    | { readonly type: "complete" }
+    | { readonly type: "incomplete"; readonly reason: "error" | "cancelled" | "length" | "content-filter" | "other"; readonly error?: unknown }
+    | { readonly type: "requires-action"; readonly reason: "tool-calls" };
+
+type ToolProps = {
+    toolName: string;
+    args: Record<string, unknown>;
+    result?: unknown;
+    status: ToolStatus;
+    argsText: string;
+};
+
 // Generic QueryArtisan tool UI render function
-const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
+const RenderMCPTool = ({ toolName, args, result, status, argsText }: ToolProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [copiedToolId, setCopiedToolId] = useState<string | null>(null);
 
@@ -58,12 +73,12 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
         return descriptions[toolName] || 'QueryArtisan GraphQL tool for advanced query operations';
     };
 
-    const getResultSummary = (result: any, toolName: string) => {
+    const getResultSummary = (result: unknown, toolName: string) => {
         if (!result) return 'Tool completed';
 
         try {
             // Handle nested results from the AI SDK
-            let data = result;
+            let data: Record<string, unknown> = result as Record<string, unknown>;
             if (data?.content && Array.isArray(data.content) && data.content[0]?.text) {
                 data = data.content[0].text;
             }
@@ -99,10 +114,10 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
         }
     };
 
-    const renderToolResult = (result: any) => {
+    const renderToolResult = (result: unknown) => {
         if (!result) return <div className="text-xs text-gray-400">No result</div>;
 
-        let data = result;
+        let data: Record<string, unknown> = result as Record<string, unknown>;
         if (data?.content && Array.isArray(data.content) && data.content[0]?.text) {
             data = data.content[0].text;
         }
@@ -125,7 +140,7 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
 
     const hasResult = status.type === "complete";
     const isExecuting = status.type === "running";
-    const hasError = status.type === "incomplete" && (status as any).reason === "error";
+    const hasError = status.type === "incomplete" && status.reason === "error";
 
     return (
         <div className="border border-gray-700 rounded-lg bg-gray-800 p-3 mb-3 max-w-2xl">
@@ -201,7 +216,8 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
             {!isExpanded && hasError && (
                 <div className="p-2 bg-red-900/30 border border-red-800 rounded text-xs">
                     <span className="text-red-300">
-                        Tool execution failed: {(status as any).error?.message || 'Unknown error'}
+                        Tool execution failed: {status.type === "incomplete" && status.error ?
+                            (status.error as Error)?.message || 'Unknown error' : 'Unknown error'}
                     </span>
                 </div>
             )}
@@ -243,7 +259,8 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
                             </div>
                             <div className="bg-red-900/30 border border-red-800 rounded p-2">
                                 <div className="text-xs text-red-300">
-                                    {(status as any).error?.message || 'Unknown error occurred'}
+                                    {status.type === "incomplete" && status.error ?
+                                        (status.error as Error)?.message || 'Unknown error occurred' : 'Unknown error occurred'}
                                 </div>
                             </div>
                         </div>
@@ -257,137 +274,137 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
 // Create tool UI components for all 27 MCP tools
 export const IntrospectSchemaToolUI = makeAssistantToolUI({
     toolName: "introspect-schema",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const GetRootOpsToolUI = makeAssistantToolUI({
     toolName: "get-root-ops",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const GetTypeInfoToolUI = makeAssistantToolUI({
     toolName: "get-type-info",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const GetFieldInfoToolUI = makeAssistantToolUI({
     toolName: "get-field-info",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const GetInputHelpToolUI = makeAssistantToolUI({
     toolName: "get-input-help",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const StartQuerySessionToolUI = makeAssistantToolUI({
     toolName: "start-query-session",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const EndQuerySessionToolUI = makeAssistantToolUI({
     toolName: "end-query-session",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const GetCurrentQueryToolUI = makeAssistantToolUI({
     toolName: "get-current-query",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const GetSelectionsToolUI = makeAssistantToolUI({
     toolName: "get-selections",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const SelectFieldToolUI = makeAssistantToolUI({
     toolName: "select-field",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const SelectMultiFieldsToolUI = makeAssistantToolUI({
     toolName: "select-multi-fields",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const SetQueryVariableToolUI = makeAssistantToolUI({
     toolName: "set-query-variable",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const SetVariableValueToolUI = makeAssistantToolUI({
     toolName: "set-variable-value",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const RmVarToolUI = makeAssistantToolUI({
     toolName: "rm-var",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const SetStringArgumentToolUI = makeAssistantToolUI({
     toolName: "set-string-argument",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const SetTypedArgumentToolUI = makeAssistantToolUI({
     toolName: "set-typed-argument",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const SetInputObjArgToolUI = makeAssistantToolUI({
     toolName: "set-input-obj-arg",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const SetVarArgToolUI = makeAssistantToolUI({
     toolName: "set-var-arg",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const DefineFragmentToolUI = makeAssistantToolUI({
     toolName: "define-fragment",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const ApplyFragmentToolUI = makeAssistantToolUI({
     toolName: "apply-fragment",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const ApplyInlineFragToolUI = makeAssistantToolUI({
     toolName: "apply-inline-frag",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const SetFieldDirectiveToolUI = makeAssistantToolUI({
     toolName: "set-field-directive",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const SetOpDirectiveToolUI = makeAssistantToolUI({
     toolName: "set-op-directive",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const ValidateQueryToolUI = makeAssistantToolUI({
     toolName: "validate-query",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const ExecuteQueryToolUI = makeAssistantToolUI({
     toolName: "execute-query",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const AnalyzeQueryComplexityToolUI = makeAssistantToolUI({
     toolName: "analyze-query-complexity",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 export const GetRateLimitStatusToolUI = makeAssistantToolUI({
     toolName: "get-rate-limit-status",
-    render: renderMCPTool,
+    render: RenderMCPTool,
 });
 
 // Complete list of all MCP tool UIs
