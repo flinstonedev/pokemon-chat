@@ -8,20 +8,20 @@ import { AllMCPToolUIs } from "../components/assistant-ui/MCPToolUIs";
 // Simple Assistant UI Chat Component
 function SimpleAssistantUIChat() {
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="h-screen bg-gray-900 text-white">
       <div className="max-w-4xl mx-auto p-4 h-full flex flex-col">
         {/* Header with clear Assistant UI branding */}
-        <div className="bg-white rounded-lg shadow-sm border p-4 mb-4">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            🎯 Assistant UI Chat Demo
+        <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-4 mb-4">
+          <h1 className="text-2xl font-bold text-white mb-1">
+            QueryArtisan Assistant Pokemon API Chat Demo
           </h1>
-          <p className="text-sm text-gray-600">
-            Functional chat using Assistant UI primitives • Vercel AI SDK • Claude • MCP Tools
+          <p className="text-sm text-gray-400">
+            This is a chat interface for the QueryArtisan Assistant Pokemon API
           </p>
         </div>
 
         {/* Functional Assistant UI Thread */}
-        <div className="flex-1 bg-white rounded-lg shadow-sm border overflow-hidden">
+        <div className="flex-1 bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden">
           <Thread />
         </div>
 
@@ -36,21 +36,21 @@ function SimpleAssistantUIChat() {
 
 export default function AssistantUIPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-900">
       <SignedOut>
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-blue-100">
-          <div className="text-center bg-white rounded-xl shadow-lg p-8 max-w-md">
-            <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">🚀</span>
+        <div className="flex items-center justify-center min-h-screen bg-gray-900">
+          <div className="text-center bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-md border border-gray-700">
+            <div className="bg-gray-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">🤖</span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl font-bold text-white mb-4">
               Assistant UI Demo
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-400 mb-6">
               Experience the new Assistant UI chat interface with modern styling and MCP tools
             </p>
             <SignInButton mode="modal">
-              <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg">
+              <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg transform hover:scale-105">
                 Sign In to Try Assistant UI
               </button>
             </SignInButton>
@@ -59,15 +59,15 @@ export default function AssistantUIPage() {
       </SignedOut>
 
       <SignedIn>
-        <div className="h-screen flex flex-col bg-gray-50">
+        <div className="h-screen flex flex-col bg-gray-900">
           {/* Header */}
-          <div className="bg-white shadow-sm border-b">
+          <div className="bg-gray-800 shadow-lg border-b border-gray-700">
             <div className="max-w-4xl mx-auto flex items-center justify-between p-4">
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                   Assistant UI Demo
                 </h1>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-400">
                   Powered by Assistant UI • MCP Tools • Different from original!
                 </p>
               </div>

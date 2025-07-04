@@ -62,7 +62,18 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
         if (!result) return 'Tool completed';
 
         try {
-            const parsed = typeof result === 'string' ? JSON.parse(result) : result;
+            let data = result;
+            if (data?.content && Array.isArray(data.content) && data.content[0]?.text) {
+                data = data.content[0].text;
+            }
+
+            const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+            if (parsed?.message) return parsed.message;
+
+            if (toolName === 'start-query-session') {
+                return `Session ${parsed.sessionId ? 'started successfully' : 'failed'}`;
+            }
+
             if (toolName.includes('schema')) {
                 return `Schema analyzed: ${Object.keys(parsed?.types || {}).length || 0} types found`;
             } else if (toolName.includes('query')) {
@@ -78,19 +89,24 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
     };
 
     const renderToolResult = (result: any) => {
-        if (!result) return <div className="text-xs text-gray-500">No result</div>;
+        if (!result) return <div className="text-xs text-gray-400">No result</div>;
+
+        let data = result;
+        if (data?.content && Array.isArray(data.content) && data.content[0]?.text) {
+            data = data.content[0].text;
+        }
 
         try {
-            const parsed = typeof result === 'string' ? JSON.parse(result) : result;
+            const parsed = typeof data === 'string' ? JSON.parse(data) : data;
             return (
-                <pre className="text-xs text-green-800 whitespace-pre-wrap overflow-x-auto max-h-40 overflow-y-auto">
+                <pre className="text-xs text-green-300 whitespace-pre-wrap overflow-x-auto max-h-40 overflow-y-auto">
                     {JSON.stringify(parsed, null, 2)}
                 </pre>
             );
         } catch {
             return (
-                <div className="text-xs text-green-800 whitespace-pre-wrap overflow-x-auto max-h-40 overflow-y-auto">
-                    {result?.toString() || 'No result'}
+                <div className="text-xs text-green-300 whitespace-pre-wrap overflow-x-auto max-h-40 overflow-y-auto">
+                    {data?.toString() || 'No result'}
                 </div>
             );
         }
@@ -101,31 +117,31 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
     const hasError = status.type === "incomplete" && (status as any).reason === "error";
 
     return (
-        <div className="border border-orange-200 rounded-lg bg-orange-50/30 p-3 mb-3 max-w-2xl">
+        <div className="border border-gray-700 rounded-lg bg-gray-800 p-3 mb-3 max-w-2xl">
             {/* Tool Header */}
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                    <Wrench className="w-4 h-4 text-orange-600" />
-                    <span className="font-medium text-sm">{toolName}</span>
+                    <Wrench className="w-4 h-4 text-yellow-400" />
+                    <span className="font-medium text-sm text-white">{toolName}</span>
 
                     {/* Status */}
                     {hasResult ? (
-                        <span className="text-xs text-green-600 border border-green-200 bg-green-50 px-2 py-1 rounded">
+                        <span className="text-xs text-green-300 border border-green-700 bg-green-900/50 px-2 py-1 rounded">
                             <CheckCircle className="w-3 h-3 mr-1 inline" />
                             completed
                         </span>
                     ) : isExecuting ? (
-                        <span className="text-xs text-orange-600 border border-orange-200 bg-orange-50 px-2 py-1 rounded">
+                        <span className="text-xs text-yellow-300 border border-yellow-700 bg-yellow-900/50 px-2 py-1 rounded">
                             <Play className="w-3 h-3 mr-1 inline" />
                             executing
                         </span>
                     ) : hasError ? (
-                        <span className="text-xs text-red-600 border border-red-200 bg-red-50 px-2 py-1 rounded">
+                        <span className="text-xs text-red-300 border border-red-700 bg-red-900/50 px-2 py-1 rounded">
                             <AlertCircle className="w-3 h-3 mr-1 inline" />
                             error
                         </span>
                     ) : (
-                        <span className="text-xs text-gray-500 border border-gray-200 bg-gray-50 px-2 py-1 rounded">
+                        <span className="text-xs text-gray-400 border border-gray-600 bg-gray-700 px-2 py-1 rounded">
                             <Clock className="w-3 h-3 mr-1 inline" />
                             pending
                         </span>
@@ -135,17 +151,17 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
                 <div className="flex items-center gap-1">
                     <button
                         onClick={() => copyToClipboard(argsText || JSON.stringify(args), toolName || 'tool')}
-                        className="h-6 w-6 p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
+                        className="h-6 w-6 p-1 text-gray-400 hover:text-white hover:bg-gray-700 rounded"
                     >
                         {copiedToolId === toolName ? (
-                            <CheckCircle className="w-3 h-3" />
+                            <CheckCircle className="w-3 h-3 text-green-400" />
                         ) : (
                             <Copy className="w-3 h-3" />
                         )}
                     </button>
                     <button
                         onClick={() => setIsExpanded(!isExpanded)}
-                        className="h-6 w-6 p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
+                        className="h-6 w-6 p-1 text-gray-400 hover:text-white hover:bg-gray-700 rounded"
                     >
                         {isExpanded ? (
                             <ChevronDown className="w-3 h-3" />
@@ -157,14 +173,14 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
             </div>
 
             {/* Tool Description */}
-            <p className="text-xs text-gray-600 mb-2">
+            <p className="text-xs text-gray-400 mb-2">
                 {getToolDescription(toolName || '')}
             </p>
 
             {/* Quick Result Preview (when collapsed) */}
             {!isExpanded && hasResult && (
-                <div className="p-2 bg-green-50 border border-green-200 rounded text-xs">
-                    <span className="text-green-600">
+                <div className="p-2 bg-green-900/30 border border-green-800 rounded text-xs">
+                    <span className="text-green-300">
                         {getResultSummary(result, toolName || '')}
                     </span>
                 </div>
@@ -172,8 +188,8 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
 
             {/* Error Preview (when collapsed) */}
             {!isExpanded && hasError && (
-                <div className="p-2 bg-red-50 border border-red-200 rounded text-xs">
-                    <span className="text-red-600">
+                <div className="p-2 bg-red-900/30 border border-red-800 rounded text-xs">
+                    <span className="text-red-300">
                         Tool execution failed: {(status as any).error?.message || 'Unknown error'}
                     </span>
                 </div>
@@ -181,13 +197,13 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
 
             {/* Expanded Details */}
             {isExpanded && (
-                <div className="space-y-2 border-t pt-2">
+                <div className="space-y-2 border-t border-gray-700 pt-2">
                     {/* Parameters */}
                     {(args || argsText) && (
                         <div>
-                            <span className="text-xs font-medium text-gray-700">Parameters:</span>
-                            <div className="bg-gray-100 rounded p-2 mt-1">
-                                <pre className="text-xs text-gray-800 whitespace-pre-wrap overflow-x-auto">
+                            <span className="text-xs font-medium text-gray-300">Parameters:</span>
+                            <div className="bg-gray-900 rounded p-2 mt-1">
+                                <pre className="text-xs text-gray-300 whitespace-pre-wrap overflow-x-auto">
                                     {argsText || JSON.stringify(args, null, 2)}
                                 </pre>
                             </div>
@@ -198,10 +214,10 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
                     {hasResult && (
                         <div>
                             <div className="flex items-center gap-1 mb-1">
-                                <Eye className="w-3 h-3 text-green-600" />
-                                <span className="text-xs font-medium text-green-700">Result:</span>
+                                <Eye className="w-3 h-3 text-green-400" />
+                                <span className="text-xs font-medium text-green-300">Result:</span>
                             </div>
-                            <div className="bg-green-50 border border-green-200 rounded p-2">
+                            <div className="bg-green-900/30 border border-green-800 rounded p-2">
                                 {renderToolResult(result)}
                             </div>
                         </div>
@@ -211,11 +227,11 @@ const renderMCPTool = ({ toolName, args, result, status, argsText }: any) => {
                     {hasError && (
                         <div>
                             <div className="flex items-center gap-1 mb-1">
-                                <AlertCircle className="w-3 h-3 text-red-600" />
-                                <span className="text-xs font-medium text-red-700">Error:</span>
+                                <AlertCircle className="w-3 h-3 text-red-400" />
+                                <span className="text-xs font-medium text-red-300">Error:</span>
                             </div>
-                            <div className="bg-red-50 border border-red-200 rounded p-2">
-                                <div className="text-xs text-red-800">
+                            <div className="bg-red-900/30 border border-red-800 rounded p-2">
+                                <div className="text-xs text-red-300">
                                     {(status as any).error?.message || 'Unknown error occurred'}
                                 </div>
                             </div>
