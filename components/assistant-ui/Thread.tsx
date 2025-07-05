@@ -7,6 +7,15 @@ import {
     ActionBarPrimitive,
 } from "@assistant-ui/react";
 
+// Custom blinking loading indicator component
+function BlinkingLoadingIndicator() {
+    return (
+        <div className="flex items-center justify-center py-2">
+            <div className="w-2 h-2 bg-gray-400 rounded-full blink-dot" />
+        </div>
+    );
+}
+
 // Simple Message component without incorrect tool handling
 function Message() {
     return (
@@ -21,7 +30,7 @@ function Message() {
 
                 <MessagePrimitive.If assistant>
                     <div className="rounded-3xl bg-gray-700 px-5 py-2.5 text-white">
-                        <MessagePrimitive.Content />
+                        <MessagePrimitive.Content components={{ Empty: BlinkingLoadingIndicator }} />
                     </div>
                 </MessagePrimitive.If>
             </div>

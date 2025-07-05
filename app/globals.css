@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+/* Custom blinking animation for loading indicator */
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Apply blinking animation to our custom loading dot */
+.blink-dot {
+  animation: blink 1s infinite;
+}
