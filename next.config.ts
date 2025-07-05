@@ -31,12 +31,12 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               `script-src 'self' 'unsafe-inline' ${process.env.NODE_ENV === 'production' ? '' : "'unsafe-eval'"
-              } https://clerk.com https://*.clerk.com https://*.clerk.dev`,
+              } https://clerk.com https://*.clerk.com https://*.clerk.dev https://your-clerk-domain.clerk.accounts.dev`,
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https:",
-              "connect-src 'self' https://*.convex.cloud https://*.convex.dev https://clerk.com https://*.clerk.com https://*.clerk.dev https://agent-query-builder-toolbox.vercel.app wss://*.convex.cloud wss://*.convex.dev",
-              "frame-src 'self' https://clerk.com https://*.clerk.com https://*.clerk.dev",
+              "connect-src 'self' https://*.convex.cloud https://*.convex.dev https://clerk.com https://*.clerk.com https://*.clerk.dev https://your-clerk-domain.clerk.accounts.dev https://agent-query-builder-toolbox.vercel.app wss://*.convex.cloud wss://*.convex.dev",
+              "frame-src 'self' https://clerk.com https://*.clerk.com https://*.clerk.dev https://your-clerk-domain.clerk.accounts.dev",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
