@@ -11,12 +11,6 @@ import {
 function Message() {
     return (
         <MessagePrimitive.Root className="grid w-full max-w-2xl auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 py-4">
-            <ActionBarPrimitive.Root
-                hideWhenRunning
-                autohide="not-last"
-                className="col-start-1 mr-3 mt-2.5 flex flex-col items-end"
-            >
-            </ActionBarPrimitive.Root>
 
             <div className="col-start-2 row-start-1 max-w-xl break-words">
                 <MessagePrimitive.If user>
