@@ -49,7 +49,7 @@ export default function AssistantUIPage() {
             <p className="text-gray-400 mb-6">
               Experience the new Assistant UI chat interface with modern styling and MCP tools
             </p>
-            <SignInButton mode="modal">
+            <SignInButton mode="modal" fallbackRedirectUrl="/">
               <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg transform hover:scale-105">
                 Sign In to Try Assistant UI
               </button>
