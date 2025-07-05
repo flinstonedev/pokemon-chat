@@ -4,7 +4,6 @@ import {
     ThreadPrimitive,
     MessagePrimitive,
     ComposerPrimitive,
-    ActionBarPrimitive,
 } from "@assistant-ui/react";
 
 // Custom blinking loading indicator component

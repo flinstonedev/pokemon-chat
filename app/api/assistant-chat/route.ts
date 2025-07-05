@@ -1,5 +1,4 @@
 import { openai } from "@ai-sdk/openai";
-import { anthropic } from "@ai-sdk/anthropic";
 import { streamText, experimental_createMCPClient, Tool } from "ai";
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { NextRequest } from "next/server";
@@ -271,7 +270,6 @@ This is the Assistant UI version of the Pokemon chat - it's a modern interface u
 
         const result = await streamText({
             model: openai("gpt-4.1-mini"),
-            // model: anthropic("claude-3-5-sonnet-20241022"),
             messages,
             tools: mcpTools,
             system: systemMessage,
