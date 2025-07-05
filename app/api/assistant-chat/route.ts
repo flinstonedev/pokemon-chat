@@ -2,6 +2,7 @@ import { openai } from "@ai-sdk/openai";
 import { streamText, experimental_createMCPClient, Tool } from "ai";
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { NextRequest } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 export const maxDuration = 30;
 
@@ -142,15 +143,21 @@ async function createQueryArtisanClient(): Promise<MCPClient | null> {
 
 export async function POST(req: NextRequest) {
     try {
+        // Authenticate the user
+        const { userId } = await auth();
+        if (!userId) {
+            return new Response("Unauthorized", { status: 401 });
+        }
+
         // Clean up expired rate limit records periodically
         if (Math.random() < 0.01) { // 1% chance to clean up
             cleanupRateLimit();
         }
 
-        // Rate limiting
+        // Rate limiting - now uses userId for authenticated users
         const forwarded = req.headers.get("x-forwarded-for");
         const ip = forwarded ? forwarded.split(',')[0] : req.headers.get("x-real-ip") || 'unknown';
-        const identifier = `${ip}:${req.headers.get("user-agent") || 'unknown'}`;
+        const identifier = userId || `${ip}:${req.headers.get("user-agent") || 'unknown'}`;
 
         const rateLimit = checkRateLimit(identifier);
 
