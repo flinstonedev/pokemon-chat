@@ -44,14 +44,22 @@ export default function AssistantUIPage() {
               <span className="text-3xl">🤖</span>
             </div>
             <h1 className="text-3xl font-bold text-white mb-4">
-              Assistant UI Demo
+              QueryArtisan Assistant Pokemon API Chat Demo
             </h1>
             <p className="text-gray-400 mb-6">
-              Experience the new Assistant UI chat interface with modern styling and MCP tools
+              Experience QueryArtisan capabilities with the{" "}
+              <a
+                href="https://graphql-pokeapi.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 underline"
+              >
+                Pokemon API
+              </a>
             </p>
             <SignInButton mode="modal" fallbackRedirectUrl="/">
               <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg transform hover:scale-105">
-                Sign In to Try Assistant UI
+                Sign In to Try it Out!
               </button>
             </SignInButton>
           </div>
