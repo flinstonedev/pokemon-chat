@@ -10,16 +10,6 @@ function SimpleAssistantUIChat() {
   return (
     <div className="h-screen bg-gray-900 text-white">
       <div className="max-w-4xl mx-auto p-4 h-full flex flex-col">
-        {/* Header with clear Assistant UI branding */}
-        <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-4 mb-4">
-          <h1 className="text-2xl font-bold text-white mb-1">
-            QueryArtisan Assistant Pokemon API Chat Demo
-          </h1>
-          <p className="text-sm text-gray-400">
-            This is a chat interface for the QueryArtisan Assistant Pokemon API
-          </p>
-        </div>
-
         {/* Functional Assistant UI Thread */}
         <div className="flex-1 bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden">
           <Thread />
@@ -73,10 +63,10 @@ export default function AssistantUIPage() {
             <div className="max-w-4xl mx-auto flex items-center justify-between p-4">
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                  Assistant UI Demo
+                  Query Artisan Chat Pokemon API Demo
                 </h1>
                 <p className="text-sm text-gray-400">
-                  Powered by Assistant UI • MCP Tools • Different from original!
+                  Powered by QueryArtisan MCP Server • Talk to the Pokemon API!
                 </p>
               </div>
               <div className="flex items-center gap-4">

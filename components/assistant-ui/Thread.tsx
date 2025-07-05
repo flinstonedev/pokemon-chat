@@ -61,12 +61,12 @@ export function Thread() {
                             <div className="h-8 w-8 text-blue-400 flex items-center justify-center">🤖</div>
                         </div>
                         <div className="text-center">
-                            <h3 className="text-lg font-semibold text-white">Welcome to Assistant UI Chat</h3>
+                            <h3 className="text-lg font-semibold text-white">Talk to the Pokemon API!</h3>
                             <p className="text-sm text-gray-400">
-                                This is a functional chat interface using Assistant UI primitives with MCP tools!
+                                Ask the Pokemon API anything you want!
                             </p>
                             <p className="text-xs text-orange-400 mt-2">
-                                🔧 QueryArtisan GraphQL tools available for advanced operations
+                                Powered by QueryArtisan MCP Server
                             </p>
                         </div>
                     </div>
@@ -79,7 +79,7 @@ export function Thread() {
                 <ComposerPrimitive.Root className="focus-within:border-blue-500 flex w-full items-center rounded-lg border border-gray-600 bg-gray-900 pl-4 shadow-sm">
                     <ComposerPrimitive.Input
                         autoFocus
-                        placeholder="Ask me about GraphQL, schemas, queries, or anything else..."
+                        placeholder="Ask me about the Pokemon API GraphQL schemas, queries, or anything else..."
                         className="placeholder:text-gray-500 h-12 max-h-40 flex-1 resize-none border-0 bg-transparent px-2 py-1.5 text-sm text-white outline-none focus:ring-0"
                     />
                     <ComposerPrimitive.Send asChild>
