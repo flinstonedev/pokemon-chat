@@ -269,7 +269,7 @@ If a tool call results in an error, analyze the error message, adjust your query
 This is the Assistant UI version of the Pokemon chat - it's a modern interface using Assistant UI components!`;
 
         const result = await streamText({
-            model: openai("gpt-4o-mini"),
+            model: openai("gpt-4.1-mini"),
             messages,
             tools: mcpTools,
             system: systemMessage,
