@@ -8,10 +8,10 @@ import { AllMCPToolUIs } from "../components/assistant-ui/MCPToolUIs";
 // Simple Assistant UI Chat Component
 function SimpleAssistantUIChat() {
   return (
-    <div className="h-screen bg-gray-900 text-white">
-      <div className="max-w-4xl mx-auto p-4 h-full flex flex-col">
+    <div className="bg-gray-900 text-white h-full">
+      <div className="max-w-4xl mx-auto p-4 h-full">
         {/* Functional Assistant UI Thread */}
-        <div className="flex-1 bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden">
+        <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden h-full">
           <Thread />
         </div>
 
@@ -26,9 +26,9 @@ function SimpleAssistantUIChat() {
 
 export default function AssistantUIPage() {
   return (
-    <div className="min-h-screen bg-gray-900">
+    <>
       <SignedOut>
-        <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="flex-1 flex items-center justify-center bg-gray-900">
           <div className="text-center bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-md border border-gray-700">
             <div className="bg-gray-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <span className="text-3xl">🤖</span>
@@ -59,7 +59,7 @@ export default function AssistantUIPage() {
       <SignedIn>
         <div className="h-screen flex flex-col bg-gray-900">
           {/* Header */}
-          <div className="bg-gray-800 shadow-lg border-b border-gray-700">
+          <div className="bg-gray-800 shadow-lg border-b border-gray-700 flex-shrink-0">
             <div className="max-w-4xl mx-auto flex items-center justify-between p-4">
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
@@ -76,13 +76,13 @@ export default function AssistantUIPage() {
           </div>
 
           {/* Assistant UI Chat Interface */}
-          <div className="flex-1">
+          <div className="flex-1 overflow-hidden">
             <MyRuntimeProvider>
               <SimpleAssistantUIChat />
             </MyRuntimeProvider>
           </div>
         </div>
       </SignedIn>
-    </div>
+    </>
   );
 }

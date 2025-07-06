@@ -16,12 +16,16 @@ export default function Footer() {
                         <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
                             <Link
                                 href="/terms"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                             >
                                 Demo Terms
                             </Link>
                             <Link
                                 href="/privacy"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                             >
                                 Privacy Info

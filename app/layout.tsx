@@ -35,10 +35,10 @@ export default function RootLayout({
       >
         <ClerkProvider dynamic>
           <ConvexClientProvider>
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col">
               {children}
             </div>
-            <footer className="bg-gray-900 text-gray-300 py-6 mt-auto">
+            <footer className="bg-gray-900 text-gray-300 py-6">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
                   <div className="text-sm">
@@ -50,12 +50,16 @@ export default function RootLayout({
                   <div className="flex space-x-6 text-sm">
                     <Link
                       href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-gray-300 hover:text-white transition-colors"
                     >
                       Privacy Policy
                     </Link>
                     <Link
                       href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-gray-300 hover:text-white transition-colors"
                     >
                       Terms of Service
