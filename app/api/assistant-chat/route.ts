@@ -273,7 +273,7 @@ This is the Assistant UI version of the Pokemon chat - it's a modern interface u
             messages,
             tools: mcpTools,
             system: systemMessage,
-            maxSteps: 30,
+            maxSteps: 50,
         });
 
         // Clean up MCP client when done
