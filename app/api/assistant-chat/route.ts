@@ -258,6 +258,8 @@ Be conversational and explain what tools you're using and why. These QueryArtisa
 
 If a tool call results in an error, analyze the error message, adjust your query or approach, and try again. Be persistent in solving the user's request.
 
+IMPORTANT: Never stop in the middle of a tool call. Always complete all tool calls and process their results before responding to the user. If you must stop for any reason (such as encountering an error you cannot resolve), clearly inform the user about what happened and why you stopped.
+
 This is the Assistant UI version of the Pokemon chat - it's a modern interface using Assistant UI components!`
             : `You are a helpful AI assistant for a Pokemon chat application.
 
@@ -265,6 +267,8 @@ Note: QueryArtisan MCP tools are temporarily unavailable.
 I can still help you with general questions and conversation.
 
 If a tool call results in an error, analyze the error message, adjust your query or approach, and try again. Be persistent in solving the user's request.
+
+IMPORTANT: Never stop in the middle of a tool call. Always complete all tool calls and process their results before responding to the user. If you must stop for any reason (such as encountering an error you cannot resolve), clearly inform the user about what happened and why you stopped.
 
 This is the Assistant UI version of the Pokemon chat - it's a modern interface using Assistant UI components!`;
 
