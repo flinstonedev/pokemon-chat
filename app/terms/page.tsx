@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Terms of Service - QueryArtisan Pokemon API Demo',
-    description: 'Terms of Service for QueryArtisan Pokemon API Demo - A demo showcasing QueryArtisan MCP capabilities',
+    title: 'Terms of Service - QuerySculptor Pokemon API Demo',
+    description: 'Terms of Service for QuerySculptor Pokemon API Demo - A demo showcasing QuerySculptor MCP capabilities',
 };
 
 export default function TermsOfService() {
@@ -15,7 +15,7 @@ export default function TermsOfService() {
                     <div className="prose prose-lg max-w-none">
                         <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
                             <p className="text-blue-800 font-semibold">
-                                🚀 This is a demo application! These terms are kept simple since this is just a showcase of QueryArtisan MCP server capabilities.
+                                🚀 This is a demo application! These terms are kept simple since this is just a showcase of QuerySculptor MCP server capabilities.
                             </p>
                         </div>
 
@@ -26,7 +26,7 @@ export default function TermsOfService() {
                         <section className="mb-8">
                             <h2 className="text-2xl font-semibold text-gray-900 mb-4">What is this?</h2>
                             <p className="text-gray-700 mb-4">
-                                This is the <strong>QueryArtisan Pokemon API Chat Demo</strong> - a demonstration app that showcases how QueryArtisan&apos;s MCP (Model Context Protocol) server works with Pokemon data from the GraphQL Pokemon API.
+                                This is the <strong>QuerySculptor Pokemon API Chat Demo</strong> - a demonstration app that showcases how QuerySculptor&apos;s MCP (Model Context Protocol) server works with Pokemon data from the GraphQL Pokemon API.
                             </p>
                             <p className="text-gray-700 mb-4">
                                 It&apos;s designed to let you chat with an AI assistant that can answer questions about Pokemon using advanced GraphQL tools.
@@ -37,7 +37,7 @@ export default function TermsOfService() {
                             <h2 className="text-2xl font-semibold text-gray-900 mb-4">What you can do</h2>
                             <ul className="list-disc list-inside text-gray-700 mb-4">
                                 <li>Ask questions about Pokemon (and only Pokemon!)</li>
-                                <li>See QueryArtisan MCP tools in action</li>
+                                <li>See QuerySculptor MCP tools in action</li>
                                 <li>Experience Assistant UI components</li>
                                 <li>Test GraphQL API interactions through natural conversation</li>
                             </ul>
@@ -72,7 +72,7 @@ export default function TermsOfService() {
                                 The demo uses:
                             </p>
                             <ul className="list-disc list-inside text-gray-700 mb-4">
-                                <li><strong>QueryArtisan MCP Server:</strong> Provides powerful GraphQL tools to the AI</li>
+                                <li><strong>QuerySculptor MCP Server:</strong> Provides powerful GraphQL tools to the AI</li>
                                 <li><strong>Pokemon GraphQL API:</strong> The actual Pokemon data source</li>
                                 <li><strong>OpenAI GPT:</strong> The AI that chats with you</li>
                                 <li><strong>Assistant UI:</strong> The chat interface components</li>
@@ -117,14 +117,14 @@ export default function TermsOfService() {
                         <section className="mb-8">
                             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Questions?</h2>
                             <p className="text-gray-700 mb-4">
-                                This is a demo to showcase QueryArtisan MCP server capabilities. If you have questions about how it works or want to learn more about QueryArtisan, feel free to reach out!
+                                This is a demo to showcase QuerySculptor MCP server capabilities. If you have questions about how it works or want to learn more about QuerySculptor, feel free to reach out!
                             </p>
                         </section>
 
                         <div className="mt-8 pt-8 border-t border-gray-200">
                             <div className="bg-green-50 border-l-4 border-green-500 p-4">
                                 <p className="text-green-800 text-sm text-center">
-                                    🎮 Have fun exploring Pokemon with QueryArtisan! This demo is all about showcasing cool technology.
+                                    🎮 Have fun exploring Pokemon with QuerySculptor! This demo is all about showcasing cool technology.
                                 </p>
                             </div>
                         </div>

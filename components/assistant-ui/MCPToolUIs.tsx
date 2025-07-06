@@ -29,7 +29,7 @@ type ToolProps = {
     argsText: string;
 };
 
-// Generic QueryArtisan tool UI render function
+// Generic QuerySculptor tool UI render function
 const RenderMCPTool = ({ toolName, args, result, status, argsText }: ToolProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [copiedToolId, setCopiedToolId] = useState<string | null>(null);
@@ -70,7 +70,7 @@ const RenderMCPTool = ({ toolName, args, result, status, argsText }: ToolProps) 
             'analyze-query-complexity': 'Analyze the complexity, depth, and performance characteristics of the current query structure',
             'get-rate-limit-status': 'Get current rate limit status for the client'
         };
-        return descriptions[toolName] || 'QueryArtisan GraphQL tool for advanced query operations';
+        return descriptions[toolName] || 'QuerySculptor GraphQL tool for advanced query operations';
     };
 
     const getResultSummary = (result: unknown, toolName: string) => {

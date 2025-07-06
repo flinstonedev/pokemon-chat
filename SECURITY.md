@@ -55,7 +55,7 @@ CLERK_SECRET_KEY=sk_test_your_key_here
 ### Optional Security Configuration
 
 ```bash
-# MCP Configuration (Optional - defaults to QueryArtisan toolbox)
+# MCP Configuration (Optional - defaults to QuerySculptor toolbox)
 MCP_URL=https://agent-query-builder-toolbox.vercel.app/mcp
 
 # Environment

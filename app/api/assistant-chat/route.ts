@@ -72,8 +72,8 @@ function validateMCPUrl(url: string): boolean {
     }
 }
 
-// Create MCP client for QueryArtisan server
-async function createQueryArtisanClient(): Promise<MCPClient | null> {
+// Create MCP client for QuerySculptor server
+async function createQuerySculptorClient(): Promise<MCPClient | null> {
     const mcpUrl = MCP_URL;
     const clientName = 'pokemon-chat-client';
 
@@ -135,7 +135,7 @@ async function createQueryArtisanClient(): Promise<MCPClient | null> {
     } catch (error) {
         // Reduced error logging for production
         if (process.env.NODE_ENV !== 'production') {
-            console.error('❌ Failed to create QueryArtisan MCP client:', error instanceof Error ? error.message : 'Unknown error');
+            console.error('❌ Failed to create QuerySculptor MCP client:', error instanceof Error ? error.message : 'Unknown error');
         }
         return null;
     }
@@ -221,7 +221,7 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-            mcpClient = await createQueryArtisanClient();
+            mcpClient = await createQuerySculptorClient();
 
             if (mcpClient) {
                 if (process.env.NODE_ENV !== 'production') {
@@ -248,13 +248,13 @@ export async function POST(req: NextRequest) {
 
         // Create system message with tool information
         const systemMessage = toolCount > 0
-            ? `You are a helpful AI assistant for a Pokemon chat application with access to ${toolCount} advanced tools from QueryArtisan.
+            ? `You are a helpful AI assistant for a Pokemon chat application with access to ${toolCount} advanced tools from QuerySculptor.
 
-Your sole purpose is to answer questions about Pokemon. You must use the provided GraphQL QueryArtisan tools to find information about Pokemon.
+Your sole purpose is to answer questions about Pokemon. You must use the provided GraphQL QuerySculptor tools to find information about Pokemon.
 
 Do not answer any questions that are not about Pokemon. If a user asks about anything else, politely decline and state that you can only provide information about Pokemon.
 
-Be conversational and explain what tools you're using and why. These QueryArtisan tools are particularly powerful for GraphQL-related tasks, database operations, and API development.
+Be conversational and explain what tools you're using and why. These QuerySculptor tools are particularly powerful for GraphQL-related tasks, database operations, and API development.
 
 If a tool call results in an error, analyze the error message, adjust your query or approach, and try again. Be persistent in solving the user's request.
 
@@ -263,7 +263,7 @@ IMPORTANT: Never stop in the middle of a tool call. Always complete all tool cal
 This is the Assistant UI version of the Pokemon chat - it's a modern interface using Assistant UI components!`
             : `You are a helpful AI assistant for a Pokemon chat application.
 
-Note: QueryArtisan MCP tools are temporarily unavailable.
+Note: QuerySculptor MCP tools are temporarily unavailable.
 I can still help you with general questions and conversation.
 
 If a tool call results in an error, analyze the error message, adjust your query or approach, and try again. Be persistent in solving the user's request.

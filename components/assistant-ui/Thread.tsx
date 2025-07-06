@@ -68,7 +68,7 @@ export function Thread() {
                                 Ask the Pokemon API anything you want!
                             </p>
                             <p className="text-xs text-orange-400 mt-2">
-                                Powered by QueryArtisan MCP Server
+                                Powered by QuerySculptor MCP Server
                             </p>
                         </div>
                     </div>

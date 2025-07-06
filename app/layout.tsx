@@ -42,9 +42,9 @@ export default function RootLayout({
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
                   <div className="text-sm">
-                    <p>&copy; {new Date().getFullYear()} QueryArtisan Pokemon API Demo</p>
+                    <p>&copy; {new Date().getFullYear()} QuerySculptor Pokemon API Demo</p>
                     <p className="text-gray-400 mt-1">
-                      Showcasing QueryArtisan MCP capabilities with Pokemon data
+                      Showcasing QuerySculptor MCP capabilities with Pokemon data
                     </p>
                   </div>
                   <div className="flex space-x-6 text-sm">

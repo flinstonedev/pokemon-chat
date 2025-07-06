@@ -7,7 +7,7 @@ export default function Footer() {
                 <div className="py-8">
                     <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                         <div className="text-center md:text-left">
-                            <h3 className="text-lg font-semibold text-gray-900">QueryArtisan Pokemon API Demo</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">QuerySculptor Pokemon API Demo</h3>
                             <p className="text-sm text-gray-600 mt-1">
                                 Showcasing MCP server capabilities with Pokemon data
                             </p>
@@ -35,7 +35,7 @@ export default function Footer() {
 
                     <div className="mt-6 pt-6 border-t border-gray-100">
                         <p className="text-xs text-gray-500 text-center">
-                            © {new Date().getFullYear()} QueryArtisan Pokemon API Demo. This is a demonstration application not affiliated with Nintendo, Game Freak, or The Pokemon Company.
+                            © {new Date().getFullYear()} QuerySculptor Pokemon API Demo. This is a demonstration application not affiliated with Nintendo, Game Freak, or The Pokemon Company.
                         </p>
                     </div>
                 </div>

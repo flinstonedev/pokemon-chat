@@ -34,10 +34,10 @@ export default function AssistantUIPage() {
               <span className="text-3xl">🤖</span>
             </div>
             <h1 className="text-3xl font-bold text-white mb-4">
-              QueryArtisan Assistant Pokemon API Chat Demo
+              QuerySculptor Assistant Pokemon API Chat Demo
             </h1>
             <p className="text-gray-400 mb-6">
-              Experience QueryArtisan capabilities with the{" "}
+              Experience QuerySculptor capabilities with the{" "}
               <a
                 href="https://graphql-pokeapi.vercel.app/"
                 target="_blank"
@@ -66,7 +66,7 @@ export default function AssistantUIPage() {
                   Query Artisan Chat Pokemon API Demo
                 </h1>
                 <p className="text-sm text-gray-400">
-                  Powered by QueryArtisan MCP Server • Talk to the Pokemon API!
+                  Powered by QuerySculptor MCP Server • Talk to the Pokemon API!
                 </p>
               </div>
               <div className="flex items-center gap-4">
