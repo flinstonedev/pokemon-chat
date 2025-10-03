@@ -19,7 +19,7 @@ type ToolStatus =
     | { readonly type: "running" }
     | { readonly type: "complete" }
     | { readonly type: "incomplete"; readonly reason: "error" | "cancelled" | "length" | "content-filter" | "other"; readonly error?: unknown }
-    | { readonly type: "requires-action"; readonly reason: "tool-calls" };
+    | { readonly type: "requires-action"; readonly reason: "tool-calls" | "interrupt" };
 
 type ToolProps = {
     toolName: string;
