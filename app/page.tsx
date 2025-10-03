@@ -4,12 +4,15 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { MyRuntimeProvider } from "./MyRuntimeProvider";
 import { Thread } from "../components/assistant-ui/Thread";
 import { AllMCPToolUIs } from "../components/assistant-ui/MCPToolUIs";
+import { EnhancedExecuteQueryToolUI } from "../components/assistant-ui/EnhancedMCPToolUIs";
+import { PokemonResultsProvider } from "../components/PokemonResultsProvider";
+import { PokemonResultsPanel } from "../components/PokemonResultsPanel";
 
 // Simple Assistant UI Chat Component
 function SimpleAssistantUIChat() {
   return (
-    <div className="bg-gray-900 text-white h-full">
-      <div className="max-w-4xl mx-auto p-4 h-full">
+    <div className="bg-gray-900 text-white h-full flex gap-4">
+      <div className="flex-1 p-4">
         {/* Functional Assistant UI Thread */}
         <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden h-full">
           <Thread />
@@ -19,6 +22,16 @@ function SimpleAssistantUIChat() {
         {AllMCPToolUIs.map((ToolUI, index) => (
           <ToolUI key={index} />
         ))}
+
+        {/* Use enhanced execute-query tool UI */}
+        <EnhancedExecuteQueryToolUI />
+      </div>
+
+      {/* Pokemon Results Panel */}
+      <div className="w-96 p-4">
+        <div className="bg-white rounded-lg shadow-lg border border-gray-300 overflow-hidden h-full">
+          <PokemonResultsPanel />
+        </div>
       </div>
     </div>
   );
@@ -78,7 +91,9 @@ export default function AssistantUIPage() {
           {/* Assistant UI Chat Interface */}
           <div className="flex-1 overflow-hidden">
             <MyRuntimeProvider>
-              <SimpleAssistantUIChat />
+              <PokemonResultsProvider>
+                <SimpleAssistantUIChat />
+              </PokemonResultsProvider>
             </MyRuntimeProvider>
           </div>
         </div>
