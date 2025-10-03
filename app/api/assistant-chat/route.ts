@@ -283,11 +283,10 @@ IMPORTANT: Never stop in the middle of a tool call. Always complete all tool cal
 This is the Assistant UI version of the Pokemon chat - it's a modern interface using Assistant UI components!`;
 
         const result = streamText({
-            model: openai("gpt-4.1-mini"),
+            model: openai("gpt-4o-mini"),
             messages,
             tools: mcpTools,
             system: systemMessage,
-            maxSteps: 50,
         });
 
         // Clean up MCP client when done
@@ -304,13 +303,14 @@ This is the Assistant UI version of the Pokemon chat - it's a modern interface u
             })();
         }
 
-        // Add rate limit headers to successful responses
-        const response = result.toDataStreamResponse();
-        response.headers.set('X-RateLimit-Limit', RATE_LIMIT_REQUESTS.toString());
-        response.headers.set('X-RateLimit-Remaining', rateLimit.remaining.toString());
-        response.headers.set('X-RateLimit-Reset', new Date(rateLimit.resetTime).toISOString());
-
-        return response;
+        // Return response with rate limit headers
+        return result.toTextStreamResponse({
+            headers: {
+                'X-RateLimit-Limit': RATE_LIMIT_REQUESTS.toString(),
+                'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+                'X-RateLimit-Reset': new Date(rateLimit.resetTime).toISOString(),
+            }
+        });
     } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
             console.error('❌ Error in POST handler:', error);
