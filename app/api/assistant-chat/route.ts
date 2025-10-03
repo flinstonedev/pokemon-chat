@@ -197,18 +197,28 @@ export async function POST(req: NextRequest) {
 
         // Validate each message structure
         for (const message of messages) {
-            if (!message || typeof message !== 'object' || !message.role || !message.content) {
-                return new Response('Invalid message format: each message must have role and content', { status: 400 });
+            if (!message || typeof message !== 'object' || !message.role) {
+                return new Response('Invalid message format: each message must have role', { status: 400 });
             }
 
             // Validate role
-            if (!['user', 'assistant', 'system'].includes(message.role)) {
-                return new Response('Invalid message role: must be user, assistant, or system', { status: 400 });
+            if (!['user', 'assistant', 'system', 'tool'].includes(message.role)) {
+                return new Response('Invalid message role: must be user, assistant, system, or tool', { status: 400 });
             }
 
-            // Validate content length (prevent abuse)
-            if (typeof message.content === 'string' && message.content.length > 10000) {
-                return new Response('Message content too long: maximum 10,000 characters', { status: 400 });
+            // Content can be string or array (for multi-part messages like tool calls)
+            if (message.content) {
+                if (typeof message.content === 'string' && message.content.length > 10000) {
+                    return new Response('Message content too long: maximum 10,000 characters', { status: 400 });
+                }
+                // Allow array content for tool calls and multi-part messages
+                if (Array.isArray(message.content)) {
+                    for (const part of message.content) {
+                        if (part && typeof part === 'object' && part.type === 'text' && typeof part.text === 'string' && part.text.length > 10000) {
+                            return new Response('Message content too long: maximum 10,000 characters', { status: 400 });
+                        }
+                    }
+                }
             }
         }
 
@@ -272,7 +282,7 @@ IMPORTANT: Never stop in the middle of a tool call. Always complete all tool cal
 
 This is the Assistant UI version of the Pokemon chat - it's a modern interface using Assistant UI components!`;
 
-        const result = await streamText({
+        const result = streamText({
             model: openai("gpt-4.1-mini"),
             messages,
             tools: mcpTools,
@@ -282,17 +292,16 @@ This is the Assistant UI version of the Pokemon chat - it's a modern interface u
 
         // Clean up MCP client when done
         if (mcpClient) {
-            result.finishReason.then(() => {
-                mcpClient.close().catch((closeError: unknown) => {
+            (async () => {
+                try {
+                    await result;
+                    await mcpClient.close();
+                } catch (error) {
                     if (process.env.NODE_ENV !== 'production') {
-                        console.error('⚠️  Error closing MCP client:', closeError);
+                        console.error('⚠️  Error closing MCP client:', error);
                     }
-                });
-            }).catch((error) => {
-                if (process.env.NODE_ENV !== 'production') {
-                    console.error('⚠️  Error in finishReason handler:', error);
                 }
-            });
+            })();
         }
 
         // Add rate limit headers to successful responses
