@@ -3,7 +3,6 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { ChatInterface } from "../components/ChatInterface";
 import { PokemonResultsProvider } from "../components/PokemonResultsProvider";
-import { PokemonResultsPanel } from "../components/PokemonResultsPanel";
 
 export default function HomePage() {
   return (
@@ -56,15 +55,10 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Chat Interface with Side Panel */}
-          <div className="flex-1 overflow-hidden flex">
+          {/* Chat Interface */}
+          <div className="flex-1 overflow-hidden">
             <PokemonResultsProvider>
-              <div className="flex-1 overflow-hidden">
-                <ChatInterface />
-              </div>
-              <div className="w-96 border-l border-gray-700 overflow-hidden bg-white">
-                <PokemonResultsPanel />
-              </div>
+              <ChatInterface />
             </PokemonResultsProvider>
           </div>
         </div>

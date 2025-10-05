@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { streamText, experimental_createMCPClient } from "ai";
+import { streamText, experimental_createMCPClient, stepCountIs, convertToModelMessages, UIMessage } from "ai";
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Parse the request
-        const { messages } = await req.json();
+        const { messages }: { messages: UIMessage[] } = await req.json();
 
         if (process.env.NODE_ENV !== 'production') {
             console.log('📨 Received messages:', messages.length, 'messages');
@@ -56,6 +56,8 @@ export async function POST(req: NextRequest) {
 
         const systemMessage = `You are a helpful AI assistant for a Pokemon chat application with access to GraphQL query building tools through the MCP server.
 
+IMPORTANT: You ONLY answer questions related to Pokemon. If a user asks about anything that is not Pokemon-related, politely decline and remind them that you can only help with Pokemon-related questions.
+
 Your purpose is to answer questions about Pokemon using the provided GraphQL tools to query the Pokemon API.
 
 Available tools help you:
@@ -77,13 +79,13 @@ When users ask about Pokemon:
 
 Be conversational and explain what you're doing. If you encounter errors, try to understand and fix them.`;
 
-        // Stream the response with MCP tools
+        // Stream the response with MCP tools (AI SDK 5.0 style)
         const result = streamText({
-            model: openai("gpt-4o-mini"),
+            model: openai("gpt-4o"),
             system: systemMessage,
-            messages,
+            messages: convertToModelMessages(messages),
             tools: mcpTools,
-            maxSteps: 15,
+            stopWhen: stepCountIs(50),
             onFinish: async ({ usage }) => {
                 if (process.env.NODE_ENV !== 'production') {
                     console.log('✅ Stream completed. Usage:', usage);
@@ -101,22 +103,10 @@ Be conversational and explain what you're doing. If you encounter errors, try to
                     }
                 }
             },
-            onError: async (error) => {
-                console.error('❌ Stream error:', error);
-
-                // Clean up MCP client on error
-                if (mcpClient) {
-                    try {
-                        await mcpClient.close();
-                    } catch (closeError) {
-                        console.error('Error closing MCP client:', closeError);
-                    }
-                }
-            }
         });
 
-        // Return the stream response for useChat
-        return result.toDataStreamResponse();
+        // Return UI message stream response (AI SDK 5.0)
+        return result.toUIMessageStreamResponse();
 
     } catch (error) {
         console.error('❌ Error in POST handler:', error);
