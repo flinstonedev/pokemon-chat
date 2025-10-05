@@ -9,6 +9,7 @@ export function MyRuntimeProvider({
     children: React.ReactNode;
 }>) {
     const runtime = useChatRuntime({
+        // Explicitly set the transport to ensure correct endpoint
         transport: new AssistantChatTransport({
             api: "/api/assistant-chat",
         }),

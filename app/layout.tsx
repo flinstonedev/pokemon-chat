@@ -4,6 +4,7 @@ import "./globals.css";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import Link from "next/link";
+import { MyRuntimeProvider } from "./MyRuntimeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,10 +35,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <ClerkProvider dynamic>
-          <ConvexClientProvider>
-            <div className="flex-1 flex flex-col">
-              {children}
-            </div>
+          <MyRuntimeProvider>
+            <ConvexClientProvider>
+              <div className="flex-1 flex flex-col">
+                {children}
+              </div>
             <footer className="bg-gray-900 text-gray-300 py-6">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
@@ -74,7 +76,8 @@ export default function RootLayout({
                 </div>
               </div>
             </footer>
-          </ConvexClientProvider>
+            </ConvexClientProvider>
+          </MyRuntimeProvider>
         </ClerkProvider>
       </body>
     </html>

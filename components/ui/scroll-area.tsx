@@ -1,24 +1,20 @@
-import React from 'react';
-import { cn } from '@/lib/utils';
+import * as React from "react"
 
-interface ScrollAreaProps {
-    className?: string;
-    children: React.ReactNode;
-}
+export interface ScrollAreaProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-const ScrollArea = React.forwardRef<
-    React.ElementRef<'div'>,
-    ScrollAreaProps
->(({ className, children, ...props }, ref) => (
-    <div
+const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
+  ({ className = "", children, ...props }, ref) => {
+    return (
+      <div
         ref={ref}
-        className={cn('overflow-auto', className)}
+        className={`relative overflow-auto ${className}`}
         {...props}
-    >
+      >
         {children}
-    </div>
-));
+      </div>
+    )
+  }
+)
+ScrollArea.displayName = "ScrollArea"
 
-ScrollArea.displayName = 'ScrollArea';
-
-export { ScrollArea }; 
+export { ScrollArea }

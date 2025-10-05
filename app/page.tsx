@@ -1,43 +1,11 @@
 "use client";
 
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import { MyRuntimeProvider } from "./MyRuntimeProvider";
-import { Thread } from "../components/assistant-ui/Thread";
-import { AllMCPToolUIs } from "../components/assistant-ui/MCPToolUIs";
-import { EnhancedExecuteQueryToolUI } from "../components/assistant-ui/EnhancedMCPToolUIs";
+import { ChatInterface } from "../components/ChatInterface";
 import { PokemonResultsProvider } from "../components/PokemonResultsProvider";
 import { PokemonResultsPanel } from "../components/PokemonResultsPanel";
 
-// Simple Assistant UI Chat Component
-function SimpleAssistantUIChat() {
-  return (
-    <div className="bg-gray-900 text-white h-full flex gap-4">
-      <div className="flex-1 p-4">
-        {/* Functional Assistant UI Thread */}
-        <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden h-full">
-          <Thread />
-        </div>
-
-        {/* Register all MCP tool UIs */}
-        {AllMCPToolUIs.map((ToolUI, index) => (
-          <ToolUI key={index} />
-        ))}
-
-        {/* Use enhanced execute-query tool UI */}
-        <EnhancedExecuteQueryToolUI />
-      </div>
-
-      {/* Pokemon Results Panel */}
-      <div className="w-96 p-4">
-        <div className="bg-white rounded-lg shadow-lg border border-gray-300 overflow-hidden h-full">
-          <PokemonResultsPanel />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function AssistantUIPage() {
+export default function HomePage() {
   return (
     <>
       <SignedOut>
@@ -47,7 +15,7 @@ export default function AssistantUIPage() {
               <span className="text-3xl">🤖</span>
             </div>
             <h1 className="text-3xl font-bold text-white mb-4">
-              QuerySculptor Assistant Pokemon API Chat Demo
+              Pokemon Chat with MCP Tools
             </h1>
             <p className="text-gray-400 mb-6">
               Experience QuerySculptor capabilities with the{" "}
@@ -73,13 +41,13 @@ export default function AssistantUIPage() {
         <div className="h-screen flex flex-col bg-gray-900">
           {/* Header */}
           <div className="bg-gray-800 shadow-lg border-b border-gray-700 flex-shrink-0">
-            <div className="max-w-4xl mx-auto flex items-center justify-between p-4">
+            <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                  Query Artisan Chat Pokemon API Demo
+                  Pokemon Chat with MCP Tools
                 </h1>
                 <p className="text-sm text-gray-400">
-                  Powered by QuerySculptor MCP Server • Talk to the Pokemon API!
+                  Powered by QuerySculptor MCP Server
                 </p>
               </div>
               <div className="flex items-center gap-4">
@@ -88,13 +56,16 @@ export default function AssistantUIPage() {
             </div>
           </div>
 
-          {/* Assistant UI Chat Interface */}
-          <div className="flex-1 overflow-hidden">
-            <MyRuntimeProvider>
-              <PokemonResultsProvider>
-                <SimpleAssistantUIChat />
-              </PokemonResultsProvider>
-            </MyRuntimeProvider>
+          {/* Chat Interface with Side Panel */}
+          <div className="flex-1 overflow-hidden flex">
+            <PokemonResultsProvider>
+              <div className="flex-1 overflow-hidden">
+                <ChatInterface />
+              </div>
+              <div className="w-96 border-l border-gray-700 overflow-hidden bg-white">
+                <PokemonResultsPanel />
+              </div>
+            </PokemonResultsProvider>
           </div>
         </div>
       </SignedIn>

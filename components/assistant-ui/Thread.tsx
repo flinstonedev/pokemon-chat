@@ -5,6 +5,8 @@ import {
     MessagePrimitive,
     ComposerPrimitive,
 } from "@assistant-ui/react";
+import { AllMCPToolUIs } from "./MCPToolUIs";
+import { EnhancedExecuteQueryToolUI } from "./EnhancedMCPToolUIs";
 
 // Custom blinking loading indicator component
 function BlinkingLoadingIndicator() {
@@ -55,7 +57,15 @@ function Message() {
 
 export function Thread() {
     return (
-        <ThreadPrimitive.Root className="flex h-full flex-col bg-gray-800 text-white">
+        <ThreadPrimitive.Root
+            className="flex h-full flex-col bg-gray-800 text-white"
+        >
+            {/* Render tool UI components */}
+            {AllMCPToolUIs.map((ToolUI, index) => (
+                <ToolUI key={index} />
+            ))}
+            <EnhancedExecuteQueryToolUI />
+
             <ThreadPrimitive.Viewport className="flex-1 overflow-y-auto px-4 pt-8">
                 <ThreadPrimitive.Empty>
                     <div className="flex h-full flex-col items-center justify-center space-y-4">

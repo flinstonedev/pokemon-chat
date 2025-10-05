@@ -1,45 +1,35 @@
 import { openai } from "@ai-sdk/openai";
-import { streamText, experimental_createMCPClient, Tool } from "ai";
+import { streamText, experimental_createMCPClient } from "ai";
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
 export const maxDuration = 30;
 
-// Define a type for the MCP client to avoid using `any`.
-interface MCPClient {
-    tools: () => Promise<Record<string, Tool>>;
-    close: () => Promise<void>;
-}
-
 // Rate limiting configuration
-const RATE_LIMIT_REQUESTS = 20; // requests per window
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute in milliseconds
+const RATE_LIMIT_REQUESTS = 20;
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
-// Rate limiting function
 function checkRateLimit(identifier: string): { allowed: boolean; remaining: number; resetTime: number } {
     const now = Date.now();
     const record = rateLimitMap.get(identifier);
 
     if (!record || now > record.resetTime) {
-        // Create new record or reset expired one
         const newRecord = { count: 1, resetTime: now + RATE_LIMIT_WINDOW };
         rateLimitMap.set(identifier, newRecord);
         return { allowed: true, remaining: RATE_LIMIT_REQUESTS - 1, resetTime: newRecord.resetTime };
     }
 
     if (record.count >= RATE_LIMIT_REQUESTS) {
-        // Rate limit exceeded
         return { allowed: false, remaining: 0, resetTime: record.resetTime };
     }
 
-    // Increment counter
     record.count++;
     return { allowed: true, remaining: RATE_LIMIT_REQUESTS - record.count, resetTime: record.resetTime };
 }
 
-// Clean up expired rate limit records (prevent memory leaks)
+// Clean up expired rate limit records
 function cleanupRateLimit() {
     const now = Date.now();
     for (const [key, record] of rateLimitMap.entries()) {
@@ -49,99 +39,22 @@ function cleanupRateLimit() {
     }
 }
 
-// Environment configuration with validation
-const MCP_URL = process.env.MCP_URL || 'https://agent-query-builder-toolbox.vercel.app/mcp';
-const ALLOWED_MCP_DOMAINS = [
-    'agent-query-builder-toolbox.vercel.app',
-    'localhost',
-    '127.0.0.1'
-];
-
-// Validate MCP URL to prevent SSRF attacks
-function validateMCPUrl(url: string): boolean {
-    try {
-        const parsedUrl = new URL(url);
-        // Only allow HTTPS (except localhost for development)
-        if (parsedUrl.protocol !== 'https:' && !parsedUrl.hostname.includes('localhost') && parsedUrl.hostname !== '127.0.0.1') {
-            return false;
-        }
-        // Check if domain is in allowed list
-        return ALLOWED_MCP_DOMAINS.some(domain => parsedUrl.hostname === domain || parsedUrl.hostname.endsWith(`.${domain}`));
-    } catch {
-        return false;
-    }
+// Message types for conversion
+interface MessagePart {
+    type: string;
+    text?: string;
 }
 
-// Create MCP client for QuerySculptor server
-async function createQuerySculptorClient(): Promise<MCPClient | null> {
-    const mcpUrl = MCP_URL;
-    const clientName = 'pokemon-chat-client';
-
-    // Validate URL before making request
-    if (!validateMCPUrl(mcpUrl)) {
-        console.error('❌ Invalid or unauthorized MCP URL:', mcpUrl);
-        return null;
-    }
-
-    try {
-        // Reduced logging for production
-        if (process.env.NODE_ENV !== 'production') {
-            console.log('🔧 Starting MCP client creation process...');
-            console.log('📡 Target URL:', mcpUrl);
-            console.log('🏷️  Client name:', clientName);
-        }
-
-        // Test URL accessibility with timeout
-        try {
-            const testResponse = await fetch(mcpUrl, {
-                method: 'HEAD',
-                signal: AbortSignal.timeout(5000) // 5 second timeout
-            });
-            if (process.env.NODE_ENV !== 'production') {
-                console.log('✅ URL test response status:', testResponse.status);
-            }
-        } catch (fetchError) {
-            if (process.env.NODE_ENV !== 'production') {
-                console.error('❌ URL accessibility test failed:', fetchError instanceof Error ? fetchError.message : 'Unknown error');
-            }
-        }
-
-        const clientConfig = {
-            transport: new StreamableHTTPClientTransport(new URL(mcpUrl), {
-                sessionId: `pokemon-chat-${Date.now()}`,
-            }),
-            name: clientName,
-            onUncaughtError: (error: unknown) => {
-                // Reduced error logging for production
-                if (process.env.NODE_ENV !== 'production') {
-                    console.error('🚨 MCP Client uncaught error:', error instanceof Error ? error.message : 'Unknown error');
-                }
-            },
-        };
-
-        // Add timeout to client creation (10 seconds max)
-        const clientPromise = experimental_createMCPClient(clientConfig);
-        const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error(`HTTP client creation timeout after 10s`)), 10000)
-        );
-
-        const client = await Promise.race([clientPromise, timeoutPromise]) as MCPClient;
-
-        if (process.env.NODE_ENV !== 'production') {
-            console.log('✅ MCP client created successfully!');
-        }
-
-        return client;
-    } catch (error) {
-        // Reduced error logging for production
-        if (process.env.NODE_ENV !== 'production') {
-            console.error('❌ Failed to create QuerySculptor MCP client:', error instanceof Error ? error.message : 'Unknown error');
-        }
-        return null;
-    }
+interface UIMessage {
+    role: string;
+    content?: string | MessagePart[];
+    parts?: MessagePart[];
 }
 
 export async function POST(req: NextRequest) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let mcpClient: any = null;
+
     try {
         // Authenticate the user
         const { userId } = await auth();
@@ -150,11 +63,11 @@ export async function POST(req: NextRequest) {
         }
 
         // Clean up expired rate limit records periodically
-        if (Math.random() < 0.01) { // 1% chance to clean up
+        if (Math.random() < 0.01) {
             cleanupRateLimit();
         }
 
-        // Rate limiting - now uses userId for authenticated users
+        // Rate limiting
         const forwarded = req.headers.get("x-forwarded-for");
         const ip = forwarded ? forwarded.split(',')[0] : req.headers.get("x-real-ip") || 'unknown';
         const identifier = userId || `${ip}:${req.headers.get("user-agent") || 'unknown'}`;
@@ -186,137 +99,184 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { messages } = body;
 
-        // Validate messages format
-        if (!Array.isArray(messages)) {
-            return new Response('Invalid messages format: must be an array', { status: 400 });
-        }
-
-        if (messages.length === 0) {
-            return new Response('Invalid messages format: array cannot be empty', { status: 400 });
-        }
-
-        // Validate each message structure
-        for (const message of messages) {
-            if (!message || typeof message !== 'object' || !message.role) {
-                return new Response('Invalid message format: each message must have role', { status: 400 });
-            }
-
-            // Validate role
-            if (!['user', 'assistant', 'system', 'tool'].includes(message.role)) {
-                return new Response('Invalid message role: must be user, assistant, system, or tool', { status: 400 });
-            }
-
-            // Content can be string or array (for multi-part messages like tool calls)
-            if (message.content) {
-                if (typeof message.content === 'string' && message.content.length > 10000) {
-                    return new Response('Message content too long: maximum 10,000 characters', { status: 400 });
-                }
-                // Allow array content for tool calls and multi-part messages
-                if (Array.isArray(message.content)) {
-                    for (const part of message.content) {
-                        if (part && typeof part === 'object' && part.type === 'text' && typeof part.text === 'string' && part.text.length > 10000) {
-                            return new Response('Message content too long: maximum 10,000 characters', { status: 400 });
-                        }
-                    }
-                }
-            }
-        }
-
-        // Set up MCP tools
-        let mcpTools: Record<string, Tool> = {};
-        let mcpClient: MCPClient | null = null;
-
         if (process.env.NODE_ENV !== 'production') {
-            console.log('🔧 Starting MCP tool setup for Assistant UI...');
+            console.log('📨 Received messages:', JSON.stringify(messages, null, 2));
         }
 
-        try {
-            mcpClient = await createQuerySculptorClient();
-
-            if (mcpClient) {
-                if (process.env.NODE_ENV !== 'production') {
-                    console.log('✅ MCP client created successfully');
-                }
-
-                mcpTools = await mcpClient.tools();
-
-                if (process.env.NODE_ENV !== 'production') {
-                    console.log('✅ MCP tools loaded:', Object.keys(mcpTools).length);
-                }
-            } else {
-                if (process.env.NODE_ENV !== 'production') {
-                    console.log('⚠️  MCP client creation failed, using built-in tools only');
-                }
-            }
-        } catch (mcpError) {
-            if (process.env.NODE_ENV !== 'production') {
-                console.error('❌ MCP setup failed:', mcpError instanceof Error ? mcpError.message : 'Unknown error');
-            }
+        // Validate messages
+        if (!Array.isArray(messages) || messages.length === 0) {
+            return new Response('Invalid messages format', { status: 400 });
         }
 
-        const toolCount = Object.keys(mcpTools).length;
+        // Convert messages to the format expected by AI SDK
+        const convertedMessages = messages.map((msg: UIMessage) => {
+            // Handle Assistant UI message format
+            if (msg.content && typeof msg.content === 'string') {
+                return {
+                    role: msg.role as 'user' | 'assistant' | 'system',
+                    content: msg.content
+                };
+            }
 
-        // Create system message with tool information
-        const systemMessage = toolCount > 0
-            ? `You are a helpful AI assistant for a Pokemon chat application with access to ${toolCount} advanced tools from QuerySculptor.
+            // Handle multi-part messages
+            if (msg.content && Array.isArray(msg.content)) {
+                const textParts = msg.content
+                    .filter((part: MessagePart) => part.type === 'text')
+                    .map((part: MessagePart) => part.text || '')
+                    .join(' ');
 
-Your sole purpose is to answer questions about Pokemon. You must use the provided GraphQL QuerySculptor tools to find information about Pokemon.
+                return {
+                    role: msg.role as 'user' | 'assistant' | 'system',
+                    content: textParts
+                };
+            }
 
-Do not answer any questions that are not about Pokemon. If a user asks about anything else, politely decline and state that you can only provide information about Pokemon.
+            // Handle parts format from Assistant UI
+            if (msg.parts && Array.isArray(msg.parts)) {
+                const textParts = msg.parts
+                    .filter((part: MessagePart) => part.type === 'text')
+                    .map((part: MessagePart) => part.text || '')
+                    .join(' ');
 
-Be conversational and explain what tools you're using and why. These QuerySculptor tools are particularly powerful for GraphQL-related tasks, database operations, and API development.
+                return {
+                    role: msg.role as 'user' | 'assistant' | 'system',
+                    content: textParts
+                };
+            }
 
-If a tool call results in an error, analyze the error message, adjust your query or approach, and try again. Be persistent in solving the user's request.
-
-IMPORTANT: Never stop in the middle of a tool call. Always complete all tool calls and process their results before responding to the user. If you must stop for any reason (such as encountering an error you cannot resolve), clearly inform the user about what happened and why you stopped.
-
-This is the Assistant UI version of the Pokemon chat - it's a modern interface using Assistant UI components!`
-            : `You are a helpful AI assistant for a Pokemon chat application.
-
-Note: QuerySculptor MCP tools are temporarily unavailable.
-I can still help you with general questions and conversation.
-
-If a tool call results in an error, analyze the error message, adjust your query or approach, and try again. Be persistent in solving the user's request.
-
-IMPORTANT: Never stop in the middle of a tool call. Always complete all tool calls and process their results before responding to the user. If you must stop for any reason (such as encountering an error you cannot resolve), clearly inform the user about what happened and why you stopped.
-
-This is the Assistant UI version of the Pokemon chat - it's a modern interface using Assistant UI components!`;
-
-        const result = streamText({
-            model: openai("gpt-4o-mini"),
-            messages,
-            tools: mcpTools,
-            system: systemMessage,
+            return {
+                role: msg.role as 'user' | 'assistant' | 'system',
+                content: ''
+            };
         });
 
-        // Clean up MCP client when done
-        if (mcpClient) {
-            (async () => {
-                try {
-                    await result;
-                    await mcpClient.close();
-                } catch (error) {
-                    if (process.env.NODE_ENV !== 'production') {
-                        console.error('⚠️  Error closing MCP client:', error);
-                    }
-                }
-            })();
+        // Initialize MCP client with the actual MCP server
+        let mcpTools = {};
+
+        try {
+            // Create MCP client using StreamableHTTP transport
+            const MCP_URL = process.env.MCP_URL || 'https://agent-query-builder-toolbox.vercel.app/mcp';
+
+            mcpClient = await experimental_createMCPClient({
+                transport: new StreamableHTTPClientTransport(new URL(MCP_URL), {
+                    sessionId: `pokemon-chat-${userId}-${Date.now()}`,
+                }),
+                name: 'pokemon-chat-client',
+            });
+
+            if (process.env.NODE_ENV !== 'production') {
+                console.log('✅ MCP client created successfully');
+            }
+
+            // Get available tools from the MCP server
+            mcpTools = await mcpClient.tools();
+
+            if (process.env.NODE_ENV !== 'production') {
+                console.log('✅ MCP tools loaded:', Object.keys(mcpTools).length, 'tools available');
+                console.log('Available tools:', Object.keys(mcpTools));
+            }
+        } catch (mcpError) {
+            console.error('⚠️ MCP setup failed:', mcpError);
+            // Continue without MCP tools if connection fails
         }
 
-        // Return response with rate limit headers
-        return result.toTextStreamResponse({
+        const systemMessage = `You are a helpful AI assistant for a Pokemon chat application with access to GraphQL query building tools through the MCP server.
+
+Your purpose is to answer questions about Pokemon using the provided GraphQL tools to query the Pokemon API.
+
+Available tools include:
+- introspect-schema: Get the GraphQL schema
+- start-query-session: Start a new query session
+- select-field and select-multi-fields: Add fields to your query
+- set-string-argument: Set arguments on fields
+- validate-query: Validate your query
+- execute-query: Execute the query and get Pokemon data
+- end-query-session: Clean up the session
+
+When users ask about Pokemon:
+1. Start a query session
+2. Build an appropriate GraphQL query
+3. Execute it to get data
+4. End the session
+5. Present the results in a friendly way
+
+Be conversational and explain what you're doing.`;
+
+        // Stream the response with MCP tools
+        const result = streamText({
+            model: openai("gpt-4o-mini"),
+            messages: [
+                { role: 'system', content: systemMessage },
+                ...convertedMessages
+            ],
+            tools: mcpTools,
+            maxSteps: 10,
+            onFinish: async ({ usage }) => {
+                if (process.env.NODE_ENV !== 'production') {
+                    console.log('✅ Stream completed. Usage:', usage);
+                }
+
+                // Clean up MCP client
+                if (mcpClient) {
+                    try {
+                        await mcpClient.close();
+                        if (process.env.NODE_ENV !== 'production') {
+                            console.log('✅ MCP client closed');
+                        }
+                    } catch (error) {
+                        console.error('Error closing MCP client:', error);
+                    }
+                }
+            },
+            onError: async (error) => {
+                console.error('❌ Stream error:', error);
+
+                // Clean up MCP client on error
+                if (mcpClient) {
+                    try {
+                        await mcpClient.close();
+                    } catch (closeError) {
+                        console.error('Error closing MCP client:', closeError);
+                    }
+                }
+            }
+        });
+
+        // Return the stream response in Assistant UI format
+        // For AI SDK v4 with Assistant UI, we need to use toDataStreamResponse
+        return result.toDataStreamResponse({
             headers: {
                 'X-RateLimit-Limit': RATE_LIMIT_REQUESTS.toString(),
                 'X-RateLimit-Remaining': rateLimit.remaining.toString(),
                 'X-RateLimit-Reset': new Date(rateLimit.resetTime).toISOString(),
             }
         });
+
     } catch (error) {
-        if (process.env.NODE_ENV !== 'production') {
-            console.error('❌ Error in POST handler:', error);
+        console.error('❌ Error in POST handler:', error);
+
+        // Clean up MCP client on error
+        if (mcpClient) {
+            try {
+                await mcpClient.close();
+            } catch (closeError) {
+                console.error('Error closing MCP client:', closeError);
+            }
         }
 
-        // Generic error response to prevent information leakage
+        if (process.env.NODE_ENV !== 'production') {
+            return new Response(
+                JSON.stringify({
+                    error: 'Internal server error',
+                    details: error instanceof Error ? error.message : 'Unknown error'
+                }),
+                {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+        }
+
         return new Response('Internal server error', { status: 500 });
     }
-} 
+}
