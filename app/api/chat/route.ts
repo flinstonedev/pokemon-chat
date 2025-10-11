@@ -85,7 +85,7 @@ Be conversational and explain what you're doing. If you encounter errors, try to
             system: systemMessage,
             messages: convertToModelMessages(messages),
             tools: mcpTools,
-            stopWhen: stepCountIs(50),
+            stopWhen: stepCountIs(100),
             onFinish: async ({ usage }) => {
                 if (process.env.NODE_ENV !== 'production') {
                     console.log('✅ Stream completed. Usage:', usage);
