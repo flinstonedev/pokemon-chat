@@ -18,7 +18,6 @@ export function ChatInterface() {
       api: "/api/chat",
     }),
     onFinish: ({ message }) => {
-      console.log('onFinish message:', message);
       // Process tool calls if they contain Pokemon data
       if (message.parts) {
         message.parts.forEach((part) => {
@@ -36,14 +35,14 @@ export function ChatInterface() {
                 });
               }
             } catch (error) {
-              console.error('Error processing tool result:', error);
+              // Error handling
             }
           }
         });
       }
     },
-    onError: (error) => {
-      console.error('Chat error:', error);
+    onError: () => {
+      // Error handling
     },
   });
 
@@ -163,7 +162,6 @@ export function ChatInterface() {
                   {message.parts && message.parts.length > 0 && (
                     <div className="space-y-2">
                       {message.parts.map((part, index) => {
-                        console.log('Part type:', part.type, 'Part:', part);
                         if (part.type === 'dynamic-tool' || part.type.startsWith('tool-')) {
                           return renderToolCall(part);
                         } else if (part.type === 'text') {

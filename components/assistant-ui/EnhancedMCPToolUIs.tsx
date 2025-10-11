@@ -58,7 +58,6 @@ const RenderEnhancedExecuteQueryTool = ({ toolName, args, result, status, argsTe
                     });
                 }
             } catch (error) {
-                console.error('Error parsing execute-query result:', error);
                 // Still add error result
                 addResult({
                     type: 'error',
