@@ -57,7 +57,7 @@ const RenderEnhancedExecuteQueryTool = ({ toolName, args, result, status, argsTe
                         query: queryDescription,
                     });
                 }
-            } catch (error) {
+            } catch {
                 // Still add error result
                 addResult({
                     type: 'error',

@@ -34,7 +34,7 @@ export function ChatInterface() {
                   query: JSON.stringify('input' in part ? part.input : {}),
                 });
               }
-            } catch (error) {
+            } catch {
               // Error handling
             }
           }
