@@ -50,6 +50,19 @@ export default function PrivacyPolicy() {
                                 <li>Your IP address (just for rate limiting and basic security)</li>
                                 <li>Basic browser info (helps us make sure the demo works properly)</li>
                             </ul>
+
+                            <h3 className="text-xl font-semibold text-gray-900 mb-3">Analytics and Session Recording</h3>
+                            <p className="text-gray-700 mb-4">
+                                With your consent, we may record your chat sessions to improve the user experience:
+                            </p>
+                            <ul className="list-disc list-inside text-gray-700 mb-4">
+                                <li>Session recordings help us understand how users interact with the demo</li>
+                                <li>We analyze interaction patterns to improve the interface and functionality</li>
+                                <li>Usage analytics help us identify bugs and optimize performance</li>
+                                <li><strong>Important:</strong> We do NOT store personal data or identify individual users in these recordings</li>
+                                <li>Recordings are anonymized and used solely for UX improvements</li>
+                                <li>You can opt out of analytics tracking via the cookie consent banner</li>
+                            </ul>
                         </section>
 
                         <section className="mb-8">
@@ -61,8 +74,8 @@ export default function PrivacyPolicy() {
                                 <ul className="list-disc list-inside text-green-700">
                                     <li><strong>Your chat messages:</strong> We don&apos;t save your Pokemon questions or the AI responses</li>
                                     <li><strong>Conversation history:</strong> No chat history is stored in our database</li>
-                                    <li><strong>Personal data:</strong> Beyond basic auth info, we don&apos;t store personal information</li>
-                                    <li><strong>Usage patterns:</strong> We don&apos;t track what you ask about or build profiles</li>
+                                    <li><strong>Personal data:</strong> Session recordings are anonymized and contain no personally identifiable information</li>
+                                    <li><strong>User profiles:</strong> We don&apos;t build user profiles or track individual usage patterns across sessions</li>
                                 </ul>
                             </div>
                         </section>
@@ -109,6 +122,7 @@ export default function PrivacyPolicy() {
                                 <li><strong>OpenAI:</strong> Processes your messages with GPT models (temporarily)</li>
                                 <li><strong>Pokemon GraphQL API:</strong> Where we get the Pokemon data</li>
                                 <li><strong>Vercel:</strong> Hosts and runs the demo</li>
+                                <li><strong>PostHog:</strong> Analytics platform for session recording and usage analytics (only with your consent)</li>
                             </ul>
 
                             <p className="text-gray-700 mb-4">
@@ -149,10 +163,12 @@ export default function PrivacyPolicy() {
                                 You have control over your demo experience:
                             </p>
                             <ul className="list-disc list-inside text-gray-700 mb-4">
-                                <li>You can sign out anytime</li>
-                                <li>You can delete your account through Clerk</li>
-                                <li>You can stop using the demo whenever you want</li>
-                                <li>Since we don&apos;t store chat history, there&apos;s nothing to delete there!</li>
+                                <li><strong>Cookie consent:</strong> You can accept or reject analytics cookies via the banner when you first visit</li>
+                                <li><strong>Opt-out anytime:</strong> Even after accepting, you can clear your browser cookies to reset your preference</li>
+                                <li><strong>Sign out:</strong> You can sign out anytime to end your session</li>
+                                <li><strong>Delete account:</strong> You can delete your account through Clerk</li>
+                                <li><strong>Stop using:</strong> You can stop using the demo whenever you want</li>
+                                <li><strong>No chat history:</strong> Since we don&apos;t store chat history, there&apos;s nothing to delete there!</li>
                             </ul>
                         </section>
 
@@ -166,6 +182,7 @@ export default function PrivacyPolicy() {
                                 <li><strong>OpenAI:</strong> AI model processing (temporary)</li>
                                 <li><strong>Pokemon GraphQL API:</strong> Pokemon data source</li>
                                 <li><strong>Vercel:</strong> Hosting and deployment</li>
+                                <li><strong>PostHog:</strong> Analytics and session recording (only with your consent)</li>
                             </ul>
                         </section>
 
