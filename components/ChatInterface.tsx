@@ -65,7 +65,7 @@ export function ChatInterface() {
     },
   });
 
-  const isLoading = status === 'streaming';
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-gray-900 to-gray-950">
@@ -86,44 +86,63 @@ export function ChatInterface() {
           <Conversation className="h-full">
             <ConversationContent className="p-6">
               <div className="max-w-4xl mx-auto">
-                {messages.map((message) => (
-                  <Message from={message.role} key={message.id}>
-                    <MessageContent>
-                      {message.parts.map((part, index) => {
-                        if (part.type === 'dynamic-tool' || part.type.startsWith('tool-')) {
-                          const toolPart = part as ToolUIPart;
-                          return (
-                            <Tool key={`${message.id}-${index}`} defaultOpen={toolPart.state === 'output-available'}>
-                              <ToolHeader type={toolPart.type} state={toolPart.state} />
-                              <ToolContent>
-                                <ToolInput input={toolPart.input} />
-                                <ToolOutput
-                                  output={
-                                    toolPart.output ? (
-                                      <Response>
-                                        {typeof toolPart.output === 'string'
-                                          ? toolPart.output
-                                          : JSON.stringify(toolPart.output, null, 2)}
-                                      </Response>
-                                    ) : null
-                                  }
-                                  errorText={toolPart.errorText}
+                {messages.map((message) => {
+                  // Separate tool parts from text parts
+                  const toolParts = message.parts.filter(part => 
+                    part.type === 'dynamic-tool' || part.type.startsWith('tool-')
+                  );
+                  const textParts = message.parts.filter(part => 
+                    part.type === 'text'
+                  );
+                  
+                  return (
+                    <div key={message.id} className="mb-6">
+                      {/* Render tool calls separately without MessageContent wrapper */}
+                      {toolParts.length > 0 && (
+                        <div className="mb-3 space-y-2">
+                          {toolParts.map((part, index) => {
+                            const toolPart = part as ToolUIPart;
+                            const toolName = 'toolName' in toolPart ? String(toolPart.toolName) : 'tool';
+                            const displayName = toolName
+                              .split('-')
+                              .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+                              .join(' ');
+                            
+                            return (
+                              <Tool key={`${message.id}-tool-${index}`} defaultOpen={false}>
+                                <ToolHeader 
+                                  title={displayName}
+                                  type={toolPart.type} 
+                                  state={toolPart.state} 
                                 />
-                              </ToolContent>
-                            </Tool>
-                          );
-                        } else if (part.type === 'text') {
-                          return (
-                            <Response key={`${message.id}-${index}`}>
-                              {part.text}
-                            </Response>
-                          );
-                        }
-                        return null;
-                      })}
-                    </MessageContent>
-                  </Message>
-                ))}
+                                <ToolContent>
+                                  <ToolInput input={toolPart.input} />
+                                  <ToolOutput
+                                    output={toolPart.output}
+                                    errorText={toolPart.errorText}
+                                  />
+                                </ToolContent>
+                              </Tool>
+                            );
+                          })}
+                        </div>
+                      )}
+                      
+                      {/* Render text response in MessageContent */}
+                      {textParts.length > 0 && (
+                        <Message from={message.role}>
+                          <MessageContent>
+                            {textParts.map((part, index) => (
+                              <Response key={`${message.id}-text-${index}`}>
+                                {part.type === 'text' ? part.text : null}
+                              </Response>
+                            ))}
+                          </MessageContent>
+                        </Message>
+                      )}
+                    </div>
+                  );
+                })}
                 {isLoading && (
                   <Message from="assistant">
                     <MessageContent>
@@ -157,12 +176,12 @@ export function ChatInterface() {
               onChange={(e) => setInput(e.currentTarget.value)}
               placeholder="Ask me anything about Pokemon..."
               disabled={isLoading}
-              className="text-white placeholder-gray-400"
+              className="text-white placeholder-gray-400 min-h-[6rem] py-3"
             />
             <PromptInputSubmit
               status={isLoading ? 'streaming' : 'ready'}
               disabled={isLoading || !input.trim()}
-              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white disabled:opacity-50"
+              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white disabled:opacity-50 mr-2"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
