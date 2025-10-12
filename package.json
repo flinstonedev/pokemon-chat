@@ -37,6 +37,8 @@
     "lucide-react": "^0.522.0",
     "nanoid": "^5.1.6",
     "next": "^15.3.5",
+    "posthog-js": "^1.275.1",
+    "posthog-node": "^5.9.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-syntax-highlighter": "^15.6.6",
