@@ -28,7 +28,7 @@ export default function HomePage() {
               </a>
             </p>
             <SignInButton mode="modal" fallbackRedirectUrl="/">
-              <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg transform hover:scale-105">
+              <button className="bg-gradient-to-r from-green-600 to-teal-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:from-green-700 hover:to-teal-700 transition-all shadow-lg transform hover:scale-105">
                 Sign In to Try it Out!
               </button>
             </SignInButton>
@@ -42,7 +42,7 @@ export default function HomePage() {
           <div className="bg-gray-800 shadow-lg border-b border-gray-700 flex-shrink-0">
             <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent">
                   Pokemon Chat with MCP Tools
                 </h1>
                 <p className="text-sm text-gray-400">
