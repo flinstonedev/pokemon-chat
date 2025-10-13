@@ -45,27 +45,27 @@ export function PokemonList({ data, query }: PokemonListProps) {
     const pokemonList = dataData?.pokemon || dataData?.pokemons || dataObj?.pokemon || dataObj?.pokemons || [];
 
     if (!Array.isArray(pokemonList) || pokemonList.length === 0) {
-        return (
-            <Card className="w-full">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <AlertCircle className="h-5 w-5" />
-                        No Pokemon Found
-                    </CardTitle>
-                    <CardDescription>Query: {query}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-gray-500">No Pokemon data available in the response.</p>
-                </CardContent>
-            </Card>
-        );
+    return (
+        <Card className="w-full">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5" />
+                    No Pokemon Found
+                </CardTitle>
+                <CardDescription>Query: {query}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground">No Pokemon data available in the response.</p>
+            </CardContent>
+        </Card>
+    );
     }
 
     return (
         <Card className="w-full">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-yellow-500" />
+                    <Star className="h-5 w-5 text-chart-5" />
                     Pokemon List ({pokemonList.length})
                 </CardTitle>
                 <CardDescription>Query: {query}</CardDescription>
@@ -73,9 +73,9 @@ export function PokemonList({ data, query }: PokemonListProps) {
             <CardContent>
                 <div className="grid gap-4">
                     {pokemonList.slice(0, 20).map((pokemon: Record<string, unknown>, index: number) => (
-                        <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                        <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                                     {pokemon.image ? (
                                         <Image src={pokemon.image as string} alt={(pokemon.name as string) || 'Pokemon'} width={40} height={40} className="w-10 h-10 object-contain" />
                                     ) : (
@@ -86,7 +86,7 @@ export function PokemonList({ data, query }: PokemonListProps) {
                                     <h3 className="font-semibold text-lg">
                                         {capitalize(safeGet(pokemon, 'name', `Pokemon ${index + 1}`))}
                                     </h3>
-                                    <p className="text-sm text-gray-600">
+                                    <p className="text-sm text-muted-foreground">
                                         ID: {safeGet(pokemon, 'id', 'N/A')}
                                     </p>
                                 </div>
@@ -106,7 +106,7 @@ export function PokemonList({ data, query }: PokemonListProps) {
                         </div>
                     ))}
                     {pokemonList.length > 20 && (
-                        <p className="text-sm text-gray-500 text-center">
+                        <p className="text-sm text-muted-foreground text-center">
                             Showing first 20 of {pokemonList.length} Pokemon
                         </p>
                     )}
@@ -132,7 +132,7 @@ export function PokemonDetails({ data, query }: PokemonDetailsProps) {
                     <CardDescription>Query: {query}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-gray-500">No Pokemon details available in the response.</p>
+                    <p className="text-muted-foreground">No Pokemon details available in the response.</p>
                 </CardContent>
             </Card>
         );
@@ -151,14 +151,14 @@ export function PokemonDetails({ data, query }: PokemonDetailsProps) {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Zap className="h-5 w-5 text-chart-5" />
                     {name}
                 </CardTitle>
                 <CardDescription>Query: {query}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="flex items-center gap-6">
-                    <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
+                    <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
                         {image ? (
                             <Image src={image as string} alt={name} width={80} height={80} className="w-20 h-20 object-contain" />
                         ) : (
@@ -168,19 +168,19 @@ export function PokemonDetails({ data, query }: PokemonDetailsProps) {
                     <div className="flex-1">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <p className="text-sm text-gray-600">ID</p>
+                                <p className="text-sm text-muted-foreground">ID</p>
                                 <p className="font-semibold">{id}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600">Height</p>
+                                <p className="text-sm text-muted-foreground">Height</p>
                                 <p className="font-semibold">{height}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600">Weight</p>
+                                <p className="text-sm text-muted-foreground">Weight</p>
                                 <p className="font-semibold">{weight}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600">Types</p>
+                                <p className="text-sm text-muted-foreground">Types</p>
                                 <div className="flex gap-1">
                                     {(types as unknown[]).map((type: unknown, index: number) => {
                                         const typeObj = type as Record<string, unknown> | string;
@@ -211,7 +211,7 @@ export function PokemonDetails({ data, query }: PokemonDetailsProps) {
                                     const abilityName = String((ability.ability as Record<string, unknown>)?.name || ability.name || ability);
                                     const uniqueKey = `ability-${abilityName}-${index}`;
                                     return (
-                                        <div key={uniqueKey} className="p-2 bg-gray-50 rounded">
+                                        <div key={uniqueKey} className="p-2 bg-muted/30 rounded">
                                             <p className="font-medium capitalize">
                                                 {abilityName}
                                             </p>
@@ -246,9 +246,9 @@ export function PokemonDetails({ data, query }: PokemonDetailsProps) {
                                             <div className="w-20 text-sm font-medium capitalize">
                                                 {statName}
                                             </div>
-                                            <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                            <div className="flex-1 bg-muted rounded-full h-2">
                                                 <div
-                                                    className="bg-blue-500 h-2 rounded-full transition-all"
+                                                    className="bg-primary h-2 rounded-full transition-all"
                                                     style={{ width: `${percentage}%` }}
                                                 />
                                             </div>
@@ -269,16 +269,16 @@ export function PokemonDetails({ data, query }: PokemonDetailsProps) {
 
 export function PokemonError({ error, query }: PokemonErrorProps) {
     return (
-        <Card className="w-full border-red-200 bg-red-50">
+        <Card className="w-full border-destructive/50 bg-destructive/10">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-red-700">
+                <CardTitle className="flex items-center gap-2 text-destructive">
                     <AlertCircle className="h-5 w-5" />
                     Error
                 </CardTitle>
                 <CardDescription>Query: {query}</CardDescription>
             </CardHeader>
             <CardContent>
-                <p className="text-red-600">{error}</p>
+                <p className="text-destructive">{error}</p>
             </CardContent>
         </Card>
     );

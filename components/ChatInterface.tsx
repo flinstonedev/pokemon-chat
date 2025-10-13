@@ -68,14 +68,14 @@ export function ChatInterface() {
   const isLoading = status === 'submitted' || status === 'streaming';
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-gray-900 to-gray-950">
+    <div className="flex flex-col h-full bg-gradient-surface">
       {messages.length === 0 && (
         <div className="flex flex-col items-center justify-center flex-1 text-center p-6">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg">
-            <Bot className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 rounded-2xl bg-gradient-accent flex items-center justify-center mb-6 shadow-lg">
+            <Bot className="w-8 h-8 text-accent-foreground" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Pokemon Chat Assistant</h2>
-          <p className="text-gray-400 max-w-md">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Pokemon Chat Assistant</h2>
+          <p className="text-muted-foreground max-w-md">
             Ask me anything about Pokemon! I can help you explore the Pokemon API using GraphQL queries.
           </p>
         </div>
@@ -146,7 +146,7 @@ export function ChatInterface() {
                 {isLoading && (
                   <Message from="assistant">
                     <MessageContent>
-                      <div className="flex items-center gap-2 text-gray-400">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         <span className="text-sm">Thinking...</span>
                       </div>
@@ -160,7 +160,7 @@ export function ChatInterface() {
         </div>
       )}
 
-      <div className="border-t border-gray-800/50 bg-gray-900/50 backdrop-blur-sm p-6">
+      <div className="border-t border-border/50 bg-surface-2 backdrop-blur-md p-6">
         <div className="max-w-4xl mx-auto">
           <PromptInput
             onSubmit={(message) => {
@@ -169,19 +169,19 @@ export function ChatInterface() {
                 setInput('');
               }
             }}
-            className="border-gray-700/50 bg-gray-800/50 rounded-xl focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500/50"
+            className="border-border/50 bg-surface-1 rounded-xl focus-within:ring-2 focus-within:ring-primary/50 focus-within:border-primary/50"
           >
             <PromptInputTextarea
               value={input}
               onChange={(e) => setInput(e.currentTarget.value)}
               placeholder="Ask me anything about Pokemon..."
               disabled={isLoading}
-              className="text-white placeholder-gray-400 min-h-[6rem] py-3"
+              className="text-foreground placeholder-muted-foreground min-h-[6rem] py-3"
             />
             <PromptInputSubmit
               status={isLoading ? 'streaming' : 'ready'}
               disabled={isLoading || !input.trim()}
-              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white disabled:opacity-50 mr-2"
+              className="bg-gradient-primary text-primary-foreground shadow-md hover:shadow-lg disabled:opacity-50 mr-2"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

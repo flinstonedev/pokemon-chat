@@ -147,6 +147,27 @@
   --sidebar-accent-foreground: oklch(0.98 0.005 250);
   --sidebar-border: oklch(0.30 0.02 250);
   --sidebar-ring: oklch(0.65 0.19 250);
+  
+  /* Surface tokens for elevation and glass-morphism */
+  --surface-1: oklch(0.20 0.012 250 / 0.7);
+  --surface-2: oklch(0.24 0.015 250 / 0.8);
+  --surface-3: oklch(0.28 0.018 250 / 0.9);
+  
+  /* Shadow tokens */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.2);
+  
+  /* Gradient tokens */
+  --gradient-primary: linear-gradient(135deg, oklch(0.65 0.19 250), oklch(0.60 0.18 220));
+  --gradient-accent: linear-gradient(135deg, oklch(0.55 0.15 290), oklch(0.50 0.14 310));
+  --gradient-surface: linear-gradient(180deg, oklch(0.18 0.01 250), oklch(0.15 0.012 250));
+  
+  /* Backdrop blur for glass effect */
+  --backdrop-blur-sm: 8px;
+  --backdrop-blur-md: 12px;
+  --backdrop-blur-lg: 16px;
 }
 
 @layer base {

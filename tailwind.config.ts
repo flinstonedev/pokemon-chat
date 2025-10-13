@@ -50,11 +50,33 @@ const config: Config = {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
+                surface: {
+                    1: "var(--surface-1)",
+                    2: "var(--surface-2)",
+                    3: "var(--surface-3)",
+                },
             },
             borderRadius: {
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
+                xl: "calc(var(--radius) + 4px)",
+            },
+            boxShadow: {
+                sm: "var(--shadow-sm)",
+                md: "var(--shadow-md)",
+                lg: "var(--shadow-lg)",
+                xl: "var(--shadow-xl)",
+            },
+            backgroundImage: {
+                'gradient-primary': "var(--gradient-primary)",
+                'gradient-accent': "var(--gradient-accent)",
+                'gradient-surface': "var(--gradient-surface)",
+            },
+            backdropBlur: {
+                sm: "var(--backdrop-blur-sm)",
+                md: "var(--backdrop-blur-md)",
+                lg: "var(--backdrop-blur-lg)",
             },
             keyframes: {
                 "accordion-down": {
