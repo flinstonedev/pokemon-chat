@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, Cookie } from "lucide-react";
 import { getCookieConsent, setCookieConsent } from "@/lib/cookie-consent";
+import { Button } from "@/components/ui/button";
 
 /**
  * GDPR-compliant cookie consent banner
@@ -67,36 +68,36 @@ export function CookieBanner() {
       aria-live="polite"
       aria-label="Cookie consent banner"
     >
-      <div className="bg-gray-900/95 backdrop-blur-lg border-t border-gray-700 shadow-2xl">
+      <div className="bg-surface-2 backdrop-blur-lg border-t border-border shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             {/* Icon */}
             <div className="flex-shrink-0 hidden sm:block">
-              <Cookie className="w-8 h-8 text-blue-400" />
+              <Cookie className="w-8 h-8 text-primary" />
             </div>
 
             {/* Content */}
             <div className="flex-1 text-sm sm:text-base">
               <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
-                <h3 className="font-semibold text-white flex items-center gap-2">
-                  <Cookie className="w-5 h-5 text-blue-400 sm:hidden" />
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
+                  <Cookie className="w-5 h-5 text-primary sm:hidden" />
                   We value your privacy
                 </h3>
                 <button
                   onClick={handleClose}
-                  className="text-gray-400 hover:text-white transition-colors p-1 -mt-1 sm:hidden"
+                  className="text-muted-foreground hover:text-foreground transition-colors p-1 -mt-1 sm:hidden"
                   aria-label="Close banner"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-gray-300 leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed">
                 We use cookies and similar technologies to analyze site usage and improve your experience. 
                 By clicking &quot;Accept&quot;, you consent to the use of analytics cookies. 
-                You can choose to reject non-essential cookies by clicking &quot;Reject&quot;.{" "}
+                You can choose to reject non-essential cookies by clicking &quot;Reject&quot;{" "}
                 <a 
                   href="/privacy" 
-                  className="text-blue-400 hover:text-blue-300 underline transition-colors"
+                  className="text-primary hover:opacity-90 underline transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -107,26 +108,28 @@ export function CookieBanner() {
 
             {/* Actions */}
             <div className="flex flex-row sm:flex-col lg:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-              <button
+              <Button
                 onClick={handleReject}
-                className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 rounded-lg font-medium text-gray-300 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                variant="outline"
+                className="flex-1 sm:flex-none"
                 aria-label="Reject analytics cookies"
               >
                 Reject
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleAccept}
-                className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 shadow-lg shadow-blue-500/20"
+                variant="default"
+                className="flex-1 sm:flex-none shadow-md"
                 aria-label="Accept analytics cookies"
               >
                 Accept
-              </button>
+              </Button>
             </div>
 
             {/* Close button for desktop */}
             <button
               onClick={handleClose}
-              className="hidden sm:block text-gray-400 hover:text-white transition-colors p-1 -mt-1"
+              className="hidden sm:block text-muted-foreground hover:text-foreground transition-colors p-1 -mt-1"
               aria-label="Close banner"
             >
               <X className="w-5 h-5" />
