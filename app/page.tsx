@@ -4,6 +4,7 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { ChatInterface } from "../components/ChatInterface";
 import { PokemonResultsProvider } from "../components/PokemonResultsProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Bot } from "lucide-react";
 
 export default function HomePage() {
   return (
@@ -14,8 +15,11 @@ export default function HomePage() {
             <ThemeToggle />
           </div>
           <div className="text-center bg-card rounded-2xl shadow-2xl p-8 max-w-md border border-border">
-            <div className="bg-muted rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">🤖</span>
+            <div 
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+              style={{ background: 'var(--gradient-primary)' }}
+            >
+              <Bot className="w-8 h-8 text-primary-foreground" />
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-4">
               Pokemon Chat with MCP Tools
