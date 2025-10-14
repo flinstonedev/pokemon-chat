@@ -68,13 +68,10 @@ export function ChatInterface() {
   const isLoading = status === 'submitted' || status === 'streaming';
 
   return (
-    <div className="flex flex-col h-full" style={{ background: 'var(--gradient-surface)' }}>
+    <div className="flex flex-col h-full bg-gradient-surface">
       {messages.length === 0 && (
         <div className="flex flex-col items-center justify-center flex-1 text-center p-6">
-          <div 
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
-            style={{ background: 'var(--gradient-primary)' }}
-          >
+          <div className="w-16 h-16 rounded-2xl bg-primary bg-gradient-primary flex items-center justify-center mb-6 shadow-lg">
             <Bot className="w-8 h-8 text-primary-foreground" />
           </div>
           <h2 className="text-2xl font-bold text-foreground mb-2">Pokemon Chat Assistant</h2>
@@ -184,8 +181,7 @@ export function ChatInterface() {
             <PromptInputSubmit
               status={isLoading ? 'streaming' : 'ready'}
               disabled={isLoading || !input.trim()}
-              className="text-primary-foreground shadow-md hover:shadow-lg disabled:opacity-50 mr-2"
-              style={{ background: 'var(--gradient-primary)' }}
+              className="bg-primary bg-gradient-primary text-primary-foreground shadow-md hover:shadow-lg disabled:opacity-50 mr-2"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

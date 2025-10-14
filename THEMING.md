@@ -1,25 +1,27 @@
 # Theming System Documentation
 
-This document describes the comprehensive theming system implemented in the Pokemon Chat application. The system is designed to be flexible, extensible, and easy to maintain.
+This document describes the comprehensive theming system implemented in the Pokemon Chat application. The system follows **industry-standard best practices** used by shadcn/ui and the wider Next.js ecosystem.
 
 ## Overview
 
 The theming system uses:
 - **CSS Variables** for dynamic color tokens
 - **TailwindCSS** for utility-first styling
-- **React Context** for theme state management
-- **localStorage** for theme persistence
+- **next-themes** for theme state management (industry standard)
+- **localStorage** for theme persistence (automatic)
 
 ## Architecture
 
-### 1. Theme Configuration (`lib/themes/themes.ts`)
+### 1. Theme Configuration (`app/globals.css`)
 
-This is the central configuration file where all themes are defined. Each theme includes:
+Themes are defined purely in CSS using CSS custom properties (variables). This follows the shadcn/ui pattern:
 
 - **Colors**: All color tokens (background, foreground, primary, secondary, etc.)
 - **Shadows**: Shadow definitions for different elevations
 - **Gradients**: Predefined gradient styles
 - **Backdrop**: Blur values for glass-morphism effects
+
+No TypeScript configuration needed - everything is in CSS!
 
 #### Current Themes
 
@@ -37,16 +39,17 @@ This is the central configuration file where all themes are defined. Each theme 
 
 ### 2. Theme Provider (`components/ThemeProvider.tsx`)
 
-A React Context provider that:
+A thin wrapper around `next-themes` that:
 - Manages the current theme state
 - Applies theme classes to the document root
-- Persists theme preference to localStorage
+- Persists theme preference to localStorage (automatic)
+- Handles SSR/hydration issues (automatic)
 - Provides `useTheme()` hook for components
 
 #### Usage in Components
 
 ```typescript
-import { useTheme } from "@/components/ThemeProvider";
+import { useTheme } from "next-themes";
 
 function MyComponent() {
   const { theme, setTheme } = useTheme();
@@ -63,6 +66,8 @@ function MyComponent() {
   );
 }
 ```
+
+**Note:** Always import `useTheme` from `"next-themes"`, not from the local provider component.
 
 ### 3. Global Styles (`app/globals.css`)
 
@@ -145,47 +150,9 @@ The `ThemeToggle` component (`components/ThemeToggle.tsx`) provides a user-frien
 
 To add a new theme (e.g., "blue", "green", "high-contrast"):
 
-### 1. Update Type Definition
+### 1. Add CSS Variables
 
-In `lib/themes/themes.ts`:
-
-```typescript
-export type ThemeName = 'dark' | 'light' | 'blue';
-```
-
-### 2. Add Theme Configuration
-
-```typescript
-export const themes: Record<ThemeName, ThemeConfig> = {
-  // ... existing themes
-  
-  blue: {
-    name: 'blue',
-    displayName: 'Ocean Blue',
-    colors: {
-      background: 'oklch(0.20 0.02 240)',
-      foreground: 'oklch(0.98 0.005 240)',
-      // ... define all color tokens
-    },
-    shadows: {
-      sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-      // ... define shadows
-    },
-    gradients: {
-      primary: 'linear-gradient(135deg, ...)',
-      // ... define gradients
-    },
-    backdrop: {
-      blurSm: '8px',
-      // ... define backdrop blur values
-    },
-  },
-};
-```
-
-### 3. Add CSS Variables
-
-In `app/globals.css`:
+In `app/globals.css`, add a new theme class:
 
 ```css
 /* ===========================
@@ -196,30 +163,73 @@ In `app/globals.css`:
   --background: oklch(0.20 0.02 240);
   --foreground: oklch(0.98 0.005 240);
   
-  /* ... all other color tokens */
+  /* Card colors */
+  --card: oklch(0.22 0.015 240);
+  --card-foreground: oklch(0.98 0.005 240);
+  
+  /* ... define all color tokens following the same pattern as .dark */
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  /* ... define shadows */
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, ...);
+  /* ... define gradients */
+  
+  /* Backdrop blur */
+  --backdrop-blur-sm: 8px;
+  /* ... define backdrop blur values */
 }
+```
+
+### 2. Add Gradient Utility (if using custom gradients)
+
+In `tailwind.config.ts`, add to the plugin:
+
+```typescript
+plugin(({ addUtilities }) => {
+    addUtilities({
+        '.bg-gradient-primary': {
+            background: 'var(--gradient-primary)',
+        },
+        // Add more gradient utilities as needed
+    });
+}),
+```
+
+### 3. Update Theme Provider (Optional)
+
+If you want to allow multiple themes, update the `themes` prop in `layout.tsx`:
+
+```tsx
+<ThemeProvider
+  attribute="class"
+  defaultTheme="dark"
+  themes={['light', 'dark', 'blue']} // Add your new theme
+  enableSystem={false}
+  disableTransitionOnChange
+>
 ```
 
 ### 4. Update Theme Selector (Optional)
 
-If you want a theme selector dropdown instead of a toggle:
+For a dropdown selector:
 
 ```tsx
-import { useTheme } from "@/components/ThemeProvider";
-import { getThemeNames, themes } from "@/lib/themes/themes";
+import { useTheme } from "next-themes";
 
 function ThemeSelector() {
-  const { theme, setTheme } = useTheme();
-  const themeNames = getThemeNames();
+  const { theme, setTheme, themes } = useTheme();
   
   return (
     <select 
       value={theme} 
-      onChange={(e) => setTheme(e.target.value as ThemeName)}
+      onChange={(e) => setTheme(e.target.value)}
     >
-      {themeNames.map((name) => (
-        <option key={name} value={name}>
-          {themes[name].displayName}
+      {themes?.map((themeName) => (
+        <option key={themeName} value={themeName}>
+          {themeName.charAt(0).toUpperCase() + themeName.slice(1)}
         </option>
       ))}
     </select>
@@ -287,25 +297,47 @@ The theming system follows accessibility best practices:
 
 ## Technical Details
 
+### next-themes Integration
+
+**Why next-themes?**
+- Industry-standard solution used by shadcn/ui
+- Battle-tested with 50k+ weekly downloads
+- Handles SSR/hydration automatically
+- No flash of unstyled content (FOUC)
+- Built-in localStorage management
+- Supports system theme detection
+
 ### SSR Compatibility
 
-The theme provider is client-side only (`"use client"`) but designed to work seamlessly with Next.js SSR:
-- Theme class is applied immediately on mount
+The theme provider uses `next-themes` which:
+- Injects a script tag before render to prevent FOUC
+- Works seamlessly with Next.js SSR
 - `suppressHydrationWarning` on `<html>` prevents hydration warnings
-- Default theme is shown during SSR
+- Default theme is applied immediately
 
 ### Performance
 
 - CSS variables enable instant theme switching
 - No re-renders of child components when theme changes
 - Only the document root class changes
+- Minimal bundle size (~2KB)
 
 ### Browser Support
 
 The theming system uses:
 - **CSS Variables**: Supported in all modern browsers
 - **OKLCH Color Space**: Progressive enhancement (falls back gracefully)
-- **localStorage**: Supported in all browsers
+- **localStorage**: Automatic via next-themes
+
+### Migration from Custom Provider
+
+This project was migrated from a custom theme provider to `next-themes` for:
+1. **Standardization**: Follow industry best practices
+2. **Maintainability**: Less code to maintain
+3. **Reliability**: Battle-tested edge case handling
+4. **Features**: System theme detection, storage events, etc.
+
+The old `lib/themes/themes.ts` TypeScript config file is no longer needed - all theme configuration is now in CSS as per the standard pattern.
 
 ## Troubleshooting
 

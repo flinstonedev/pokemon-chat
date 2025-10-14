@@ -1,27 +1,21 @@
 # Using Gradients in the Theming System
 
-## The Issue with Tailwind Gradient Classes
+## Standard CVA + Tailwind Pattern
 
-Tailwind's utility classes like `bg-gradient-primary` don't properly reference CSS custom properties that change based on theme. This causes issues where gradients don't update when switching themes.
+This project follows the standard **Class Variance Authority (CVA)** and **Tailwind CSS** theming pattern used by shadcn/ui and similar component libraries.
 
 ## ✅ Correct Way to Use Gradients
 
-Always use inline styles with CSS variables:
+Always use Tailwind utility classes (powered by our custom plugin):
 
 ```tsx
-// ✅ Correct - Gradients work in all themes
-<div 
-  className="rounded-lg p-4"
-  style={{ background: 'var(--gradient-primary)' }}
->
+// ✅ Correct - Standard CVA/Tailwind approach
+<div className="bg-gradient-primary rounded-lg p-4">
   Content
 </div>
 
-// ✅ For background-image (like text gradients)
-<h1 
-  className="bg-clip-text text-transparent"
-  style={{ backgroundImage: 'var(--gradient-primary)' }}
->
+// ✅ For text gradients
+<h1 className="bg-gradient-primary bg-clip-text text-transparent">
   Gradient Text
 </h1>
 ```
@@ -29,8 +23,8 @@ Always use inline styles with CSS variables:
 ## ❌ Incorrect Way
 
 ```tsx
-// ❌ Wrong - Won't work properly with theme switching
-<div className="bg-gradient-primary">
+// ❌ Wrong - Don't use inline styles (breaks CVA pattern)
+<div style={{ background: 'var(--gradient-primary)' }}>
   Content
 </div>
 ```
@@ -58,40 +52,28 @@ Surface gradient (used for backgrounds)
 
 ### Button with Gradient
 ```tsx
-<button
-  className="px-4 py-2 rounded-lg text-primary-foreground"
-  style={{ background: 'var(--gradient-primary)' }}
->
+<button className="bg-gradient-primary text-primary-foreground px-4 py-2 rounded-lg">
   Click Me
 </button>
 ```
 
 ### Icon Container with Gradient
 ```tsx
-<div
-  className="w-16 h-16 rounded-2xl flex items-center justify-center"
-  style={{ background: 'var(--gradient-accent)' }}
->
+<div className="w-16 h-16 rounded-2xl bg-gradient-accent flex items-center justify-center">
   <Icon className="text-accent-foreground" />
 </div>
 ```
 
 ### Full Page Background Gradient
 ```tsx
-<div
-  className="min-h-screen"
-  style={{ background: 'var(--gradient-surface)' }}
->
+<div className="min-h-screen bg-gradient-surface">
   <YourContent />
 </div>
 ```
 
 ### Gradient Text
 ```tsx
-<h1
-  className="text-4xl font-bold bg-clip-text text-transparent"
-  style={{ backgroundImage: 'var(--gradient-primary)' }}
->
+<h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
   Gradient Text
 </h1>
 ```
@@ -103,19 +85,21 @@ If you're using the `Button` component from `components/ui/button.tsx`, you can 
 ```tsx
 import { Button } from "@/components/ui/button";
 
-// These variants properly handle gradients
+// These variants use CVA with Tailwind classes
 <Button variant="gradient">Primary Gradient</Button>
 <Button variant="gradient-accent">Accent Gradient</Button>
 ```
 
-Note: These variants internally use inline styles, so they work correctly with theme switching.
+Note: These variants use the `bg-gradient-*` Tailwind utilities defined in our custom plugin.
 
 ## Why This Approach?
 
-1. **Theme Consistency**: Gradients automatically update when theme changes
-2. **Maintainability**: All gradient definitions in one place (`globals.css`)
-3. **Performance**: No re-renders needed, just CSS variable updates
-4. **Type Safety**: TypeScript enforces available gradient names
+1. **Standard Pattern**: Follows CVA + Tailwind best practices (shadcn/ui pattern)
+2. **Theme Consistency**: Gradients automatically update when theme changes
+3. **Maintainability**: All gradient definitions in one place (`globals.css`)
+4. **Performance**: No re-renders needed, just CSS variable updates
+5. **CVA Compatible**: Works seamlessly with Class Variance Authority
+6. **No Inline Styles**: Keeps component code clean and maintainable
 
 ## Adding New Gradients
 
@@ -142,9 +126,20 @@ To add a new gradient:
    }
    ```
 
-3. **Use in components**:
+3. **Add to Tailwind plugin** (`tailwind.config.ts`):
+   ```typescript
+   plugin(({ addUtilities }) => {
+       addUtilities({
+           '.bg-gradient-my-new': {
+               background: 'var(--gradient-my-new)',
+           },
+       });
+   }),
+   ```
+
+4. **Use in components**:
    ```tsx
-   <div style={{ background: 'var(--gradient-my-new)' }}>
+   <div className="bg-gradient-my-new">
      Content
    </div>
    ```
@@ -152,15 +147,16 @@ To add a new gradient:
 ## Troubleshooting
 
 ### Gradient not showing
-- Check that you're using `background` not `backgroundColor`
 - Verify the gradient is defined in `globals.css` for all themes
-- Ensure you're using `var(--gradient-name)` syntax
+- Check that the utility class is defined in the Tailwind plugin (`tailwind.config.ts`)
+- Ensure the class name matches exactly (e.g., `bg-gradient-primary`)
 
 ### Gradient not changing with theme
-- Make sure you're using inline styles, not Tailwind classes
-- Verify the gradient is defined differently in each theme's CSS
+- Verify the CSS variable is defined differently in each theme's CSS (`:root`/`.light` and `.dark`)
+- Make sure you're using the utility class, not inline styles
+- Check that ThemeProvider is properly wrapping your app
 
 ### Text gradient not working
-- Use `backgroundImage` instead of `background` for text
-- Include `bg-clip-text text-transparent` classes
-- Example: `style={{ backgroundImage: 'var(--gradient-primary)' }}`
+- Use both `bg-gradient-*` AND `bg-clip-text text-transparent` classes
+- Example: `className="bg-gradient-primary bg-clip-text text-transparent"`
+- The gradient class sets the background, bg-clip-text clips it to text

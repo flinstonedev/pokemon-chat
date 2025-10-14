@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
     darkMode: "class",
@@ -8,18 +9,7 @@ const config: Config = {
         "./app/**/*.{js,ts,jsx,tsx,mdx}",
     ],
     theme: {
-        container: {
-            center: true,
-            padding: "2rem",
-            screens: {
-                "2xl": "1400px",
-            },
-        },
         extend: {
-            fontFamily: {
-                sans: ["var(--font-fira-code)", "monospace"],
-                mono: ["var(--font-fira-code)", "monospace"],
-            },
             colors: {
                 border: "hsl(var(--border))",
                 input: "hsl(var(--input))",
@@ -36,7 +26,6 @@ const config: Config = {
                 },
                 destructive: {
                     DEFAULT: "hsl(var(--destructive))",
-                    foreground: "hsl(var(--destructive-foreground))",
                 },
                 muted: {
                     DEFAULT: "hsl(var(--muted))",
@@ -60,47 +49,25 @@ const config: Config = {
                     3: "var(--surface-3)",
                 },
             },
-            borderRadius: {
-                lg: "var(--radius)",
-                md: "calc(var(--radius) - 2px)",
-                sm: "calc(var(--radius) - 4px)",
-                xl: "calc(var(--radius) + 4px)",
-            },
-            boxShadow: {
-                sm: "var(--shadow-sm)",
-                md: "var(--shadow-md)",
-                lg: "var(--shadow-lg)",
-                xl: "var(--shadow-xl)",
-            },
-            backgroundImage: {
-                'gradient-primary': "var(--gradient-primary)",
-                'gradient-accent': "var(--gradient-accent)",
-                'gradient-surface': "var(--gradient-surface)",
-            },
-            backdropBlur: {
-                sm: "var(--backdrop-blur-sm)",
-                md: "var(--backdrop-blur-md)",
-                lg: "var(--backdrop-blur-lg)",
-            },
-            keyframes: {
-                "accordion-down": {
-                    from: { height: "0" },
-                    to: { height: "var(--radix-accordion-content-height)" },
-                },
-                "accordion-up": {
-                    from: { height: "var(--radix-accordion-content-height)" },
-                    to: { height: "0" },
-                },
-            },
-            animation: {
-                "accordion-down": "accordion-down 0.2s ease-out",
-                "accordion-up": "accordion-up 0.2s ease-out",
-            },
         },
     },
     plugins: [
         require("tailwindcss-animate"),
         require("@assistant-ui/react/tailwindcss"),
+        // Custom plugin for gradient utilities
+        plugin(({ addUtilities }) => {
+            addUtilities({
+                '.bg-gradient-primary': {
+                    background: 'var(--gradient-primary)',
+                },
+                '.bg-gradient-accent': {
+                    background: 'var(--gradient-accent)',
+                },
+                '.bg-gradient-surface': {
+                    background: 'var(--gradient-surface)',
+                },
+            });
+        }),
     ],
 };
 

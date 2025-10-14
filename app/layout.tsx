@@ -28,30 +28,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('pokemon-chat-theme') || 'dark';
-                  if (theme === 'dark' || theme === 'light') {
-                    document.documentElement.classList.add(theme);
-                  } else {
-                    document.documentElement.classList.add('dark');
-                  }
-                } catch (e) {
-                  document.documentElement.classList.add('dark');
-                }
-              })();
-            `,
-          }}
-        />
-      </head>
       <body
         className={`${firaCode.className} antialiased min-h-screen flex flex-col`}
       >
-        <ThemeProvider defaultTheme="dark">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
           <ClerkProvider dynamic>
             <ConvexClientProvider>
               <div className="flex-1 flex flex-col">

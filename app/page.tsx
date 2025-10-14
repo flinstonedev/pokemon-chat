@@ -15,10 +15,7 @@ export default function HomePage() {
             <ThemeToggle />
           </div>
           <div className="text-center bg-card rounded-2xl shadow-2xl p-8 max-w-md border border-border">
-            <div 
-              className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
-              style={{ background: 'var(--gradient-primary)' }}
-            >
+            <div className="w-16 h-16 rounded-2xl bg-primary bg-gradient-primary flex items-center justify-center mx-auto mb-4 shadow-lg">
               <Bot className="w-8 h-8 text-primary-foreground" />
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-4">
@@ -36,10 +33,7 @@ export default function HomePage() {
               </a>
             </p>
             <SignInButton mode="modal" fallbackRedirectUrl="/">
-              <button 
-                className="px-8 py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-all shadow-lg transform hover:scale-105 text-primary-foreground"
-                style={{ background: 'var(--gradient-primary)' }}
-              >
+              <button className="bg-primary bg-gradient-primary text-primary-foreground px-8 py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-all shadow-lg transform hover:scale-105">
                 Sign In to Try it Out!
               </button>
             </SignInButton>
@@ -53,10 +47,7 @@ export default function HomePage() {
           <div className="bg-card shadow-lg border-b border-border flex-shrink-0">
             <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
               <div>
-                <h1 
-                  className="text-2xl font-bold bg-clip-text text-transparent"
-                  style={{ backgroundImage: 'var(--gradient-primary)' }}
-                >
+                <h1 className="text-2xl font-bold text-primary">
                   Pokemon Chat with MCP Tools
                 </h1>
                 <p className="text-sm text-muted-foreground">
