@@ -14,6 +14,79 @@ const CustomParagraph = ({ children, ...props }: React.HTMLAttributes<HTMLElemen
   </div>
 );
 
+// Custom list components with proper padding to prevent bullet overflow
+const CustomOrderedList = ({ children, ...props }: React.HTMLAttributes<HTMLOListElement>) => (
+  <ol {...props} className={cn("ml-6 list-outside list-decimal whitespace-normal mb-4 last:mb-0", props.className)}>
+    {children}
+  </ol>
+);
+
+const CustomUnorderedList = ({ children, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
+  <ul {...props} className={cn("ml-6 list-outside list-disc whitespace-normal mb-4 last:mb-0", props.className)}>
+    {children}
+  </ul>
+);
+
+// Custom link component to handle links properly without fetch errors
+const CustomLink = ({ children, href, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+  const handleClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // If it's a download attribute, handle the download properly
+    if (props.download && href) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      try {
+        // Fetch the resource
+        const response = await fetch(href);
+        const blob = await response.blob();
+        
+        // Create a temporary URL for the blob
+        const blobUrl = URL.createObjectURL(blob);
+        
+        // Create a temporary anchor and trigger download
+        const tempLink = document.createElement('a');
+        tempLink.href = blobUrl;
+        tempLink.download = typeof props.download === 'string' ? props.download : 'download';
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
+        
+        // Clean up the blob URL
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+      } catch (error) {
+        console.error('Download failed:', error);
+        // Fallback: try opening in new tab
+        window.open(href, '_blank');
+      }
+      return;
+    }
+    
+    // If it's a data URL, let the browser handle it natively
+    if (href?.startsWith('data:')) {
+      e.stopPropagation();
+      return;
+    }
+    
+    // For external links, open in new tab
+    if (href && !href.startsWith('#')) {
+      e.preventDefault();
+      window.open(href, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  return (
+    <a 
+      {...props} 
+      href={href}
+      onClick={handleClick}
+      className={cn("text-primary hover:underline", props.className)}
+      rel="noopener noreferrer"
+    >
+      {children}
+    </a>
+  );
+};
+
 export const Response = memo(
   ({ className, components, ...props }: ResponseProps) => (
     <Streamdown
@@ -24,6 +97,9 @@ export const Response = memo(
       controls={false}
       components={{
         p: CustomParagraph,
+        ol: CustomOrderedList,
+        ul: CustomUnorderedList,
+        a: CustomLink,
         ...components,
       }}
       {...props}

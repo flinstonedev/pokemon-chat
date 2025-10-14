@@ -44,7 +44,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: https://img.clerk.com https://images.clerk.dev",
-              "connect-src 'self' https://*.convex.cloud https://*.convex.dev https://clerk.com https://*.clerk.com https://*.clerk.dev https://*.clerk.accounts.dev https://your-clerk-domain.clerk.accounts.dev https://your-clerk-domain.clerk.accounts.dev https://your-clerk-domain.clerk.accounts.dev https://clerk-telemetry.com https://agent-query-builder-toolbox.vercel.app wss://*.convex.cloud wss://*.convex.dev https://api.github.com",
+              "connect-src 'self' https://*.convex.cloud https://*.convex.dev https://clerk.com https://*.clerk.com https://*.clerk.dev https://*.clerk.accounts.dev https://your-clerk-domain.clerk.accounts.dev https://your-clerk-domain.clerk.accounts.dev https://your-clerk-domain.clerk.accounts.dev https://clerk-telemetry.com https://agent-query-builder-toolbox.vercel.app wss://*.convex.cloud wss://*.convex.dev https://api.github.com https://raw.githubusercontent.com",
               "frame-src 'self' https://clerk.com https://*.clerk.com https://*.clerk.dev https://*.clerk.accounts.dev https://your-clerk-domain.clerk.accounts.dev https://your-clerk-domain.clerk.accounts.dev https://your-clerk-domain.clerk.accounts.dev https://challenges.cloudflare.com",
               "object-src 'none'",
               "base-uri 'self'",
