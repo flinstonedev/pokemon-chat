@@ -57,88 +57,141 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ===========================
+   Root Configuration
+   =========================== */
 :root {
   --radius: 0.625rem;
+}
+
+/* ===========================
+   Light Theme (Default)
+   =========================== */
+:root,
+.light {
+  /* Base colors */
   --background: oklch(1 0 0);
   --foreground: oklch(0.147 0.004 49.25);
+  
+  /* Card colors */
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.147 0.004 49.25);
+  
+  /* Popover colors */
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.147 0.004 49.25);
-  --primary: oklch(0.216 0.006 56.043);
+  
+  /* Primary colors - Deep blue */
+  --primary: oklch(0.45 0.15 250);
   --primary-foreground: oklch(0.985 0.001 106.423);
+  
+  /* Secondary colors - Light gray */
   --secondary: oklch(0.97 0.001 106.424);
   --secondary-foreground: oklch(0.216 0.006 56.043);
+  
+  /* Muted colors */
   --muted: oklch(0.97 0.001 106.424);
   --muted-foreground: oklch(0.553 0.013 58.071);
-  --accent: oklch(0.97 0.001 106.424);
-  --accent-foreground: oklch(0.216 0.006 56.043);
+  
+  /* Accent colors - Purple */
+  --accent: oklch(0.50 0.15 290);
+  --accent-foreground: oklch(0.985 0.001 106.423);
+  
+  /* Destructive colors - Red */
   --destructive: oklch(0.577 0.245 27.325);
+  
+  /* Border and input colors */
   --border: oklch(0.923 0.003 48.717);
   --input: oklch(0.923 0.003 48.717);
-  --ring: oklch(0.709 0.01 56.259);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --ring: oklch(0.45 0.15 250);
+  
+  /* Chart colors */
+  --chart-1: oklch(0.55 0.20 250); /* Blue */
+  --chart-2: oklch(0.55 0.18 160); /* Green */
+  --chart-3: oklch(0.50 0.16 290); /* Purple */
+  --chart-4: oklch(0.60 0.20 340); /* Pink */
+  --chart-5: oklch(0.65 0.20 60);  /* Yellow */
+  
+  /* Sidebar colors */
   --sidebar: oklch(0.985 0.001 106.423);
   --sidebar-foreground: oklch(0.147 0.004 49.25);
-  --sidebar-primary: oklch(0.216 0.006 56.043);
+  --sidebar-primary: oklch(0.45 0.15 250);
   --sidebar-primary-foreground: oklch(0.985 0.001 106.423);
   --sidebar-accent: oklch(0.97 0.001 106.424);
   --sidebar-accent-foreground: oklch(0.216 0.006 56.043);
   --sidebar-border: oklch(0.923 0.003 48.717);
-  --sidebar-ring: oklch(0.709 0.01 56.259);
+  --sidebar-ring: oklch(0.45 0.15 250);
+  
+  /* Surface tokens for elevation */
+  --surface-1: oklch(0.98 0.001 106.423 / 0.7);
+  --surface-2: oklch(0.96 0.001 106.423 / 0.8);
+  --surface-3: oklch(0.94 0.002 106.423 / 0.9);
+  
+  /* Shadow tokens */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+  
+  /* Gradient tokens */
+  --gradient-primary: linear-gradient(135deg, oklch(0.45 0.15 250), oklch(0.50 0.14 230));
+  --gradient-accent: linear-gradient(135deg, oklch(0.50 0.15 290), oklch(0.55 0.14 310));
+  --gradient-surface: linear-gradient(180deg, oklch(1 0 0), oklch(0.98 0.001 106.423));
+  
+  /* Backdrop blur tokens */
+  --backdrop-blur-sm: 8px;
+  --backdrop-blur-md: 12px;
+  --backdrop-blur-lg: 16px;
 }
 
+/* ===========================
+   Dark Theme
+   =========================== */
 .dark {
-  /* Dark background - slightly lighter for better contrast */
+  /* Base colors - Dark background with better contrast */
   --background: oklch(0.18 0.01 250);
   --foreground: oklch(0.98 0.005 250);
   
-  /* Card colors - darker slate */
+  /* Card colors - Darker slate */
   --card: oklch(0.22 0.015 250);
   --card-foreground: oklch(0.98 0.005 250);
   
-  /* Popover */
+  /* Popover colors */
   --popover: oklch(0.20 0.012 250);
   --popover-foreground: oklch(0.98 0.005 250);
   
-  /* Primary - Electric Blue (like Pikachu's electric attacks) */
+  /* Primary colors - Electric Blue (like Pikachu's electric attacks) */
   --primary: oklch(0.65 0.19 250);
   --primary-foreground: oklch(0.98 0.005 250);
   
-  /* Secondary - Darker slate for assistant messages */
+  /* Secondary colors - Darker slate for assistant messages */
   --secondary: oklch(0.25 0.02 250);
   --secondary-foreground: oklch(0.95 0.005 250);
   
-  /* Muted */
+  /* Muted colors */
   --muted: oklch(0.28 0.02 250);
   --muted-foreground: oklch(0.65 0.015 250);
   
-  /* Accent - Purple/Violet (Psychic Pokemon vibes) */
+  /* Accent colors - Purple/Violet (Psychic Pokemon vibes) */
   --accent: oklch(0.55 0.15 290);
   --accent-foreground: oklch(0.98 0.005 250);
   
-  /* Destructive - Red */
+  /* Destructive colors - Red */
   --destructive: oklch(0.55 0.22 25);
   
-  /* Borders - subtle with slight blue tint */
+  /* Border and input colors - Subtle with slight blue tint */
   --border: oklch(0.30 0.02 250);
   --input: oklch(0.28 0.02 250);
-  
-  /* Ring - Electric blue */
   --ring: oklch(0.65 0.19 250);
   
-  /* Charts */
+  /* Chart colors */
   --chart-1: oklch(0.60 0.20 250); /* Blue */
   --chart-2: oklch(0.65 0.18 160); /* Green */
   --chart-3: oklch(0.60 0.16 290); /* Purple */
   --chart-4: oklch(0.65 0.20 340); /* Pink */
   --chart-5: oklch(0.60 0.18 60);  /* Yellow */
   
-  /* Sidebar */
+  /* Sidebar colors */
   --sidebar: oklch(0.20 0.012 250);
   --sidebar-foreground: oklch(0.98 0.005 250);
   --sidebar-primary: oklch(0.65 0.19 250);
@@ -164,7 +217,7 @@
   --gradient-accent: linear-gradient(135deg, oklch(0.55 0.15 290), oklch(0.50 0.14 310));
   --gradient-surface: linear-gradient(180deg, oklch(0.18 0.01 250), oklch(0.15 0.012 250));
   
-  /* Backdrop blur for glass effect */
+  /* Backdrop blur tokens */
   --backdrop-blur-sm: 8px;
   --backdrop-blur-md: 12px;
   --backdrop-blur-lg: 16px;

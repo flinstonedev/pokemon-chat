@@ -3,32 +3,39 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { ChatInterface } from "../components/ChatInterface";
 import { PokemonResultsProvider } from "../components/PokemonResultsProvider";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function HomePage() {
   return (
     <>
       <SignedOut>
-        <div className="flex-1 flex items-center justify-center bg-gray-900">
-          <div className="text-center bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-md border border-gray-700">
-            <div className="bg-gray-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+        <div className="flex-1 flex items-center justify-center bg-background relative">
+          <div className="absolute top-4 right-4">
+            <ThemeToggle />
+          </div>
+          <div className="text-center bg-card rounded-2xl shadow-2xl p-8 max-w-md border border-border">
+            <div className="bg-muted rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <span className="text-3xl">🤖</span>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-4">
+            <h1 className="text-3xl font-bold text-foreground mb-4">
               Pokemon Chat with MCP Tools
             </h1>
-            <p className="text-gray-400 mb-6">
+            <p className="text-muted-foreground mb-6">
               Experience QuerySculptor capabilities with the{" "}
               <a
                 href="https://graphql-pokeapi.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 underline"
+                className="text-primary hover:text-primary/80 underline"
               >
                 Pokemon API
               </a>
             </p>
             <SignInButton mode="modal" fallbackRedirectUrl="/">
-              <button className="bg-gradient-to-r from-green-600 to-teal-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:from-green-700 hover:to-teal-700 transition-all shadow-lg transform hover:scale-105">
+              <button 
+                className="px-8 py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-all shadow-lg transform hover:scale-105 text-primary-foreground"
+                style={{ background: 'var(--gradient-primary)' }}
+              >
                 Sign In to Try it Out!
               </button>
             </SignInButton>
@@ -37,19 +44,23 @@ export default function HomePage() {
       </SignedOut>
 
       <SignedIn>
-        <div className="h-screen flex flex-col bg-gray-900">
+        <div className="h-screen flex flex-col bg-background">
           {/* Header */}
-          <div className="bg-gray-800 shadow-lg border-b border-gray-700 flex-shrink-0">
+          <div className="bg-card shadow-lg border-b border-border flex-shrink-0">
             <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent">
+                <h1 
+                  className="text-2xl font-bold bg-clip-text text-transparent"
+                  style={{ backgroundImage: 'var(--gradient-primary)' }}
+                >
                   Pokemon Chat with MCP Tools
                 </h1>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Powered by QuerySculptor MCP Server
                 </p>
               </div>
               <div className="flex items-center gap-4">
+                <ThemeToggle />
                 <UserButton afterSignOutUrl="/" />
               </div>
             </div>
