@@ -13,7 +13,7 @@ export type CookieConsentValue = "accepted" | "rejected" | null;
  */
 export function getCookieConsent(): CookieConsentValue {
   if (typeof window === "undefined") return null;
-  
+
   try {
     const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
     if (consent === "accepted" || consent === "rejected") {
@@ -31,14 +31,14 @@ export function getCookieConsent(): CookieConsentValue {
  */
 export function setCookieConsent(value: "accepted" | "rejected"): void {
   if (typeof window === "undefined") return;
-  
+
   try {
     localStorage.setItem(COOKIE_CONSENT_KEY, value);
-    
+
     // Also set a cookie for server-side detection if needed
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + COOKIE_CONSENT_EXPIRY_DAYS);
-    
+
     document.cookie = `${COOKIE_CONSENT_KEY}=${value}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
   } catch (error) {
     console.error("Error setting cookie consent:", error);
@@ -50,7 +50,7 @@ export function setCookieConsent(value: "accepted" | "rejected"): void {
  */
 export function clearCookieConsent(): void {
   if (typeof window === "undefined") return;
-  
+
   try {
     localStorage.removeItem(COOKIE_CONSENT_KEY);
     document.cookie = `${COOKIE_CONSENT_KEY}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;

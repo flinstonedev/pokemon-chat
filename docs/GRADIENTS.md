@@ -24,9 +24,7 @@ Always use Tailwind utility classes (powered by our custom plugin):
 
 ```tsx
 // ❌ Wrong - Don't use inline styles (breaks CVA pattern)
-<div style={{ background: 'var(--gradient-primary)' }}>
-  Content
-</div>
+<div style={{ background: "var(--gradient-primary)" }}>Content</div>
 ```
 
 ## Available Gradients
@@ -34,46 +32,56 @@ Always use Tailwind utility classes (powered by our custom plugin):
 The theming system provides three gradient variables:
 
 ### `--gradient-primary`
+
 Primary action gradient (used for buttons, CTAs)
+
 - **Dark theme**: Electric blue gradient
 - **Light theme**: Deep blue gradient
 
 ### `--gradient-accent`
+
 Accent gradient (used for highlights, badges)
+
 - **Dark theme**: Purple/violet gradient
 - **Light theme**: Purple gradient
 
 ### `--gradient-surface`
+
 Surface gradient (used for backgrounds)
+
 - **Dark theme**: Dark blue vertical gradient
 - **Light theme**: Light gray vertical gradient
 
 ## Common Use Cases
 
 ### Button with Gradient
+
 ```tsx
-<button className="bg-gradient-primary text-primary-foreground px-4 py-2 rounded-lg">
+<button className="bg-gradient-primary text-primary-foreground rounded-lg px-4 py-2">
   Click Me
 </button>
 ```
 
 ### Icon Container with Gradient
+
 ```tsx
-<div className="w-16 h-16 rounded-2xl bg-gradient-accent flex items-center justify-center">
+<div className="bg-gradient-accent flex h-16 w-16 items-center justify-center rounded-2xl">
   <Icon className="text-accent-foreground" />
 </div>
 ```
 
 ### Full Page Background Gradient
+
 ```tsx
-<div className="min-h-screen bg-gradient-surface">
+<div className="bg-gradient-surface min-h-screen">
   <YourContent />
 </div>
 ```
 
 ### Gradient Text
+
 ```tsx
-<h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+<h1 className="bg-gradient-primary bg-clip-text text-4xl font-bold text-transparent">
   Gradient Text
 </h1>
 ```
@@ -106,6 +114,7 @@ Note: These variants use the `bg-gradient-*` Tailwind utilities defined in our c
 To add a new gradient:
 
 1. **Define in theme config** (`lib/themes/themes.ts`):
+
    ```typescript
    gradients: {
      primary: '...',
@@ -116,17 +125,19 @@ To add a new gradient:
    ```
 
 2. **Add CSS variable** (`app/globals.css`):
+
    ```css
    :root {
      --gradient-my-new: linear-gradient(135deg, ...);
    }
-   
+
    .dark {
      --gradient-my-new: linear-gradient(135deg, ...);
    }
    ```
 
 3. **Add to Tailwind plugin** (`tailwind.config.ts`):
+
    ```typescript
    plugin(({ addUtilities }) => {
        addUtilities({
@@ -139,24 +150,25 @@ To add a new gradient:
 
 4. **Use in components**:
    ```tsx
-   <div className="bg-gradient-my-new">
-     Content
-   </div>
+   <div className="bg-gradient-my-new">Content</div>
    ```
 
 ## Troubleshooting
 
 ### Gradient not showing
+
 - Verify the gradient is defined in `globals.css` for all themes
 - Check that the utility class is defined in the Tailwind plugin (`tailwind.config.ts`)
 - Ensure the class name matches exactly (e.g., `bg-gradient-primary`)
 
 ### Gradient not changing with theme
+
 - Verify the CSS variable is defined differently in each theme's CSS (`:root`/`.light` and `.dark`)
 - Make sure you're using the utility class, not inline styles
 - Check that ThemeProvider is properly wrapping your app
 
 ### Text gradient not working
+
 - Use both `bg-gradient-*` AND `bg-clip-text text-transparent` classes
 - Example: `className="bg-gradient-primary bg-clip-text text-transparent"`
 - The gradient class sets the background, bg-clip-text clips it to text

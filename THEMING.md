@@ -5,6 +5,7 @@ This document describes the comprehensive theming system implemented in the Poke
 ## Overview
 
 The theming system uses:
+
 - **CSS Variables** for dynamic color tokens
 - **TailwindCSS** for utility-first styling
 - **next-themes** for theme state management (industry standard)
@@ -26,12 +27,14 @@ No TypeScript configuration needed - everything is in CSS!
 #### Current Themes
 
 **Dark Theme** (default)
+
 - Dark blue-tinted background
 - Electric blue primary color (inspired by Pikachu)
 - Purple/violet accent color (psychic Pokemon vibes)
 - High contrast for readability
 
 **Light Theme**
+
 - Clean white background
 - Deep blue primary color
 - Purple accent color
@@ -40,6 +43,7 @@ No TypeScript configuration needed - everything is in CSS!
 ### 2. Theme Provider (`components/ThemeProvider.tsx`)
 
 A thin wrapper around `next-themes` that:
+
 - Manages the current theme state
 - Applies theme classes to the document root
 - Persists theme preference to localStorage (automatic)
@@ -53,12 +57,12 @@ import { useTheme } from "next-themes";
 
 function MyComponent() {
   const { theme, setTheme } = useTheme();
-  
+
   // Switch theme
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
-  
+
   return (
     <button onClick={toggleTheme}>
       Current theme: {theme}
@@ -72,6 +76,7 @@ function MyComponent() {
 ### 3. Global Styles (`app/globals.css`)
 
 Contains CSS variable definitions for both themes:
+
 - `:root` and `.light` define light theme variables
 - `.dark` defines dark theme variables
 - All variables follow a consistent naming convention
@@ -91,6 +96,7 @@ Contains CSS variable definitions for both themes:
 ### 4. Tailwind Configuration (`tailwind.config.ts`)
 
 Extends Tailwind with theme-aware utilities:
+
 - Color classes that reference CSS variables
 - Custom shadow utilities
 - Gradient backgrounds
@@ -104,19 +110,19 @@ Extends Tailwind with theme-aware utilities:
 <div className="bg-background text-foreground">
   <h1 className="text-primary">Title</h1>
   <p className="text-muted-foreground">Description</p>
-  <button className="bg-primary text-primary-foreground">
-    Click me
-  </button>
+  <button className="bg-primary text-primary-foreground">Click me</button>
 </div>
 ```
 
 ### Via CSS Variables
 
 ```tsx
-<div style={{ 
-  backgroundColor: 'var(--background)',
-  color: 'var(--foreground)'
-}}>
+<div
+  style={{
+    backgroundColor: "var(--background)",
+    color: "var(--foreground)",
+  }}
+>
   Content
 </div>
 ```
@@ -124,17 +130,13 @@ Extends Tailwind with theme-aware utilities:
 ### Gradients
 
 ```tsx
-<div className="bg-gradient-primary">
-  Gradient background
-</div>
+<div className="bg-gradient-primary">Gradient background</div>
 ```
 
 ### Surfaces (Glass-morphism)
 
 ```tsx
-<div className="bg-surface-2 backdrop-blur-md">
-  Frosted glass effect
-</div>
+<div className="bg-surface-2 backdrop-blur-md">Frosted glass effect</div>
 ```
 
 ## Theme Toggle Component
@@ -160,23 +162,23 @@ In `app/globals.css`, add a new theme class:
    =========================== */
 .blue {
   /* Base colors */
-  --background: oklch(0.20 0.02 240);
+  --background: oklch(0.2 0.02 240);
   --foreground: oklch(0.98 0.005 240);
-  
+
   /* Card colors */
   --card: oklch(0.22 0.015 240);
   --card-foreground: oklch(0.98 0.005 240);
-  
+
   /* ... define all color tokens following the same pattern as .dark */
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   /* ... define shadows */
-  
+
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, ...);
   /* ... define gradients */
-  
+
   /* Backdrop blur */
   --backdrop-blur-sm: 8px;
   /* ... define backdrop blur values */
@@ -221,12 +223,9 @@ import { useTheme } from "next-themes";
 
 function ThemeSelector() {
   const { theme, setTheme, themes } = useTheme();
-  
+
   return (
-    <select 
-      value={theme} 
-      onChange={(e) => setTheme(e.target.value)}
-    >
+    <select value={theme} onChange={(e) => setTheme(e.target.value)}>
       {themes?.map((themeName) => (
         <option key={themeName} value={themeName}>
           {themeName.charAt(0).toUpperCase() + themeName.slice(1)}
@@ -242,11 +241,13 @@ function ThemeSelector() {
 ### 1. Always Use Theme Variables
 
 ❌ **Don't** hardcode colors:
+
 ```tsx
 <div className="bg-gray-900 text-white">
 ```
 
 ✅ **Do** use theme variables:
+
 ```tsx
 <div className="bg-background text-foreground">
 ```
@@ -254,12 +255,14 @@ function ThemeSelector() {
 ### 2. Use Semantic Color Names
 
 Use semantic names that describe the purpose, not the color:
+
 - ✅ `bg-primary` (semantic)
 - ❌ `bg-blue-500` (specific color)
 
 ### 3. Test Both Themes
 
 Always test your components in both light and dark themes to ensure:
+
 - Text is readable
 - Contrast is sufficient
 - Visual hierarchy is maintained
@@ -267,12 +270,11 @@ Always test your components in both light and dark themes to ensure:
 ### 4. Use Surface Layers for Depth
 
 For layered UI elements, use surface tokens:
+
 ```tsx
 <div className="bg-background">
   <div className="bg-surface-1 backdrop-blur-sm">
-    <div className="bg-surface-2">
-      Deepest layer
-    </div>
+    <div className="bg-surface-2">Deepest layer</div>
   </div>
 </div>
 ```
@@ -280,6 +282,7 @@ For layered UI elements, use surface tokens:
 ### 5. Leverage Gradient Utilities
 
 Use predefined gradients for consistency:
+
 ```tsx
 <button className="bg-gradient-primary text-primary-foreground">
   Action Button
@@ -300,6 +303,7 @@ The theming system follows accessibility best practices:
 ### next-themes Integration
 
 **Why next-themes?**
+
 - Industry-standard solution used by shadcn/ui
 - Battle-tested with 50k+ weekly downloads
 - Handles SSR/hydration automatically
@@ -310,6 +314,7 @@ The theming system follows accessibility best practices:
 ### SSR Compatibility
 
 The theme provider uses `next-themes` which:
+
 - Injects a script tag before render to prevent FOUC
 - Works seamlessly with Next.js SSR
 - `suppressHydrationWarning` on `<html>` prevents hydration warnings
@@ -325,6 +330,7 @@ The theme provider uses `next-themes` which:
 ### Browser Support
 
 The theming system uses:
+
 - **CSS Variables**: Supported in all modern browsers
 - **OKLCH Color Space**: Progressive enhancement (falls back gracefully)
 - **localStorage**: Automatic via next-themes
@@ -332,6 +338,7 @@ The theming system uses:
 ### Migration from Custom Provider
 
 This project was migrated from a custom theme provider to `next-themes` for:
+
 1. **Standardization**: Follow industry best practices
 2. **Maintainability**: Less code to maintain
 3. **Reliability**: Battle-tested edge case handling

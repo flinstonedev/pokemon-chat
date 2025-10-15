@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${firaCode.className} antialiased min-h-screen flex flex-col`}
+        className={`${firaCode.className} flex min-h-screen flex-col antialiased`}
       >
         <ThemeProvider
           attribute="class"
@@ -39,16 +39,18 @@ export default function RootLayout({
         >
           <ClerkProvider dynamic>
             <ConvexClientProvider>
-              <div className="flex-1 flex flex-col">
-                {children}
-              </div>
-              <footer className="bg-surface-2 backdrop-blur-md border-t border-border/50 text-foreground py-6">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+              <div className="flex flex-1 flex-col">{children}</div>
+              <footer className="bg-surface-2 border-border/50 text-foreground border-t py-6 backdrop-blur-md">
+                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+                  <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
                     <div className="text-sm">
-                      <p>&copy; {new Date().getFullYear()} QuerySculptor Pokemon API Demo</p>
+                      <p>
+                        &copy; {new Date().getFullYear()} QuerySculptor Pokemon
+                        API Demo
+                      </p>
                       <p className="text-muted-foreground mt-1">
-                        Showcasing QuerySculptor MCP capabilities with Pokemon data
+                        Showcasing QuerySculptor MCP capabilities with Pokemon
+                        data
                       </p>
                     </div>
                     <div className="flex space-x-6 text-sm">
@@ -70,10 +72,11 @@ export default function RootLayout({
                       </Link>
                     </div>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-border/50 text-center text-xs text-muted-foreground">
+                  <div className="border-border/50 text-muted-foreground mt-4 border-t pt-4 text-center text-xs">
                     <p>
-                      Pokemon is a trademark of Nintendo/Game Freak/The Pokemon Company.
-                      This demo is not affiliated with or endorsed by Nintendo.
+                      Pokemon is a trademark of Nintendo/Game Freak/The Pokemon
+                      Company. This demo is not affiliated with or endorsed by
+                      Nintendo.
                     </p>
                   </div>
                 </div>

@@ -16,7 +16,7 @@
     "validate": "npm run type-check && npm run lint && npm run format:check"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.42",
+    "@ai-sdk/openai": "^2.0.52",
     "@ai-sdk/react": "^2.0.60",
     "@clerk/clerk-react": "^5.25.0",
     "@clerk/nextjs": "^6.12.6",
@@ -37,6 +37,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "convex": "^1.23.0",
+    "dynamic-ui-agent": "^0.1.2",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.522.0",
     "nanoid": "^5.1.6",

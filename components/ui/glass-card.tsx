@@ -1,7 +1,7 @@
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const glassCardVariants = cva(
   "rounded-xl border backdrop-blur-md transition-all duration-200",
@@ -24,10 +24,10 @@ const glassCardVariants = cva(
       padding: "md",
     },
   }
-)
+);
 
 export type GlassCardProps = React.ComponentProps<"div"> &
-  VariantProps<typeof glassCardVariants>
+  VariantProps<typeof glassCardVariants>;
 
 export function GlassCard({
   className,
@@ -40,7 +40,7 @@ export function GlassCard({
       className={cn(glassCardVariants({ variant, padding, className }))}
       {...props}
     />
-  )
+  );
 }
 
-export { glassCardVariants }
+export { glassCardVariants };

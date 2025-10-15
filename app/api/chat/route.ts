@@ -1,60 +1,76 @@
 import { openai } from "@ai-sdk/openai";
-import { streamText, experimental_createMCPClient, stepCountIs, convertToModelMessages, UIMessage } from "ai";
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import {
+  streamText,
+  experimental_createMCPClient,
+  stepCountIs,
+  convertToModelMessages,
+  UIMessage,
+} from "ai";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let mcpClient: any = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mcpClient: any = null;
+
+  try {
+    // Authenticate the user
+    const { userId } = await auth();
+    if (!userId) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
+    // Parse the request
+    const { messages }: { messages: UIMessage[] } = await req.json();
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log("📨 Received messages:", messages.length, "messages");
+    }
+
+    // Initialize MCP client with the actual MCP server
+    let mcpTools = {};
 
     try {
-        // Authenticate the user
-        const { userId } = await auth();
-        if (!userId) {
-            return new Response("Unauthorized", { status: 401 });
-        }
+      // Create MCP client using StreamableHTTP transport
+      const MCP_URL =
+        process.env.MCP_URL ||
+        "https://agent-query-builder-toolbox.vercel.app/mcp";
 
-        // Parse the request
-        const { messages }: { messages: UIMessage[] } = await req.json();
+      mcpClient = await experimental_createMCPClient({
+        transport: new StreamableHTTPClientTransport(new URL(MCP_URL), {
+          sessionId: `pokemon-chat-${userId}-${Date.now()}`,
+        }),
+        name: "pokemon-chat-client",
+      });
 
-        if (process.env.NODE_ENV !== 'production') {
-            console.log('📨 Received messages:', messages.length, 'messages');
-        }
+      if (process.env.NODE_ENV !== "production") {
+        console.log("✅ MCP client created successfully");
+      }
 
-        // Initialize MCP client with the actual MCP server
-        let mcpTools = {};
+      // Get available tools from the MCP server
+      mcpTools = await mcpClient.tools();
 
-        try {
-            // Create MCP client using StreamableHTTP transport
-            const MCP_URL = process.env.MCP_URL || 'https://agent-query-builder-toolbox.vercel.app/mcp';
+      if (process.env.NODE_ENV !== "production") {
+        console.log(
+          "✅ MCP tools loaded:",
+          Object.keys(mcpTools).length,
+          "tools available"
+        );
+        console.log(
+          "Available tools:",
+          Object.keys(mcpTools).slice(0, 10),
+          "..."
+        );
+      }
+    } catch (mcpError) {
+      console.error("⚠️ MCP setup failed:", mcpError);
+      // Continue without MCP tools if connection fails
+    }
 
-            mcpClient = await experimental_createMCPClient({
-                transport: new StreamableHTTPClientTransport(new URL(MCP_URL), {
-                    sessionId: `pokemon-chat-${userId}-${Date.now()}`,
-                }),
-                name: 'pokemon-chat-client',
-            });
-
-            if (process.env.NODE_ENV !== 'production') {
-                console.log('✅ MCP client created successfully');
-            }
-
-            // Get available tools from the MCP server
-            mcpTools = await mcpClient.tools();
-
-            if (process.env.NODE_ENV !== 'production') {
-                console.log('✅ MCP tools loaded:', Object.keys(mcpTools).length, 'tools available');
-                console.log('Available tools:', Object.keys(mcpTools).slice(0, 10), '...');
-            }
-        } catch (mcpError) {
-            console.error('⚠️ MCP setup failed:', mcpError);
-            // Continue without MCP tools if connection fails
-        }
-
-        const systemMessage = `You are a helpful AI assistant for a Pokemon chat application with access to GraphQL query building tools through the MCP server.
+    const systemMessage = `You are a helpful AI assistant for a Pokemon chat application with access to GraphQL query building tools through the MCP server.
 
 IMPORTANT: You ONLY answer questions related to Pokemon. If a user asks about anything that is not Pokemon-related, politely decline and remind them that you can only help with Pokemon-related questions.
 
@@ -79,60 +95,59 @@ When users ask about Pokemon:
 
 Be conversational and explain what you're doing. If you encounter errors, try to understand and fix them.`;
 
-        // Stream the response with MCP tools (AI SDK 5.0 style)
-        const result = streamText({
-            model: openai("gpt-4o"),
-            system: systemMessage,
-            messages: convertToModelMessages(messages),
-            tools: mcpTools,
-            stopWhen: stepCountIs(100),
-            onFinish: async ({ usage }) => {
-                if (process.env.NODE_ENV !== 'production') {
-                    console.log('✅ Stream completed. Usage:', usage);
-                }
+    // Stream the response with MCP tools (AI SDK 5.0 style)
+    const result = streamText({
+      model: openai("gpt-4o"),
+      system: systemMessage,
+      messages: convertToModelMessages(messages),
+      tools: mcpTools,
+      stopWhen: stepCountIs(100),
+      onFinish: async ({ usage }) => {
+        if (process.env.NODE_ENV !== "production") {
+          console.log("✅ Stream completed. Usage:", usage);
+        }
 
-                // Clean up MCP client
-                if (mcpClient) {
-                    try {
-                        await mcpClient.close();
-                        if (process.env.NODE_ENV !== 'production') {
-                            console.log('✅ MCP client closed');
-                        }
-                    } catch (error) {
-                        console.error('Error closing MCP client:', error);
-                    }
-                }
-            },
-        });
-
-        // Return UI message stream response (AI SDK 5.0)
-        return result.toUIMessageStreamResponse();
-
-    } catch (error) {
-        console.error('❌ Error in POST handler:', error);
-
-        // Clean up MCP client on error
+        // Clean up MCP client
         if (mcpClient) {
-            try {
-                await mcpClient.close();
-            } catch (closeError) {
-                console.error('Error closing MCP client:', closeError);
+          try {
+            await mcpClient.close();
+            if (process.env.NODE_ENV !== "production") {
+              console.log("✅ MCP client closed");
             }
+          } catch (error) {
+            console.error("Error closing MCP client:", error);
+          }
         }
+      },
+    });
 
-        if (process.env.NODE_ENV !== 'production') {
-            return new Response(
-                JSON.stringify({
-                    error: 'Internal server error',
-                    details: error instanceof Error ? error.message : 'Unknown error'
-                }),
-                {
-                    status: 500,
-                    headers: { 'Content-Type': 'application/json' }
-                }
-            );
-        }
+    // Return UI message stream response (AI SDK 5.0)
+    return result.toUIMessageStreamResponse();
+  } catch (error) {
+    console.error("❌ Error in POST handler:", error);
 
-        return new Response('Internal server error', { status: 500 });
+    // Clean up MCP client on error
+    if (mcpClient) {
+      try {
+        await mcpClient.close();
+      } catch (closeError) {
+        console.error("Error closing MCP client:", closeError);
+      }
     }
+
+    if (process.env.NODE_ENV !== "production") {
+      return new Response(
+        JSON.stringify({
+          error: "Internal server error",
+          details: error instanceof Error ? error.message : "Unknown error",
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    return new Response("Internal server error", { status: 500 });
+  }
 }

@@ -5,7 +5,7 @@ let isPostHogInitialized = false;
 
 function initializePostHog() {
   if (isPostHogInitialized || typeof window === "undefined") return;
-  
+
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
     api_host: "/ingest",
     ui_host: "https://eu.posthog.com",
@@ -17,7 +17,7 @@ function initializePostHog() {
     capture_pageview: true,
     disable_session_recording: false,
   });
-  
+
   isPostHogInitialized = true;
   posthog.capture("$pageview");
 }
@@ -25,7 +25,7 @@ function initializePostHog() {
 // Only initialize PostHog if user has already consented
 if (typeof window !== "undefined") {
   const consent = getCookieConsent();
-  
+
   if (consent === "accepted") {
     initializePostHog();
   }
@@ -33,7 +33,7 @@ if (typeof window !== "undefined") {
   // Listen for consent changes from the cookie banner
   window.addEventListener("cookieConsentChanged", ((event: CustomEvent) => {
     const { consent } = event.detail;
-    
+
     if (consent === "accepted") {
       // User just accepted - initialize PostHog for the first time
       initializePostHog();

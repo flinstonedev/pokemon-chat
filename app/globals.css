@@ -6,10 +6,12 @@
 
 /* Custom blinking animation for loading indicator */
 @keyframes blink {
-  0%, 50% {
+  0%,
+  50% {
     opacity: 1;
   }
-  51%, 100% {
+  51%,
+  100% {
     opacity: 0;
   }
 }
@@ -18,7 +20,6 @@
 .blink-dot {
   animation: blink 1s infinite;
 }
-
 
 /* ===========================
    Root Configuration
@@ -35,46 +36,46 @@
   /* Base colors */
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
-  
+
   /* Card colors */
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
-  
+
   /* Popover colors */
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
-  
+
   /* Primary colors - Fresh Green */
   --primary: 142 70% 40%;
   --primary-foreground: 210 40% 98%;
-  
+
   /* Secondary colors - Light gray */
   --secondary: 210 40% 96.1%;
   --secondary-foreground: 222.2 47.4% 11.2%;
-  
+
   /* Muted colors */
   --muted: 210 40% 96.1%;
   --muted-foreground: 215.4 16.3% 46.9%;
-  
+
   /* Accent colors */
   --accent: 210 40% 96.1%;
   --accent-foreground: 222.2 47.4% 11.2%;
-  
+
   /* Destructive colors - Red */
   --destructive: 0 84.2% 60.2%;
-  
+
   /* Border and input colors */
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
   --ring: 142 70% 40%;
-  
+
   /* Chart colors */
   --chart-1: 220 70% 50%;
   --chart-2: 160 60% 45%;
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
-  
+
   /* Sidebar colors */
   --sidebar: 0 0% 98%;
   --sidebar-foreground: 240 5.3% 26.1%;
@@ -84,23 +85,33 @@
   --sidebar-accent-foreground: 240 5.9% 10%;
   --sidebar-border: 220 13% 91%;
   --sidebar-ring: 217.2 91.2% 59.8%;
-  
+
   /* Surface tokens for elevation */
   --surface-1: hsl(210 40% 98% / 0.7);
   --surface-2: hsl(210 40% 96% / 0.8);
   --surface-3: hsl(210 40% 94% / 0.9);
-  
+
   /* Shadow tokens */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.05);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.05);
-  
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+
   /* Gradient tokens */
-  --gradient-primary: linear-gradient(135deg, hsl(142 70% 40%), hsl(160 70% 42%));
-  --gradient-accent: linear-gradient(135deg, hsl(270 60% 50%), hsl(280 60% 50%));
+  --gradient-primary: linear-gradient(
+    135deg,
+    hsl(142 70% 40%),
+    hsl(160 70% 42%)
+  );
+  --gradient-accent: linear-gradient(
+    135deg,
+    hsl(270 60% 50%),
+    hsl(280 60% 50%)
+  );
   --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 40% 98%));
-  
+
   /* Backdrop blur tokens */
   --backdrop-blur-sm: 8px;
   --backdrop-blur-md: 12px;
@@ -114,46 +125,46 @@
   /* Base colors - Dark background with better contrast */
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
-  
+
   /* Card colors - Darker slate */
   --card: 222.2 47% 11%;
   --card-foreground: 210 40% 98%;
-  
+
   /* Popover colors */
   --popover: 222.2 84% 4.9%;
   --popover-foreground: 210 40% 98%;
-  
+
   /* Primary colors - Fresh Green (brighter for dark) */
   --primary: 142 70% 55%;
   --primary-foreground: 210 40% 98%;
-  
+
   /* Secondary colors - Darker slate */
   --secondary: 217.2 32.6% 17.5%;
   --secondary-foreground: 210 40% 98%;
-  
+
   /* Muted colors */
   --muted: 217.2 32.6% 17.5%;
   --muted-foreground: 215 20.2% 65.1%;
-  
+
   /* Accent colors - Purple/Violet */
   --accent: 217.2 32.6% 17.5%;
   --accent-foreground: 210 40% 98%;
-  
+
   /* Destructive colors - Red */
   --destructive: 0 62.8% 30.6%;
-  
+
   /* Border and input colors */
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
   --ring: 142 70% 55%;
-  
+
   /* Chart colors */
   --chart-1: 220 70% 50%;
   --chart-2: 160 60% 45%;
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
-  
+
   /* Sidebar colors */
   --sidebar: 222.2 84% 4.9%;
   --sidebar-foreground: 210 40% 98%;
@@ -163,23 +174,37 @@
   --sidebar-accent-foreground: 210 40% 98%;
   --sidebar-border: 217.2 32.6% 17.5%;
   --sidebar-ring: 224.3 76.3% 48%;
-  
+
   /* Surface tokens for elevation and glass-morphism */
   --surface-1: hsl(222.2 84% 4.9% / 0.7);
   --surface-2: hsl(217.2 32.6% 17.5% / 0.8);
   --surface-3: hsl(217.2 32.6% 25% / 0.9);
-  
+
   /* Shadow tokens */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.2);
-  
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.2);
+
   /* Gradient tokens */
-  --gradient-primary: linear-gradient(135deg, hsl(142 70% 55%), hsl(160 70% 58%));
-  --gradient-accent: linear-gradient(135deg, hsl(270 60% 50%), hsl(280 60% 50%));
-  --gradient-surface: linear-gradient(180deg, hsl(222.2 84% 4.9%), hsl(222.2 84% 3%));
-  
+  --gradient-primary: linear-gradient(
+    135deg,
+    hsl(142 70% 55%),
+    hsl(160 70% 58%)
+  );
+  --gradient-accent: linear-gradient(
+    135deg,
+    hsl(270 60% 50%),
+    hsl(280 60% 50%)
+  );
+  --gradient-surface: linear-gradient(
+    180deg,
+    hsl(222.2 84% 4.9%),
+    hsl(222.2 84% 3%)
+  );
+
   /* Backdrop blur tokens */
   --backdrop-blur-sm: 8px;
   --backdrop-blur-md: 12px;
@@ -222,4 +247,3 @@
     @apply bg-background text-foreground;
   }
 }
-

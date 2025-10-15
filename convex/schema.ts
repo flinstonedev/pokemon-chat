@@ -19,23 +19,34 @@ export default defineSchema({
     userId: v.optional(v.string()),
     // Tool-related fields (optional)
     toolCallId: v.optional(v.string()),
-    toolCalls: v.optional(v.array(v.object({
-      id: v.string(),
-      name: v.string(),
-      arguments: v.string(),
-    }))),
+    toolCalls: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          name: v.string(),
+          arguments: v.string(),
+        })
+      )
+    ),
     toolName: v.optional(v.string()),
-    contentSegments: v.optional(v.array(v.object({
-      type: v.string(),
-      content: v.optional(v.string()),
-      toolCall: v.optional(v.object({
-        id: v.string(),
-        name: v.string(),
-        arguments: v.string(),
-      })),
-      toolCallId: v.optional(v.string()),
-    }))),
-  }).index("by_threadId", ["threadId"])
+    contentSegments: v.optional(
+      v.array(
+        v.object({
+          type: v.string(),
+          content: v.optional(v.string()),
+          toolCall: v.optional(
+            v.object({
+              id: v.string(),
+              name: v.string(),
+              arguments: v.string(),
+            })
+          ),
+          toolCallId: v.optional(v.string()),
+        })
+      )
+    ),
+  })
+    .index("by_threadId", ["threadId"])
     .index("by_userId", ["userId"])
     .index("by_createdAt", ["createdAt"]),
 
