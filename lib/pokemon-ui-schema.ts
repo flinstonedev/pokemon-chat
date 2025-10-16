@@ -231,7 +231,13 @@ When displaying Pokemon data:
 3. Use pokemon-type badges for type information
 4. Use pokemon-evolution for evolution chains
 5. Use pokemon-moves for move lists
-6. Use containers to organize complex layouts
+6. For multiple Pokemon cards (lists), use a container with direction="row" - cards will automatically wrap to multiple rows
+7. Use containers to organize complex layouts
+
+Layout best practices:
+- When displaying 2-5 Pokemon: use a container with direction="row" and gap=16
+- When displaying 6+ Pokemon: use a container with direction="row" and gap=16 (cards will wrap automatically)
+- Single Pokemon: display the card directly without a container
 
 Always provide relevant suggestions for next steps and follow-up questions.
 Return ONLY valid JSON matching the schema.`;

@@ -1,4 +1,5 @@
 import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import {
   streamText,
   experimental_createMCPClient,
@@ -25,10 +26,19 @@ export async function POST(req: NextRequest) {
     }
 
     // Parse the request
-    const { messages }: { messages: UIMessage[] } = await req.json();
+    const {
+      messages,
+      provider = "openai",
+      model = "gpt-4o",
+    }: {
+      messages: UIMessage[];
+      provider?: "openai" | "anthropic";
+      model?: string;
+    } = await req.json();
 
     if (process.env.NODE_ENV !== "production") {
       console.log("📨 Received messages:", messages.length, "messages");
+      console.log("🤖 Using provider:", provider, "model:", model);
     }
 
     // Initialize MCP client with the actual MCP server
@@ -135,9 +145,12 @@ NEVER describe the Pokemon data yourself - let the tool visualize it.`;
       presentPokemonData,
     };
 
+    // Select the appropriate provider
+    const selectedProvider = provider === "anthropic" ? anthropic : openai;
+
     // Stream the response with all tools (AI SDK 5.0 style)
     const result = streamText({
-      model: openai("gpt-4o"),
+      model: selectedProvider(model),
       system: systemMessage,
       messages: convertToModelMessages(messages),
       tools: allTools,

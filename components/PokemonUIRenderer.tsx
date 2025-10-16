@@ -127,7 +127,7 @@ function PokemonCardRenderer({
   description?: string;
 }) {
   return (
-    <Card>
+    <Card className="max-w-[400px] min-w-[280px] flex-shrink-0">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-2xl">
@@ -479,9 +479,12 @@ function ContainerRenderer({
     between: "justify-between",
   }[justify];
 
+  // Add flex-wrap and overflow handling for row containers
+  const wrapClass = direction === "row" ? "flex-wrap" : "";
+
   return (
     <div
-      className={`flex ${directionClass} ${alignClass} ${justifyClass}`}
+      className={`flex ${directionClass} ${alignClass} ${justifyClass} ${wrapClass}`}
       style={{ gap: `${gap}px` }}
     >
       {children}

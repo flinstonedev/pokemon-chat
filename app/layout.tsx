@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fira_Code } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
+import { SettingsProvider } from "@/components/SettingsProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import Link from "next/link";
 import { CookieBanner } from "@/components/CookieBanner";
@@ -39,7 +40,9 @@ export default function RootLayout({
         >
           <ClerkProvider dynamic>
             <ConvexClientProvider>
-              <div className="flex flex-1 flex-col">{children}</div>
+              <SettingsProvider>
+                <div className="flex flex-1 flex-col">{children}</div>
+              </SettingsProvider>
               <footer className="bg-surface-2 border-border/50 text-foreground border-t py-6 backdrop-blur-md">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
                   <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">

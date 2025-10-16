@@ -4,6 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type ToolUIPart } from "ai";
 import { Loader2, Send, Bot } from "lucide-react";
 import { usePokemonResults } from "./PokemonResultsProvider";
+import { useSettings } from "./SettingsProvider";
 import { useState } from "react";
 import type { PokemonAgentResponse } from "@/lib/pokemon-ui-schema";
 import { PokemonUIRenderer } from "./PokemonUIRenderer";
@@ -29,10 +30,14 @@ import {
 
 export function ChatInterface() {
   const { addResult } = usePokemonResults();
+  const settings = useSettings();
   const [input, setInput] = useState("");
   const [visualizations, setVisualizations] = useState<
     Map<string, PokemonAgentResponse>
   >(new Map());
+  const [loadingVisualizations, setLoadingVisualizations] = useState<
+    Set<string>
+  >(new Set());
 
   // Function to visualize Pokemon data
   const visualizePokemonData = async (
@@ -41,11 +46,18 @@ export function ChatInterface() {
   ) => {
     console.log("[visualizePokemonData] Called with:", { data, messageId });
 
+    // Add to loading set
+    setLoadingVisualizations((prev) => new Set(prev).add(messageId));
+
     try {
       const response = await fetch("/api/visualize-pokemon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data }),
+        body: JSON.stringify({
+          data,
+          provider: settings.uiGeneratorProvider,
+          model: settings.uiGeneratorModel,
+        }),
       });
 
       console.log("[visualizePokemonData] Response status:", response.status);
@@ -63,12 +75,26 @@ export function ChatInterface() {
       console.log("[visualizePokemonData] Updated visualizations map");
     } catch (error) {
       console.error("[visualizePokemonData] Error:", error);
+    } finally {
+      // Remove from loading set
+      setLoadingVisualizations((prev) => {
+        const next = new Set(prev);
+        next.delete(messageId);
+        return next;
+      });
     }
   };
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: {
+        provider: settings.chatProvider,
+        model: settings.chatModel,
+      },
     }),
     onFinish: ({ message }) => {
       console.log("[ChatInterface] onFinish called", {
@@ -293,6 +319,16 @@ export function ChatInterface() {
                               ))}
                             </MessageContent>
                           </Message>
+                        )}
+
+                        {/* Render Pokemon visualization loading indicator */}
+                        {loadingVisualizations.has(message.id) && (
+                          <div className="border-border/50 bg-card/50 mt-4 flex items-center gap-3 rounded-lg border p-4">
+                            <Loader2 className="text-primary h-5 w-5 animate-spin" />
+                            <span className="text-muted-foreground text-sm">
+                              Generating visualization...
+                            </span>
+                          </div>
                         )}
 
                         {/* Render Pokemon visualization if available */}

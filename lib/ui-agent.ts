@@ -1,13 +1,16 @@
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { z, type ZodSchema } from "zod";
 import {
   PokemonAgentResponseSchema,
   POKEMON_SYSTEM_PROMPT,
 } from "./pokemon-ui-schema";
 
+export type LLMProviderType = typeof openai | typeof anthropic;
+
 export interface LLMConfig {
-  provider?: typeof openai; // e.g., openai, anthropic, etc.
+  provider?: LLMProviderType; // e.g., openai, anthropic, etc.
   model?: string;
   temperature?: number;
   maxTokens?: number;

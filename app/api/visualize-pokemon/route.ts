@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import {
   PokemonAgentResponseSchema,
   POKEMON_SYSTEM_PROMPT,
@@ -8,7 +9,12 @@ import { respond } from "@/lib/ui-agent";
 
 export async function POST(req: Request) {
   try {
-    const { data, context } = await req.json();
+    const {
+      data,
+      context,
+      provider = "openai",
+      model = "gpt-4o-mini",
+    } = await req.json();
 
     if (!data) {
       return NextResponse.json(
@@ -35,12 +41,14 @@ Choose the best Pokemon components to display this data:
 Make it visually appealing and informative.
 `.trim();
 
+    const selectedProvider = provider === "anthropic" ? anthropic : openai;
+
     const result = await respond(prompt, {
       schema: PokemonAgentResponseSchema,
       systemPrompt: POKEMON_SYSTEM_PROMPT,
       llm: {
-        provider: openai,
-        model: "gpt-4o-mini",
+        provider: selectedProvider,
+        model: model,
         temperature: 0.7,
       },
     });

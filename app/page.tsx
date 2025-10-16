@@ -1,10 +1,23 @@
 "use client";
 
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import {
+  ClerkLoaded,
+  ClerkLoading,
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/nextjs";
 import { ChatInterface } from "../components/ChatInterface";
 import { PokemonResultsProvider } from "../components/PokemonResultsProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { SettingsPanel } from "@/components/SettingsPanel";
 import { Bot } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Ensure this page is always dynamically rendered so auth state and Clerk
+// components don't mismatch between server and client during hydration.
+export const dynamic = "force-dynamic";
 
 export default function HomePage() {
   return (
@@ -55,8 +68,14 @@ export default function HomePage() {
                 </p>
               </div>
               <div className="flex items-center gap-4">
+                <SettingsPanel />
                 <ThemeToggle />
-                <UserButton afterSignOutUrl="/" />
+                <ClerkLoading>
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                </ClerkLoading>
+                <ClerkLoaded>
+                  <UserButton afterSignOutUrl="/" />
+                </ClerkLoaded>
               </div>
             </div>
           </div>
