@@ -85,7 +85,47 @@ export function ChatInterface() {
             hasOutput: "output" in part,
           });
 
+          // Check for presentPokemonData tool first (preferred method)
           if (
+            (part.type === "dynamic-tool" || part.type.startsWith("tool-")) &&
+            "toolName" in part &&
+            part.toolName === "presentPokemonData" &&
+            "output" in part
+          ) {
+            console.log("[ChatInterface] Found presentPokemonData tool!");
+
+            try {
+              const result =
+                typeof part.output === "string"
+                  ? JSON.parse(part.output)
+                  : part.output;
+
+              console.log("[ChatInterface] presentPokemonData result:", result);
+
+              if (result?.data) {
+                console.log(
+                  "[ChatInterface] Triggering visualization from presentPokemonData"
+                );
+
+                // Add to results context
+                addResult({
+                  type: "search",
+                  data: result.data as Record<string, unknown>,
+                  query: "presentPokemonData",
+                });
+
+                // Visualize the Pokemon data with UI agent
+                visualizePokemonData(result.data, message.id);
+              }
+            } catch (error) {
+              console.error(
+                "[ChatInterface] Error processing presentPokemonData:",
+                error
+              );
+            }
+          }
+          // Fallback: Check for execute-query tool (backward compatibility)
+          else if (
             (part.type === "dynamic-tool" || part.type.startsWith("tool-")) &&
             "toolName" in part &&
             part.toolName === "execute-query" &&
@@ -186,10 +226,15 @@ export function ChatInterface() {
                 <div className="mx-auto max-w-4xl">
                   {messages.map((message) => {
                     // Separate tool parts from text parts
+                    // Hide presentPokemonData from tool list (it's handled separately)
                     const toolParts = message.parts.filter(
                       (part) =>
-                        part.type === "dynamic-tool" ||
-                        part.type.startsWith("tool-")
+                        (part.type === "dynamic-tool" ||
+                          part.type.startsWith("tool-")) &&
+                        !(
+                          "toolName" in part &&
+                          part.toolName === "presentPokemonData"
+                        )
                     );
                     const textParts = message.parts.filter(
                       (part) => part.type === "text"

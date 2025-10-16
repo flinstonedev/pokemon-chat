@@ -6,6 +6,7 @@ import {
   convertToModelMessages,
   UIMessage,
 } from "ai";
+import { z } from "zod";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
@@ -70,6 +71,26 @@ export async function POST(req: NextRequest) {
       // Continue without MCP tools if connection fails
     }
 
+    // Create custom tool for presenting Pokemon data with visualization
+    const presentPokemonData = {
+      description:
+        "Visualize Pokemon data with a nice UI. Use this tool AFTER executing a Pokemon query to show the results. Write your intro text BEFORE calling this tool, not in it.",
+      inputSchema: z.object({
+        data: z
+          .record(z.unknown())
+          .describe(
+            "The raw Pokemon data from the execute-query tool that should be visualized"
+          ),
+      }),
+      execute: async ({ data }: { data: Record<string, unknown> }) => {
+        // This tool just passes data through - the client will handle visualization
+        return {
+          success: true,
+          data,
+        };
+      },
+    };
+
     const systemMessage = `You are a helpful AI assistant for a Pokemon chat application with access to GraphQL query building tools through the MCP server.
 
 IMPORTANT: You ONLY answer questions related to Pokemon. If a user asks about anything that is not Pokemon-related, politely decline and remind them that you can only help with Pokemon-related questions.
@@ -83,6 +104,7 @@ Available tools help you:
 - Set arguments on fields
 - Validate and execute queries
 - Clean up sessions
+- **presentPokemonData**: Visualize Pokemon data with a nice UI
 
 When users ask about Pokemon:
 1. Start a query session with start-query-session
@@ -90,17 +112,35 @@ When users ask about Pokemon:
 3. Set any needed arguments with set-string-argument or set-typed-argument
 4. Validate the query with validate-query
 5. Execute it with execute-query to get Pokemon data
-6. End the session with end-query-session
-7. Present the results in a friendly, informative way
+6. **CRITICAL - YOU MUST DO THIS**: After getting data from execute-query:
+   a. Write a SHORT intro text response (e.g., "Here are 5 Pokémon:")
+   b. IMMEDIATELY call presentPokemonData with ONLY the data: presentPokemonData({ data: <data> })
+7. End the session with end-query-session
 
-Be conversational and explain what you're doing. If you encounter errors, try to understand and fix them.`;
+**IMPORTANT RULES**:
+- DO NOT describe Pokemon details or stats in your text response
+- Write ONLY a brief intro sentence in text (1 line maximum)
+- ALWAYS call presentPokemonData after execute-query - this is MANDATORY
+- The tool handles visualization - your job is just to introduce it
 
-    // Stream the response with MCP tools (AI SDK 5.0 style)
+Example:
+User: "Show me 5 Pokemon"
+You: [query steps] → execute-query gets data → Write: "Here are 5 Pokémon:" → **MUST call presentPokemonData**({ data: <data> })
+
+NEVER describe the Pokemon data yourself - let the tool visualize it.`;
+
+    // Combine MCP tools with our custom presentPokemonData tool
+    const allTools = {
+      ...mcpTools,
+      presentPokemonData,
+    };
+
+    // Stream the response with all tools (AI SDK 5.0 style)
     const result = streamText({
       model: openai("gpt-4o"),
       system: systemMessage,
       messages: convertToModelMessages(messages),
-      tools: mcpTools,
+      tools: allTools,
       stopWhen: stepCountIs(100),
       onFinish: async ({ usage }) => {
         if (process.env.NODE_ENV !== "production") {
