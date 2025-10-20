@@ -52,8 +52,10 @@ export function PokemonList({ data, query }: PokemonListProps) {
   const dataObj = data as Record<string, unknown>;
   const dataData = dataObj?.data as Record<string, unknown> | undefined;
   const pokemonList =
+    dataData?.pokemon_v2_pokemon || // Pokemon API v2 format
     dataData?.pokemon ||
     dataData?.pokemons ||
+    dataObj?.pokemon_v2_pokemon || // Pokemon API v2 format (root level)
     dataObj?.pokemon ||
     dataObj?.pokemons ||
     [];

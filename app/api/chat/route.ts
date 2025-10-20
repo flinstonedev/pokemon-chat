@@ -84,20 +84,59 @@ export async function POST(req: NextRequest) {
     // Create custom tool for presenting Pokemon data with visualization
     const presentPokemonData = {
       description:
-        "Visualize Pokemon data with a nice UI. Use this tool AFTER executing a Pokemon query to show the results. Write your intro text BEFORE calling this tool, not in it.",
+        "Visualize data with a nice UI. Use this tool AFTER executing a query to show the results. IMPORTANT: Include the query and variables you used so the UI can be interactive. Write your intro text BEFORE calling this tool, not in it.",
       inputSchema: z.object({
         data: z
           .record(z.unknown())
           .describe(
-            "The raw Pokemon data from the execute-query tool that should be visualized"
+            "The raw data from the execute-query tool that should be visualized"
+          ),
+        query: z
+          .string()
+          .optional()
+          .describe(
+            "The GraphQL query string you built and executed (with variables like $limit, $offset)"
+          ),
+        variables: z
+          .record(z.unknown())
+          .optional()
+          .describe(
+            "The variables you used when executing the query (e.g., { limit: 20, offset: 0 })"
           ),
       }),
-      execute: async ({ data }: { data: Record<string, unknown> }) => {
-        // This tool just passes data through - the client will handle visualization
-        return {
+      execute: async ({
+        data,
+        query,
+        variables,
+      }: {
+        data: Record<string, unknown>;
+        query?: string;
+        variables?: Record<string, unknown>;
+      }) => {
+        // Debug logging
+        console.log("🎨 [presentPokemonData] Called with:", {
+          hasData: !!data,
+          hasQuery: !!query,
+          hasVariables: !!variables,
+          query: query?.substring(0, 100),
+          variables,
+        });
+
+        // Pass through data and query metadata for client-side visualization
+        const result = {
           success: true,
           data,
+          queryMetadata: query
+            ? { query, variables: variables || {} }
+            : undefined,
         };
+
+        console.log("🎨 [presentPokemonData] Returning:", {
+          hasQueryMetadata: !!result.queryMetadata,
+          queryMetadata: result.queryMetadata,
+        });
+
+        return result;
       },
     };
 
@@ -107,37 +146,87 @@ IMPORTANT: You ONLY answer questions related to Pokemon. If a user asks about an
 
 Your purpose is to answer questions about Pokemon using the provided GraphQL tools to query the Pokemon API.
 
-Available tools help you:
-- Introspect the GraphQL schema
-- Start query sessions
-- Build queries by selecting fields
-- Set arguments on fields
-- Validate and execute queries
-- Clean up sessions
-- **presentPokemonData**: Visualize Pokemon data with a nice UI
+Available MCP tools:
+- **introspect-schema** - Discover available types and fields in the GraphQL API
+- **start-query-session** - Initialize a query building session
+- **select-field / select-multi-fields** - Add fields to your query
+- **set-string-argument / set-typed-argument** - Set field arguments
+- **validate-query** - Check if query is valid
+- **execute-query** - Run the query and get results
+- **end-query-session** - Clean up the session
+- **presentPokemonData** - Visualize data with interactive UI
 
-When users ask about Pokemon:
-1. Start a query session with start-query-session
-2. Build an appropriate GraphQL query using select-field or select-multi-fields
-3. Set any needed arguments with set-string-argument or set-typed-argument
-4. Validate the query with validate-query
-5. Execute it with execute-query to get Pokemon data
-6. **CRITICAL - YOU MUST DO THIS**: After getting data from execute-query:
-   a. Write a SHORT intro text response (e.g., "Here are 5 Pokémon:")
-   b. IMMEDIATELY call presentPokemonData with ONLY the data: presentPokemonData({ data: <data> })
-7. End the session with end-query-session
+**CRITICAL WORKFLOW - ALWAYS FOLLOW THIS ORDER:**
 
-**IMPORTANT RULES**:
-- DO NOT describe Pokemon details or stats in your text response
-- Write ONLY a brief intro sentence in text (1 line maximum)
-- ALWAYS call presentPokemonData after execute-query - this is MANDATORY
-- The tool handles visualization - your job is just to introduce it
+1. **INTROSPECT FIRST** (MANDATORY):
+   - Call introspect-schema to discover the actual field names in the API
+   - DO NOT assume or guess field names
+   - The API might use names like "pokemon_v2_pokemon" instead of "pokemons"
+   - Look for query root types and their fields
 
-Example:
-User: "Show me 5 Pokemon"
-You: [query steps] → execute-query gets data → Write: "Here are 5 Pokémon:" → **MUST call presentPokemonData**({ data: <data> })
+2. **Start session**:
+   - Call start-query-session
 
-NEVER describe the Pokemon data yourself - let the tool visualize it.`;
+3. **Build query using DISCOVERED field names**:
+   - Use select-field or select-multi-fields
+   - ONLY use field names you discovered from introspection
+   - DO NOT use intuitive names like "pokemons" - use the EXACT names from the schema
+4. **CRITICAL - Use Variables for Dynamic Values**:
+   - For pagination: MUST use $limit: Int! and $offset: Int! variables
+   - For search: MUST use $search: String! variable
+   - For filters: Use appropriate variable types
+   - Example: "query GetData($limit: Int!, $offset: Int!) { <field>(limit: $limit, offset: $offset) { ... } }"
+   - DO NOT hardcode values - always use variables!
+
+5. **Set arguments**:
+   - Use set-string-argument or set-typed-argument for field arguments
+
+6. **Validate**:
+   - Call validate-query to check if query is valid
+
+7. **Execute**:
+   - Call execute-query to run the query and get data
+   - This ensures the query works with the actual API
+
+8. **CRITICAL - Visualize with presentPokemonData**:
+   After getting data from execute-query, you MUST:
+   a. Write a SHORT intro text (e.g., "Here are 20 results:")
+   b. IMMEDIATELY call presentPokemonData with:
+      - data: The result data from execute-query
+      - query: The EXACT query string you built
+      - variables: The variables you used (e.g., { limit: 20, offset: 0 })
+
+   This allows the UI to create interactive pagination/search components.
+
+9. **Clean up**:
+   - Call end-query-session
+
+**WHY VARIABLES MATTER:**
+- $limit + $offset → Creates interactive paginated list with prev/next buttons
+- $search → Creates searchable interface with text input
+- Variables make queries reusable and enable interactive UIs
+
+**VISUALIZATION RULES**:
+- DO NOT describe data details in text - let presentPokemonData handle it
+- Keep text response to 1 line maximum
+- ALWAYS call presentPokemonData after execute-query - NOT optional
+- Pass the exact query and variables for interactive components
+
+**Example Workflow:**
+User: "Show me all Pokemon"
+
+Step 1: introspect-schema (discover that the field is "pokemon_v2_pokemon")
+Step 2: start-query-session
+Step 3: select-field("pokemon_v2_pokemon") with $limit and $offset variables
+Step 4: validate-query
+Step 5: execute-query with { limit: 20, offset: 0 }
+Step 6: Write: "Here are 20 Pokémon:"
+Step 7: presentPokemonData({
+  data: <execute-query result>,
+  query: "query GetPokemon($limit: Int!, $offset: Int!) { pokemon_v2_pokemon(limit: $limit, offset: $offset) { id name } }",
+  variables: { limit: 20, offset: 0 }
+})
+Step 8: end-query-session`;
 
     // Combine MCP tools with our custom presentPokemonData tool
     const allTools = {

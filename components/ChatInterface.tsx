@@ -7,7 +7,7 @@ import { usePokemonResults } from "./PokemonResultsProvider";
 import { useSettings } from "./SettingsProvider";
 import { useState } from "react";
 import type { PokemonAgentResponse } from "@/lib/pokemon-ui-schema";
-import { PokemonUIRenderer } from "./PokemonUIRenderer";
+import { InteractiveUIRenderer } from "./InteractiveUIRenderer";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import {
   Conversation,
@@ -42,9 +42,14 @@ export function ChatInterface() {
   // Function to visualize Pokemon data
   const visualizePokemonData = async (
     data: Record<string, unknown>,
-    messageId: string
+    messageId: string,
+    queryMetadata?: { query: string; variables?: Record<string, unknown> }
   ) => {
-    console.log("[visualizePokemonData] Called with:", { data, messageId });
+    console.log("[visualizePokemonData] Called with:", {
+      data,
+      messageId,
+      queryMetadata,
+    });
 
     // Add to loading set
     setLoadingVisualizations((prev) => new Set(prev).add(messageId));
@@ -55,6 +60,7 @@ export function ChatInterface() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data,
+          queryMetadata,
           provider: settings.uiGeneratorProvider,
           model: settings.uiGeneratorModel,
         }),
@@ -133,6 +139,13 @@ export function ChatInterface() {
                   "[ChatInterface] Triggering visualization from presentPokemonData"
                 );
 
+                // Extract query metadata if available
+                const queryMetadata = result.queryMetadata || undefined;
+                console.log(
+                  "[ChatInterface] Query metadata:",
+                  queryMetadata
+                );
+
                 // Add to results context
                 addResult({
                   type: "search",
@@ -140,8 +153,8 @@ export function ChatInterface() {
                   query: "presentPokemonData",
                 });
 
-                // Visualize the Pokemon data with UI agent
-                visualizePokemonData(result.data, message.id);
+                // Visualize the Pokemon data with UI agent, passing query metadata
+                visualizePokemonData(result.data, message.id, queryMetadata);
               }
             } catch (error) {
               console.error(
@@ -194,6 +207,90 @@ export function ChatInterface() {
                   pokemonData
                 );
 
+                // Extract query metadata - MCP stores it in result.data.queryString
+                let queryMetadata;
+
+                // Option 1: Check result.data.queryString (MCP execute-query format)
+                if (result?.data?.queryString) {
+                  console.log(
+                    "[ChatInterface] ✅ Found query in result.data.queryString"
+                  );
+
+                  // Extract variables from result.data if available
+                  let variables = result.data.variables || {};
+
+                  // If query has default values like $limit: Int = 20, extract them
+                  if (Object.keys(variables).length === 0) {
+                    const limitMatch = result.data.queryString.match(/\$limit:\s*Int\s*=\s*(\d+)/);
+                    const offsetMatch = result.data.queryString.match(/\$offset:\s*Int\s*=\s*(\d+)/);
+                    if (limitMatch || offsetMatch) {
+                      variables = {
+                        limit: limitMatch ? parseInt(limitMatch[1]) : 20,
+                        offset: offsetMatch ? parseInt(offsetMatch[1]) : 0,
+                      };
+                      console.log(
+                        "[ChatInterface] Extracted default variables from query:",
+                        variables
+                      );
+                    }
+                  }
+
+                  queryMetadata = {
+                    query: result.data.queryString,
+                    variables,
+                  };
+                  console.log(
+                    "[ChatInterface] Extracted queryMetadata:",
+                    queryMetadata
+                  );
+                }
+
+                // Option 2: Check result.metadata (alternative format)
+                if (!queryMetadata && result?.metadata) {
+                  console.log(
+                    "[ChatInterface] Checking metadata:",
+                    result.metadata
+                  );
+                  if (result.metadata.query || result.metadata.queryString) {
+                    queryMetadata = {
+                      query: result.metadata.query || result.metadata.queryString,
+                      variables: result.metadata.variables || {},
+                    };
+                    console.log(
+                      "[ChatInterface] Extracted queryMetadata from metadata:",
+                      queryMetadata
+                    );
+                  }
+                }
+
+                // Option 3: Fallback to tool input (legacy)
+                if (!queryMetadata && "input" in part && part.input) {
+                  console.log(
+                    "[ChatInterface] Trying tool input as fallback:",
+                    part.input
+                  );
+                  const input =
+                    typeof part.input === "string"
+                      ? JSON.parse(part.input)
+                      : part.input;
+                  if (input.query) {
+                    queryMetadata = {
+                      query: input.query,
+                      variables: input.variables || {},
+                    };
+                    console.log(
+                      "[ChatInterface] Extracted queryMetadata from input:",
+                      queryMetadata
+                    );
+                  }
+                }
+
+                if (!queryMetadata) {
+                  console.warn(
+                    "[ChatInterface] ⚠️ No query metadata found - will generate static UI"
+                  );
+                }
+
                 // Add to results context
                 addResult({
                   type: "search",
@@ -202,7 +299,7 @@ export function ChatInterface() {
                 });
 
                 // Visualize the Pokemon data with UI agent
-                visualizePokemonData(pokemonData, message.id);
+                visualizePokemonData(pokemonData, message.id, queryMetadata);
               } else {
                 console.log(
                   "[ChatInterface] No Pokemon data found in result:",
@@ -341,7 +438,7 @@ export function ChatInterface() {
                             );
                             return (
                               <div className="mt-4">
-                                <PokemonUIRenderer
+                                <InteractiveUIRenderer
                                   elements={visualizations.get(message.id)!.ui}
                                 />
                               </div>

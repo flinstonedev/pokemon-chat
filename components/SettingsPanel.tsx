@@ -22,7 +22,10 @@ const CHAT_MODELS = {
   ],
   anthropic: [
     { value: "claude-haiku-4-5-20251001" as const, label: "Claude Haiku 4.5" },
-    { value: "claude-sonnet-4-5-20250929" as const, label: "Claude Sonnet 4.5" },
+    {
+      value: "claude-sonnet-4-5-20250929" as const,
+      label: "Claude Sonnet 4.5",
+    },
   ],
 };
 
@@ -30,7 +33,10 @@ const UI_GENERATOR_MODELS = {
   openai: [{ value: "gpt-5-mini" as const, label: "GPT-5-mini" }],
   anthropic: [
     { value: "claude-haiku-4-5-20251001" as const, label: "Claude Haiku 4.5" },
-    { value: "claude-sonnet-4-5-20250929" as const, label: "Claude Sonnet 4.5" },
+    {
+      value: "claude-sonnet-4-5-20250929" as const,
+      label: "Claude Sonnet 4.5",
+    },
   ],
 };
 

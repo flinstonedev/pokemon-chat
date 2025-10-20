@@ -7,6 +7,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Link from "next/link";
 import { CookieBanner } from "@/components/CookieBanner";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { UIComponentProvider } from "@/components/UIComponentProvider";
 
 const firaCode = Fira_Code({
   subsets: ["latin"],
@@ -40,9 +41,11 @@ export default function RootLayout({
         >
           <ClerkProvider dynamic>
             <ConvexClientProvider>
-              <SettingsProvider>
-                <div className="flex flex-1 flex-col">{children}</div>
-              </SettingsProvider>
+              <UIComponentProvider>
+                <SettingsProvider>
+                  <div className="flex flex-1 flex-col">{children}</div>
+                </SettingsProvider>
+              </UIComponentProvider>
               <footer className="bg-surface-2 border-border/50 text-foreground border-t py-6 backdrop-blur-md">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
                   <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">

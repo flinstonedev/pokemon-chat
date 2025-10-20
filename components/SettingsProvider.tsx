@@ -6,8 +6,12 @@ export type LLMProvider = "openai" | "anthropic";
 export type ChatModel =
   | "gpt-4o-mini"
   | "gpt-5-mini"
-  | "claude-sonnet-4-5-20250929" | "claude-haiku-4-5-20251001";
-export type UIGeneratorModel = "gpt-5-mini" | "claude-sonnet-4-5-20250929" | "claude-haiku-4-5-20251001";
+  | "claude-sonnet-4-5-20250929"
+  | "claude-haiku-4-5-20251001";
+export type UIGeneratorModel =
+  | "gpt-5-mini"
+  | "claude-sonnet-4-5-20250929"
+  | "claude-haiku-4-5-20251001";
 
 export interface SettingsContextType {
   chatProvider: LLMProvider;
