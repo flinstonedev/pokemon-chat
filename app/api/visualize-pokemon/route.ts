@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { openai } from "@ai-sdk/openai";
+import { openai, createOpenAI } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
 import {
   PokemonAgentResponseSchema,
@@ -153,7 +153,21 @@ Use appropriate Pokemon components like pokemon-card, pokemon-stats-panel, conta
 Choose the best component type based on the data structure.
 `.trim();
 
-    const selectedProvider = provider === "anthropic" ? anthropic : openai;
+    // Select the appropriate provider
+    let selectedProvider;
+    if (provider === "anthropic") {
+      selectedProvider = anthropic;
+    } else if (provider === "zai") {
+      // Create Zhipu AI client using OpenAI-compatible API
+      const zhipu = createOpenAI({
+        baseURL: "https://api.z.ai/api/paas/v4",
+        // baseURL: "http://127.0.0.1:1234/v1",
+        apiKey: process.env.ZHIPU_API_KEY || "",
+      });
+      selectedProvider = zhipu;
+    } else {
+      selectedProvider = openai;
+    }
 
     const result = await respond(prompt, {
       schema: PokemonAgentResponseSchema,
@@ -162,6 +176,7 @@ Choose the best component type based on the data structure.
         provider: selectedProvider,
         model: model,
         temperature: 0.7,
+        useChat: provider === "zai", // Force chat API for ZAI
       },
     });
 

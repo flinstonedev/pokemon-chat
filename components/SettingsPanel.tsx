@@ -27,6 +27,9 @@ const CHAT_MODELS = {
       label: "Claude Sonnet 4.5",
     },
   ],
+  zai: [
+    { value: "glm-4.6" as const, label: "GLM-4.6" },
+  ],
 };
 
 const UI_GENERATOR_MODELS = {
@@ -37,6 +40,9 @@ const UI_GENERATOR_MODELS = {
       value: "claude-sonnet-4-5-20250929" as const,
       label: "Claude Sonnet 4.5",
     },
+  ],
+  zai: [
+    { value: "glm-4.6" as const, label: "GLM-4.6" },
   ],
 };
 
@@ -114,7 +120,7 @@ export function SettingsPanel() {
               <Select
                 value={chatProvider}
                 onValueChange={(value) =>
-                  setChatProvider(value as "openai" | "anthropic")
+                  setChatProvider(value as "openai" | "anthropic" | "zai")
                 }
               >
                 <SelectTrigger className="border-border/50 bg-surface-1 text-foreground">
@@ -123,6 +129,7 @@ export function SettingsPanel() {
                 <SelectContent>
                   <SelectItem value="openai">OpenAI</SelectItem>
                   <SelectItem value="anthropic">Anthropic</SelectItem>
+                  <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -172,7 +179,7 @@ export function SettingsPanel() {
               <Select
                 value={uiGeneratorProvider}
                 onValueChange={(value) =>
-                  setUIGeneratorProvider(value as "openai" | "anthropic")
+                  setUIGeneratorProvider(value as "openai" | "anthropic" | "zai")
                 }
               >
                 <SelectTrigger className="border-border/50 bg-surface-1 text-foreground">
@@ -181,6 +188,7 @@ export function SettingsPanel() {
                 <SelectContent>
                   <SelectItem value="openai">OpenAI</SelectItem>
                   <SelectItem value="anthropic">Anthropic</SelectItem>
+                  <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

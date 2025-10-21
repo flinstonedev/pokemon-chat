@@ -15,6 +15,7 @@ export interface LLMConfig {
   temperature?: number;
   maxTokens?: number;
   topP?: number;
+  useChat?: boolean; // Force chat API instead of responses API (needed for ZAI)
 }
 
 export interface AgentConfig<TSchema extends ZodSchema> {
@@ -46,8 +47,12 @@ export async function respond<TSchema extends ZodSchema>(
 
   try {
     // Use generateObject from AI SDK v5
+    // Force chat API if useChat is true (needed for ZAI and other providers that don't support Responses API)
+    const modelInstance = llmConfig.useChat ? provider.chat(modelName) : provider(modelName);
+    // const modelInstance = provider(modelName);
+
     const result = await generateObject({
-      model: provider(modelName),
+      model: modelInstance,
       schema: schema,
       prompt: userPrompt,
       system: systemPrompt,

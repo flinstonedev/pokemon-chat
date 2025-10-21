@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { openai, createOpenAI } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
 import {
   streamText,
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       model = "gpt-4o",
     }: {
       messages: UIMessage[];
-      provider?: "openai" | "anthropic";
+      provider?: "openai" | "anthropic" | "zai";
       model?: string;
     } = await req.json();
 
@@ -369,11 +369,25 @@ PHASE 4 - CLEANUP (MCP tool):
     };
 
     // Select the appropriate provider
-    const selectedProvider = provider === "anthropic" ? anthropic : openai;
+    let selectedProvider;
+    if (provider === "anthropic") {
+      selectedProvider = anthropic;
+    } else if (provider === "zai") {
+      // Create Zhipu AI client using OpenAI-compatible API
+      const zhipu = createOpenAI({
+        baseURL: "https://api.z.ai/api/paas/v4",
+        // baseURL: "http://127.0.0.1:1234/v1",
+        apiKey: process.env.ZHIPU_API_KEY || "",
+      });
+      selectedProvider = zhipu;
+    } else {
+      selectedProvider = openai;
+    }
 
     // Stream the response with all tools (AI SDK 5.0 style)
     const result = streamText({
-      model: selectedProvider(model),
+      model: provider === "zai" ? selectedProvider.chat(model) : selectedProvider(model),
+      // model: selectedProvider(model),
       system: systemMessage,
       messages: convertToModelMessages(messages),
       tools: allTools,
