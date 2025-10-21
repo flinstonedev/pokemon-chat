@@ -39,9 +39,22 @@ export const PaginatedList = ({
     if (state.data.pokemons?.results) {
       items = state.data.pokemons.results;
     }
-    // Check for pokemon.results (custom GraphQL Pokedex structure - singular)
+    // Check for pokemon.results (custom GraphQL Pokedex structure - singular with results)
     else if (state.data.pokemon?.results) {
       items = state.data.pokemon.results;
+    }
+    // Check for pokemon as a single object (not .results)
+    else if (
+      state.data.pokemon &&
+      typeof state.data.pokemon === "object" &&
+      !Array.isArray(state.data.pokemon) &&
+      state.data.pokemon.id
+    ) {
+      items = [state.data.pokemon];
+    }
+    // Check for pokemon as an array
+    else if (Array.isArray(state.data.pokemon)) {
+      items = state.data.pokemon;
     }
     // Check for pokemon_v2_pokemon (beta.pokeapi.co structure)
     else if (state.data.pokemon_v2_pokemon) {
@@ -235,10 +248,25 @@ export const SearchableList = ({
       items = state.data.pokemons.results;
       console.log("[SearchableList] Using pokemons.results, count:", items.length);
     }
-    // Check for pokemon.results (custom GraphQL Pokedex structure - singular)
+    // Check for pokemon.results (custom GraphQL Pokedex structure - singular with results)
     else if (state.data.pokemon?.results) {
       items = state.data.pokemon.results;
       console.log("[SearchableList] Using pokemon.results, count:", items.length);
+    }
+    // Check for pokemon as a single object (not .results)
+    else if (
+      state.data.pokemon &&
+      typeof state.data.pokemon === "object" &&
+      !Array.isArray(state.data.pokemon) &&
+      state.data.pokemon.id
+    ) {
+      items = [state.data.pokemon];
+      console.log("[SearchableList] Using pokemon as single object");
+    }
+    // Check for pokemon as an array
+    else if (Array.isArray(state.data.pokemon)) {
+      items = state.data.pokemon;
+      console.log("[SearchableList] Using pokemon as array, count:", items.length);
     }
     // Check for pokemon_v2_pokemon (beta.pokeapi.co structure)
     else if (state.data.pokemon_v2_pokemon) {
@@ -407,9 +435,22 @@ export const DataTable = ({ component }: DataTableProps) => {
     if (state.data.pokemons?.results) {
       items = state.data.pokemons.results;
     }
-    // Check for pokemon.results (custom GraphQL Pokedex structure - singular)
+    // Check for pokemon.results (custom GraphQL Pokedex structure - singular with results)
     else if (state.data.pokemon?.results) {
       items = state.data.pokemon.results;
+    }
+    // Check for pokemon as a single object (not .results)
+    else if (
+      state.data.pokemon &&
+      typeof state.data.pokemon === "object" &&
+      !Array.isArray(state.data.pokemon) &&
+      state.data.pokemon.id
+    ) {
+      items = [state.data.pokemon];
+    }
+    // Check for pokemon as an array
+    else if (Array.isArray(state.data.pokemon)) {
+      items = state.data.pokemon;
     }
     // Check for pokemon_v2_pokemon (beta.pokeapi.co structure)
     else if (state.data.pokemon_v2_pokemon) {

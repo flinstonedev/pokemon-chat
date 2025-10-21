@@ -92,13 +92,16 @@ The application features a sophisticated UI generation system:
 
    **Supported Data Structures:**
    All interactive components support multiple GraphQL API response formats:
-   - `pokemons.results` + `pokemons.count` (plural form)
-   - `pokemon.results` + `pokemon.count` (singular form)
+   - `pokemons.results` + `pokemons.count` (plural form with results array)
+   - `pokemon.results` + `pokemon.count` (singular form with results array)
+   - `pokemon` as a single object (e.g., `{ pokemon: { id: 1, name: "bulbasaur" } }`)
+   - `pokemon` as an array (e.g., `{ pokemon: [...] }`)
    - `pokemon_v2_pokemon` (PokeAPI beta structure)
    - `items` (generic)
    - Direct arrays
 
    This flexibility allows the same components to work with different GraphQL endpoints without modification.
+   Single objects are automatically wrapped in arrays for consistent rendering.
 
 4. **Action Executor** (`lib/ui-action-executor.ts`)
    - Executes GraphQL queries from UI actions
