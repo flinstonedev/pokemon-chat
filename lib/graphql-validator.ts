@@ -132,27 +132,24 @@ export const validateGraphQLVariables = (
 };
 
 /**
- * Whitelisted endpoints for GraphQL queries
- */
-const ALLOWED_ENDPOINTS = [
-  "https://beta.pokeapi.co/graphql/v1beta", // Pokemon GraphQL API
-  // Add other trusted endpoints here
-];
-
-/**
  * Validates GraphQL endpoint URL
  */
 export const validateGraphQLEndpoint = (
   endpoint?: string
 ): ValidationResult => {
-  // If no endpoint specified, we'll use MCP (which is safe)
+  // If no endpoint specified, we'll use the configured GRAPHQL_API_ENDPOINT
   if (!endpoint) {
     return { valid: true };
   }
 
-  // Check if endpoint is in whitelist
-  if (!ALLOWED_ENDPOINTS.includes(endpoint)) {
-    return { valid: false, error: "Endpoint not in whitelist" };
+  // Validate that endpoint is a valid HTTPS URL
+  try {
+    const url = new URL(endpoint);
+    if (url.protocol !== "https:") {
+      return { valid: false, error: "Only HTTPS endpoints are allowed" };
+    }
+  } catch {
+    return { valid: false, error: "Invalid endpoint URL" };
   }
 
   return { valid: true };

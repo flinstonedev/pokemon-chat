@@ -81,15 +81,80 @@ export async function POST(req: NextRequest) {
       // Continue without MCP tools if connection fails
     }
 
+    // Create custom tool for executing GraphQL queries
+    const executeGraphQLQuery = {
+      description:
+        "Execute a GraphQL query against the configured endpoint. Use this INSTEAD of the MCP execute-query tool. This ensures queries use the correct endpoint and authentication.",
+      inputSchema: z.object({
+        query: z
+          .string()
+          .min(1)
+          .describe("The GraphQL query string to execute"),
+        variables: z
+          .record(z.unknown())
+          .optional()
+          .describe("Variables for the GraphQL query (e.g., { limit: 20, offset: 0 })"),
+      }),
+      execute: async ({
+        query,
+        variables,
+      }: {
+        query: string;
+        variables?: Record<string, unknown>;
+      }) => {
+        console.log("🔍 [executeGraphQLQuery] Executing query:", {
+          query: query.substring(0, 100),
+          variables,
+        });
+
+        try {
+          const response = await fetch(
+            `${req.nextUrl.origin}/api/execute-graphql`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ query, variables: variables || {} }),
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(
+              errorData.error || `HTTP ${response.status}: ${response.statusText}`
+            );
+          }
+
+          const result = await response.json();
+
+          if (!result.success) {
+            throw new Error(result.error || "Query execution failed");
+          }
+
+          console.log("🔍 [executeGraphQLQuery] Success!");
+          return {
+            success: true,
+            data: result.data,
+            message: "Query executed successfully",
+          };
+        } catch (error) {
+          console.error("🔍 [executeGraphQLQuery] Error:", error);
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error",
+          };
+        }
+      },
+    };
+
     // Create custom tool for presenting Pokemon data with visualization
     const presentPokemonData = {
       description:
-        "Visualize data with a nice UI. Use this tool AFTER executing a query to show the results. IMPORTANT: Include the query and variables you used so the UI can be interactive. Write your intro text BEFORE calling this tool, not in it.",
+        "Visualize data with a nice UI. Use this tool AFTER executeGraphQLQuery to show the results. CRITICAL: Pass the 'data' field from executeGraphQLQuery's result (e.g., if executeGraphQLQuery returns {success: true, data: {...}}, pass the {...} part). Include the query and variables so the UI can be interactive. Write your intro text BEFORE calling this tool, not in it.",
       inputSchema: z.object({
         data: z
           .record(z.unknown())
           .describe(
-            "The raw data from the execute-query tool that should be visualized"
+            "REQUIRED: The 'data' field from executeGraphQLQuery's result. Example: if executeGraphQLQuery returns {success: true, data: {pokemon: [...]}}, pass {pokemon: [...]} here."
           ),
         query: z
           .string()
@@ -103,23 +168,34 @@ export async function POST(req: NextRequest) {
           .describe(
             "The variables you used when executing the query (e.g., { limit: 20, offset: 0 })"
           ),
+        endpoint: z
+          .string()
+          .url()
+          .optional()
+          .describe(
+            "The GraphQL endpoint URL (optional - defaults to configured endpoint)"
+          ),
       }),
       execute: async ({
         data,
         query,
         variables,
+        endpoint,
       }: {
         data: Record<string, unknown>;
         query?: string;
         variables?: Record<string, unknown>;
+        endpoint?: string;
       }) => {
         // Debug logging
         console.log("🎨 [presentPokemonData] Called with:", {
           hasData: !!data,
           hasQuery: !!query,
           hasVariables: !!variables,
+          hasEndpoint: !!endpoint,
           query: query?.substring(0, 100),
           variables,
+          endpoint,
         });
 
         // Pass through data and query metadata for client-side visualization
@@ -127,7 +203,7 @@ export async function POST(req: NextRequest) {
           success: true,
           data,
           queryMetadata: query
-            ? { query, variables: variables || {} }
+            ? { query, variables: variables || {}, endpoint }
             : undefined,
         };
 
@@ -142,63 +218,108 @@ export async function POST(req: NextRequest) {
 
     const systemMessage = `You are a helpful AI assistant for a Pokemon chat application with access to GraphQL query building tools through the MCP server.
 
-IMPORTANT: You ONLY answer questions related to Pokemon. If a user asks about anything that is not Pokemon-related, politely decline and remind them that you can only help with Pokemon-related questions.
+IMPORTANT: You ONLY answer questions related to Pokemon. Pokemon-related requests include:
+- Searching for Pokemon (e.g., "show me 20 Pokemon", "find fire type Pokemon")
+- Building Pokemon search UIs, finders, or explorers (e.g., "create a Pokemon finder", "build a searchable list")
+- Getting Pokemon stats, types, abilities, moves, evolutions
+- Comparing Pokemon or analyzing Pokemon data
+- ANY request involving Pokemon data or Pokemon UIs
+
+If a user asks about non-Pokemon topics (like recipes, weather, math), politely decline and remind them you can only help with Pokemon.
 
 Your purpose is to answer questions about Pokemon using the provided GraphQL tools to query the Pokemon API.
 
-Available MCP tools:
+Available tools:
+
+**MCP Query Building Tools (for building queries ONLY, NOT executing):**
 - **introspect-schema** - Discover available types and fields in the GraphQL API
 - **start-query-session** - Initialize a query building session
 - **select-field / select-multi-fields** - Add fields to your query
 - **set-string-argument / set-typed-argument** - Set field arguments
 - **validate-query** - Check if query is valid
-- **execute-query** - Run the query and get results
 - **end-query-session** - Clean up the session
+- NOTE: The MCP server has an execute-query tool - DO NOT USE IT! Use our executeGraphQLQuery instead.
+
+**Execution & Visualization Tools:**
+- **executeGraphQLQuery** - Execute the query you built (use this to run queries!)
 - **presentPokemonData** - Visualize data with interactive UI
+
+**COMMON USER REQUEST PATTERNS:**
+
+When users ask for:
+- "Pokemon finder" / "search" / "searchable list" → Build query with a String variable for search/filtering
+- "Show me X Pokemon" / "list" / "browse" → Build query with $limit and $offset variables (Int type)
+- "Pokemon with [attribute]" → Build query with appropriate filter arguments discovered from schema
+- "Compare Pokemon" / "stats" → Build query for specific Pokemon data
+
+The MCP server will help you discover the exact field names and argument types via introspection.
+You MUST use the actual schema, not assumptions. Every GraphQL API is different.
+
+**IMPORTANT: NEVER GIVE UP!**
+- If one approach doesn't work, try a simpler query
+- If you encounter errors, read them carefully and adjust your query
+- You have all the tools needed to succeed - introspection shows you everything
+- ALWAYS complete the workflow - never stop halfway and ask the user for help
+- If unsure, build the simplest possible query first, then enhance it
 
 **CRITICAL WORKFLOW - ALWAYS FOLLOW THIS ORDER:**
 
-1. **INTROSPECT FIRST** (MANDATORY):
-   - Call introspect-schema to discover the actual field names in the API
-   - DO NOT assume or guess field names
-   - The API might use names like "pokemon_v2_pokemon" instead of "pokemons"
-   - Look for query root types and their fields
+**PHASE 1: BUILD THE QUERY (using MCP tools)**
 
-2. **Start session**:
+1. **INTROSPECT the schema**:
+   - Call introspect-schema to discover available field names
+   - Look for query root types and their fields
+   - Find fields that return Pokemon lists (look for fields with "pokemon" in the name)
+   - Note what arguments those fields accept (limit, offset, where, search, etc.)
+
+2. **START query session**:
    - Call start-query-session
 
-3. **Build query using DISCOVERED field names**:
-   - Use select-field or select-multi-fields
-   - ONLY use field names you discovered from introspection
-   - DO NOT use intuitive names like "pokemons" - use the EXACT names from the schema
-4. **CRITICAL - Use Variables for Dynamic Values**:
+3. **BUILD the query**:
+   - Use ONLY field names you discovered from introspection - never guess or assume
+   - Start with the fields you found that return Pokemon data
+   - Use select-field or select-multi-fields to add fields
+   - Add arguments based on what the schema supports (discovered via introspection)
+   - Use the EXACT names from the schema - spelling matters!
+
+4. **ADD variables** (CRITICAL for interactive components):
    - For pagination: MUST use $limit: Int! and $offset: Int! variables
    - For search: MUST use $search: String! variable
-   - For filters: Use appropriate variable types
    - Example: "query GetData($limit: Int!, $offset: Int!) { <field>(limit: $limit, offset: $offset) { ... } }"
    - DO NOT hardcode values - always use variables!
 
-5. **Set arguments**:
+5. **SET arguments**:
    - Use set-string-argument or set-typed-argument for field arguments
 
-6. **Validate**:
-   - Call validate-query to check if query is valid
+6. **VALIDATE the query**:
+   - Call validate-query to check if query is syntactically correct
 
-7. **Execute**:
-   - Call execute-query to run the query and get data
-   - This ensures the query works with the actual API
+**PHASE 2: EXECUTE THE QUERY (using our custom tool)**
 
-8. **CRITICAL - Visualize with presentPokemonData**:
-   After getting data from execute-query, you MUST:
-   a. Write a SHORT intro text (e.g., "Here are 20 results:")
-   b. IMMEDIATELY call presentPokemonData with:
-      - data: The result data from execute-query
+7. **EXECUTE with executeGraphQLQuery**:
+   - CRITICAL: DO NOT use MCP's execute-query tool!
+   - Use executeGraphQLQuery tool (our custom execution tool)
+   - Pass: { query: "<the query string you built>", variables: { limit: 20, offset: 0 } }
+   - This ensures the query runs against the configured endpoint with authentication
+
+**PHASE 3: VISUALIZE THE RESULTS**
+
+8. **VISUALIZE with presentPokemonData**:
+   After executeGraphQLQuery returns data, you MUST:
+   a. Write a SHORT intro text (1 line max, e.g., "Here are 20 results:")
+   b. Call presentPokemonData with:
+      - data: The RESULT.DATA field from executeGraphQLQuery (NOT the entire result object!)
       - query: The EXACT query string you built
-      - variables: The variables you used (e.g., { limit: 20, offset: 0 })
+      - variables: The variables you used
 
-   This allows the UI to create interactive pagination/search components.
+   CRITICAL: executeGraphQLQuery returns { success: true, data: {...}, message: "..." }
+   You MUST extract the "data" field and pass it to presentPokemonData!
+   Example: If executeGraphQLQuery returns { success: true, data: { pokemon: [...] } }
+   Then pass { pokemon: [...] } to presentPokemonData's data parameter.
 
-9. **Clean up**:
+**PHASE 4: CLEANUP**
+
+9. **END session**:
    - Call end-query-session
 
 **WHY VARIABLES MATTER:**
@@ -209,28 +330,41 @@ Available MCP tools:
 **VISUALIZATION RULES**:
 - DO NOT describe data details in text - let presentPokemonData handle it
 - Keep text response to 1 line maximum
-- ALWAYS call presentPokemonData after execute-query - NOT optional
+- ALWAYS call presentPokemonData after executeGraphQLQuery - NOT optional
 - Pass the exact query and variables for interactive components
 
 **Example Workflow:**
-User: "Show me all Pokemon"
 
-Step 1: introspect-schema (discover that the field is "pokemon_v2_pokemon")
-Step 2: start-query-session
-Step 3: select-field("pokemon_v2_pokemon") with $limit and $offset variables
-Step 4: validate-query
-Step 5: execute-query with { limit: 20, offset: 0 }
-Step 6: Write: "Here are 20 Pokémon:"
-Step 7: presentPokemonData({
-  data: <execute-query result>,
-  query: "query GetPokemon($limit: Int!, $offset: Int!) { pokemon_v2_pokemon(limit: $limit, offset: $offset) { id name } }",
-  variables: { limit: 20, offset: 0 }
-})
-Step 8: end-query-session`;
+User: "Show me 20 Pokemon"
 
-    // Combine MCP tools with our custom presentPokemonData tool
+PHASE 1 - BUILD (MCP tools only):
+→ introspect-schema (discover what fields exist in the schema)
+→ start-query-session
+→ select-field (add the fields you discovered, with $limit/$offset variables)
+→ validate-query
+
+PHASE 2 - EXECUTE (custom tool):
+→ executeGraphQLQuery({
+    query: "query YourQueryName($limit: Int!, $offset: Int!) { <fields from schema> }",
+    variables: { limit: 20, offset: 0 }
+  })
+  // Returns: { success: true, data: { ... }, message: "..." }
+
+PHASE 3 - VISUALIZE (custom tool):
+→ Write: "Here are 20 Pokémon:"
+→ presentPokemonData({
+    data: result.data,  // Extract the "data" field from executeGraphQLQuery result!
+    query: "<the exact query string you built>",
+    variables: { limit: 20, offset: 0 }
+  })
+
+PHASE 4 - CLEANUP (MCP tool):
+→ end-query-session`;
+
+    // Combine MCP tools with our custom tools
     const allTools = {
       ...mcpTools,
+      executeGraphQLQuery,
       presentPokemonData,
     };
 

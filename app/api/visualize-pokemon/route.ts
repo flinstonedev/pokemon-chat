@@ -6,6 +6,11 @@ import {
   POKEMON_SYSTEM_PROMPT,
 } from "@/lib/pokemon-ui-schema";
 import { respond } from "@/lib/ui-agent";
+import {
+  hasPaginationSupport as checkPaginationSupport,
+  hasSearchSupport as checkSearchSupport,
+  detectSearchVariable,
+} from "@/lib/graphql-utils";
 
 export async function POST(req: Request) {
   try {
@@ -41,16 +46,26 @@ export async function POST(req: Request) {
     const hasPaginationSupport =
       !!queryMetadata &&
       typeof queryMetadata.query === "string" &&
-      queryMetadata.query.includes("$limit") &&
-      queryMetadata.query.includes("$offset");
+      checkPaginationSupport(queryMetadata.query);
 
     // Check if query supports search
     const hasSearchSupport =
       !!queryMetadata &&
       typeof queryMetadata.query === "string" &&
-      (queryMetadata.query.includes("$search") ||
-        queryMetadata.query.includes("_ilike") ||
-        queryMetadata.query.includes("_like"));
+      checkSearchSupport(queryMetadata.query);
+
+    // Detect search variable name if search is supported
+    const searchVariable =
+      hasSearchSupport && queryMetadata?.query
+        ? detectSearchVariable(queryMetadata.query)
+        : null;
+
+    // Get endpoint from query metadata (optional - provided by LLM via presentPokemonData)
+    // If not provided, use configured GRAPHQL_API_ENDPOINT
+    const endpoint = (queryMetadata as { endpoint?: string })?.endpoint || process.env.GRAPHQL_API_ENDPOINT;
+
+    console.log("🎨 [visualize-pokemon] Using endpoint:", endpoint);
+    console.log("🎨 [visualize-pokemon] Endpoint source:", (queryMetadata as { endpoint?: string })?.endpoint ? "LLM-provided" : "env GRAPHQL_API_ENDPOINT");
 
     // If we have query metadata with pagination/search, directly construct the interactive component
     // This is faster and more reliable than asking the LLM
@@ -84,6 +99,7 @@ export async function POST(req: Request) {
           placeholder: "Search Pokemon...",
           renderItem: "pokemon-card",
           searchField: "name",
+          searchVariable: searchVariable || "search", // Use detected variable or default to "search"
         };
       }
 
@@ -97,7 +113,8 @@ export async function POST(req: Request) {
             type: "graphql-query",
             actionId: "fetchData",
             query: queryMetadata!.query,
-            variables: {},
+            variables: queryMetadata!.variables || {},
+            endpoint: endpoint, // Use auto-detected or provided endpoint
           },
         },
       };
@@ -116,6 +133,7 @@ export async function POST(req: Request) {
         componentId: interactiveComponent.componentId,
         hasActions: !!interactiveComponent.actions,
         actionQuery: interactiveComponent.actions?.fetchData?.query?.substring(0, 100),
+        actionEndpoint: endpoint,
       });
       console.log("🎨 [visualize-pokemon] ===== REQUEST END (INTERACTIVE) =====");
 

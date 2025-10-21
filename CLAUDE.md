@@ -90,6 +90,16 @@ The application features a sophisticated UI generation system:
    - `DataTable`: Client-side sortable tables
    - All components use `UIComponentProvider` for state management
 
+   **Supported Data Structures:**
+   All interactive components support multiple GraphQL API response formats:
+   - `pokemons.results` + `pokemons.count` (plural form)
+   - `pokemon.results` + `pokemon.count` (singular form)
+   - `pokemon_v2_pokemon` (PokeAPI beta structure)
+   - `items` (generic)
+   - Direct arrays
+
+   This flexibility allows the same components to work with different GraphQL endpoints without modification.
+
 4. **Action Executor** (`lib/ui-action-executor.ts`)
    - Executes GraphQL queries from UI actions
    - Rate limiting: 10 requests/minute per component

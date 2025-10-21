@@ -169,6 +169,7 @@ const SearchableList = z.object({
     placeholder: z.string().default("Search..."),
     renderItem: z.enum(["pokemon-card", "generic"]).default("generic"),
     searchField: z.string().default("name"),
+    searchVariable: z.string().default("search"), // GraphQL variable name to use for search
   }),
   actions: z.record(ActionSchema).optional(),
 });

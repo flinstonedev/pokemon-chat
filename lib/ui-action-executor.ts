@@ -155,6 +155,7 @@ export const createActionExecutor = (config: ActionExecutorConfig = {}) => {
         body: JSON.stringify({
           query: action.query,
           variables: action.variables || {},
+          endpoint: action.endpoint, // Pass through endpoint if specified
         }),
       });
 

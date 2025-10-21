@@ -32,12 +32,19 @@ export const PaginatedList = ({
 
   const pageSize = props.pageSize || 20;
 
-  // Handle Pokemon API response structure
-  // The data comes back as { pokemon_v2_pokemon: [...] }
+  // Handle various Pokemon API response structures
   let items = [];
   if (state.data) {
-    // Check for pokemon_v2_pokemon (Pokemon API structure)
-    if (state.data.pokemon_v2_pokemon) {
+    // Check for pokemons.results (custom GraphQL Pokedex structure - plural)
+    if (state.data.pokemons?.results) {
+      items = state.data.pokemons.results;
+    }
+    // Check for pokemon.results (custom GraphQL Pokedex structure - singular)
+    else if (state.data.pokemon?.results) {
+      items = state.data.pokemon.results;
+    }
+    // Check for pokemon_v2_pokemon (beta.pokeapi.co structure)
+    else if (state.data.pokemon_v2_pokemon) {
       items = state.data.pokemon_v2_pokemon;
     } else if (state.data.items) {
       items = state.data.items;
@@ -46,7 +53,7 @@ export const PaginatedList = ({
     }
   }
 
-  const totalCount = state.data?.totalCount || items.length;
+  const totalCount = state.data?.pokemons?.count || state.data?.pokemon?.count || state.data?.totalCount || items.length;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   // Fetch data on mount or page change
@@ -211,16 +218,43 @@ export const SearchableList = ({
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const state = useComponentState(componentId);
 
-  // Handle Pokemon API response structure
+  // Handle various Pokemon API response structures
   let items = [];
   if (state.data) {
-    if (state.data.pokemon_v2_pokemon) {
+    console.log("[SearchableList] Raw state.data:", state.data);
+    console.log("[SearchableList] Checking data structure:", {
+      hasPokemons: !!state.data.pokemons,
+      hasPokemonsResults: !!state.data.pokemons?.results,
+      hasPokemonV2: !!state.data.pokemon_v2_pokemon,
+      hasItems: !!state.data.items,
+      isArray: Array.isArray(state.data),
+    });
+
+    // Check for pokemons.results (custom GraphQL Pokedex structure - plural)
+    if (state.data.pokemons?.results) {
+      items = state.data.pokemons.results;
+      console.log("[SearchableList] Using pokemons.results, count:", items.length);
+    }
+    // Check for pokemon.results (custom GraphQL Pokedex structure - singular)
+    else if (state.data.pokemon?.results) {
+      items = state.data.pokemon.results;
+      console.log("[SearchableList] Using pokemon.results, count:", items.length);
+    }
+    // Check for pokemon_v2_pokemon (beta.pokeapi.co structure)
+    else if (state.data.pokemon_v2_pokemon) {
       items = state.data.pokemon_v2_pokemon;
+      console.log("[SearchableList] Using pokemon_v2_pokemon, count:", items.length);
     } else if (state.data.items) {
       items = state.data.items;
+      console.log("[SearchableList] Using items, count:", items.length);
     } else if (Array.isArray(state.data)) {
       items = state.data;
+      console.log("[SearchableList] Using array, count:", items.length);
+    } else {
+      console.warn("[SearchableList] Could not find items in data structure");
     }
+  } else {
+    console.log("[SearchableList] state.data is null/undefined");
   }
   const placeholder = props.placeholder || "Search...";
 
@@ -232,6 +266,9 @@ export const SearchableList = ({
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // Get the search variable name from props (defaults to "search")
+  const searchVariable = props.searchVariable || "search";
+
   // Fetch data when search query changes
   useEffect(() => {
     if (actions?.fetchData && actions.fetchData.type === "graphql-query") {
@@ -240,13 +277,13 @@ export const SearchableList = ({
         ...fetchAction,
         variables: {
           ...fetchAction.variables,
-          search: debouncedQuery,
+          [searchVariable]: debouncedQuery, // Use detected variable name
         },
       };
       state.execute(searchAction, { actions });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery]);
+  }, [debouncedQuery, searchVariable]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const defaultRenderItem = (item: any, index: number) => {
@@ -362,11 +399,20 @@ export const DataTable = ({ component }: DataTableProps) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const columns = props.columns || ([] as any[]);
 
-  // Handle Pokemon API response structure
+  // Handle various Pokemon API response structures
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let items: any[] = [];
   if (state.data) {
-    if (state.data.pokemon_v2_pokemon) {
+    // Check for pokemons.results (custom GraphQL Pokedex structure - plural)
+    if (state.data.pokemons?.results) {
+      items = state.data.pokemons.results;
+    }
+    // Check for pokemon.results (custom GraphQL Pokedex structure - singular)
+    else if (state.data.pokemon?.results) {
+      items = state.data.pokemon.results;
+    }
+    // Check for pokemon_v2_pokemon (beta.pokeapi.co structure)
+    else if (state.data.pokemon_v2_pokemon) {
       items = state.data.pokemon_v2_pokemon;
     } else if (state.data.items) {
       items = state.data.items;

@@ -111,28 +111,41 @@ export function ChatInterface() {
       // Process tool calls if they contain Pokemon data
       if (message.parts) {
         message.parts.forEach((part, index) => {
-          console.log(`[ChatInterface] Processing part ${index}:`, {
-            type: part.type,
-            toolName: "toolName" in part ? part.toolName : undefined,
-            hasOutput: "output" in part,
-          });
+          // Only log parts that might be tool results
+          if (part.type.includes("tool")) {
+            console.log(`[ChatInterface] Tool part ${index}:`, {
+              type: part.type,
+              toolName: "toolName" in part ? part.toolName : "N/A",
+              hasOutput: "output" in part,
+              hasResult: "result" in part,
+            });
+            console.log(`[ChatInterface] Full part ${index}:`, JSON.stringify(part, null, 2));
+          }
 
           // Check for presentPokemonData tool first (preferred method)
+          // AI SDK 5.0 custom tools use type: "tool-<toolname>" format
           if (
-            (part.type === "dynamic-tool" || part.type.startsWith("tool-")) &&
-            "toolName" in part &&
-            part.toolName === "presentPokemonData" &&
-            "output" in part
+            part.type === "tool-presentPokemonData" ||
+            (part.type === "tool-result" && "toolName" in part && part.toolName === "presentPokemonData") ||
+            (part.type === "dynamic-tool" && "toolName" in part && part.toolName === "presentPokemonData")
           ) {
             console.log("[ChatInterface] Found presentPokemonData tool!");
 
             try {
-              const result =
-                typeof part.output === "string"
-                  ? JSON.parse(part.output)
-                  : part.output;
+              // AI SDK 5.0 uses 'result' instead of 'output'
+              const toolOutput = "result" in part ? part.result : ("output" in part ? part.output : null);
 
-              console.log("[ChatInterface] presentPokemonData result:", result);
+              if (!toolOutput) {
+                console.error("[ChatInterface] presentPokemonData tool has no result or output!");
+                return;
+              }
+
+              const result =
+                typeof toolOutput === "string"
+                  ? JSON.parse(toolOutput)
+                  : toolOutput;
+
+              console.log("[ChatInterface] presentPokemonData result:", JSON.stringify(result, null, 2));
 
               if (result?.data) {
                 console.log(
@@ -155,6 +168,8 @@ export function ChatInterface() {
 
                 // Visualize the Pokemon data with UI agent, passing query metadata
                 visualizePokemonData(result.data, message.id, queryMetadata);
+              } else {
+                console.warn("[ChatInterface] presentPokemonData result has no data field:", result);
               }
             } catch (error) {
               console.error(

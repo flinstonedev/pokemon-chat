@@ -16,14 +16,29 @@ export async function POST(request: Request) {
       );
     }
 
-    // Use provided endpoint or default to Pokemon API
-    const graphqlEndpoint = endpoint || "https://beta.pokeapi.co/graphql/v1beta";
+    // Use provided endpoint or fall back to configured GRAPHQL_API_ENDPOINT
+    const graphqlEndpoint = endpoint || process.env.GRAPHQL_API_ENDPOINT;
+
+    if (!graphqlEndpoint) {
+      return NextResponse.json(
+        { error: "GraphQL endpoint not configured. Set GRAPHQL_API_ENDPOINT environment variable." },
+        { status: 500 }
+      );
+    }
+
+    // Prepare headers
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    // Add bearer token if available (for the configured endpoint)
+    if (graphqlEndpoint === process.env.GRAPHQL_API_ENDPOINT && process.env.GRAPHQL_API_BEARER_TOKEN) {
+      headers["Authorization"] = `Bearer ${process.env.GRAPHQL_API_BEARER_TOKEN}`;
+    }
 
     const response = await fetch(graphqlEndpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify({
         query,
         variables: variables || {},
