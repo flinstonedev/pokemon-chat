@@ -153,7 +153,32 @@ Use appropriate Pokemon components like pokemon-card, pokemon-stats-panel, conta
 Choose the best component type based on the data structure.
 `.trim();
 
-    // Select the appropriate provider
+    // Handle Vercel provider separately
+    if (provider === "vercel") {
+      const result = await respond(prompt, {
+        schema: PokemonAgentResponseSchema,
+        systemPrompt: POKEMON_SYSTEM_PROMPT,
+        llm: {
+          // For Vercel, pass model string directly
+          provider: model as any,
+          model: model,
+          temperature: 0.7,
+          useChat: false,
+        },
+      });
+
+      console.log("🎨 [visualize-pokemon] Generated static UI (Vercel):", {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        uiComponentTypes: (result.ui as any[]).map((el: any) => el.type),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        firstComponent: (result.ui as any[])[0],
+      });
+      console.log("🎨 [visualize-pokemon] ===== REQUEST END (STATIC VERCEL) =====");
+
+      return NextResponse.json(result);
+    }
+
+    // Select the appropriate provider for other providers
     let selectedProvider;
     if (provider === "anthropic") {
       selectedProvider = anthropic;
@@ -161,10 +186,16 @@ Choose the best component type based on the data structure.
       // Create Zhipu AI client using OpenAI-compatible API
       const zhipu = createOpenAI({
         baseURL: "https://api.z.ai/api/paas/v4",
-        // baseURL: "http://127.0.0.1:1234/v1",
         apiKey: process.env.ZHIPU_API_KEY || "",
       });
       selectedProvider = zhipu;
+    } else if (provider === "local") {
+      // Create local model client using OpenAI-compatible API
+      const localClient = createOpenAI({
+        baseURL: "http://127.0.0.1:1234/v1",
+        apiKey: "not-needed", // Local servers often don't require API keys
+      });
+      selectedProvider = localClient;
     } else {
       selectedProvider = openai;
     }
@@ -176,7 +207,7 @@ Choose the best component type based on the data structure.
         provider: selectedProvider,
         model: model,
         temperature: 0.7,
-        useChat: provider === "zai", // Force chat API for ZAI
+        useChat: provider === "zai" || provider === "local", // Force chat API for ZAI and local
       },
     });
 

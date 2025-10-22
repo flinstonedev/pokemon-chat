@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       model = "gpt-4o",
     }: {
       messages: UIMessage[];
-      provider?: "openai" | "anthropic" | "zai";
+      provider?: "openai" | "anthropic" | "zai" | "local" | "vercel";
       model?: string;
     } = await req.json();
 
@@ -216,7 +216,23 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    const systemMessage = `You are a helpful AI assistant for a Pokemon chat application with access to GraphQL query building tools through the MCP server.
+    // Use a shorter system prompt for local models with limited context
+    const systemMessage = provider === "local"
+      ? `You are a Pokemon chat assistant with GraphQL query tools.
+
+CRITICAL: For search/finder requests, use array-returning fields (like [Pokemon]) not single objects.
+Check return types during introspection: pokemon(name:): Pokemon is WRONG for search. Use fields that return arrays.
+
+When user asks for "search" or "input", add a String variable to enable search box.
+
+Workflow:
+1. Introspect schema - find array fields
+2. Build query with variables ($limit, $offset for pagination; String var for search)
+3. Execute with executeGraphQLQuery
+4. Call presentPokemonData with the data
+
+Only answer Pokemon questions.`
+      : `You are a helpful AI assistant for a Pokemon chat application with access to GraphQL query building tools through the MCP server.
 
 ⚠️ CRITICAL RULE FOR SEARCH/FINDER QUERIES ⚠️
 
@@ -433,26 +449,60 @@ PHASE 4 - CLEANUP (MCP tool):
       presentPokemonData,
     };
 
-    // Select the appropriate provider
+    // Handle Vercel provider separately using model registry
+    if (provider === "vercel") {
+      // Vercel AI uses model registry format: 'anthropic/claude-3.5-haiku'
+      const result = streamText({
+        model: model,
+        system: systemMessage,
+        messages: convertToModelMessages(messages),
+        tools: allTools,
+        stopWhen: stepCountIs(100),
+        onFinish: async ({ usage }) => {
+          if (process.env.NODE_ENV !== "production") {
+            console.log("✅ Stream completed. Usage:", usage);
+          }
+
+          // Clean up MCP client
+          if (mcpClient) {
+            try {
+              await mcpClient.close();
+              if (process.env.NODE_ENV !== "production") {
+                console.log("✅ MCP client closed");
+              }
+            } catch (error) {
+              console.error("Error closing MCP client:", error);
+            }
+          }
+        },
+      });
+
+      // Return UI message stream response (AI SDK 5.0)
+      return result.toUIMessageStreamResponse();
+    }
+
+    // Handle all other providers (anthropic, openai, zai, local)
     let selectedProvider;
     if (provider === "anthropic") {
       selectedProvider = anthropic;
     } else if (provider === "zai") {
-      // Create Zhipu AI client using OpenAI-compatible API
       const zhipu = createOpenAI({
         baseURL: "https://api.z.ai/api/paas/v4",
-        // baseURL: "http://127.0.0.1:1234/v1",
         apiKey: process.env.ZHIPU_API_KEY || "",
       });
       selectedProvider = zhipu;
+    } else if (provider === "local") {
+      const localClient = createOpenAI({
+        baseURL: "http://127.0.0.1:1234/v1",
+        apiKey: "not-needed",
+      });
+      selectedProvider = localClient;
     } else {
       selectedProvider = openai;
     }
 
-    // Stream the response with all tools (AI SDK 5.0 style)
     const result = streamText({
-      model: provider === "zai" ? selectedProvider.chat(model) : selectedProvider(model),
-      // model: selectedProvider(model),
+      model: (provider === "zai" || provider === "local") ? selectedProvider.chat(model) : selectedProvider(model),
       system: systemMessage,
       messages: convertToModelMessages(messages),
       tools: allTools,

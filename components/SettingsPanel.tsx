@@ -32,6 +32,13 @@ const CHAT_MODELS = {
     // Commented out - only showing Anthropic providers
     // { value: "glm-4.6" as const, label: "GLM-4.6" },
   ],
+  local: [
+    { value: "local-model" as const, label: "Local Model" },
+  ],
+  vercel: [
+    { value: "claude-3-5-haiku-20241022" as const, label: "Claude 3.5 Haiku" },
+    { value: "moonshotai/kimi-k2-turbo" as const, label: "Kimi K2 Turbo" },
+  ],
 };
 
 const UI_GENERATOR_MODELS = {
@@ -49,6 +56,13 @@ const UI_GENERATOR_MODELS = {
   zai: [
     // Commented out - only showing Anthropic providers
     // { value: "glm-4.6" as const, label: "GLM-4.6" },
+  ],
+  local: [
+    { value: "local-model" as const, label: "Local Model" },
+  ],
+  vercel: [
+    { value: "claude-3-5-haiku-20241022" as const, label: "Claude 3.5 Haiku" },
+    { value: "moonshotai/kimi-k2-turbo" as const, label: "Kimi K2 Turbo" },
   ],
 };
 
@@ -126,7 +140,7 @@ export function SettingsPanel() {
               <Select
                 value={chatProvider}
                 onValueChange={(value) =>
-                  setChatProvider(value as "openai" | "anthropic" | "zai")
+                  setChatProvider(value as "openai" | "anthropic" | "zai" | "local" | "vercel")
                 }
               >
                 <SelectTrigger className="border-border/50 bg-surface-1 text-foreground">
@@ -136,6 +150,8 @@ export function SettingsPanel() {
                   {/* <SelectItem value="openai">OpenAI</SelectItem> */}
                   <SelectItem value="anthropic">Anthropic</SelectItem>
                   {/* <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem> */}
+                  <SelectItem value="local">Local (localhost:1234)</SelectItem>
+                  <SelectItem value="vercel">Vercel AI</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -185,7 +201,7 @@ export function SettingsPanel() {
               <Select
                 value={uiGeneratorProvider}
                 onValueChange={(value) =>
-                  setUIGeneratorProvider(value as "openai" | "anthropic" | "zai")
+                  setUIGeneratorProvider(value as "openai" | "anthropic" | "zai" | "local" | "vercel")
                 }
               >
                 <SelectTrigger className="border-border/50 bg-surface-1 text-foreground">
@@ -195,6 +211,8 @@ export function SettingsPanel() {
                   {/* <SelectItem value="openai">OpenAI</SelectItem> */}
                   <SelectItem value="anthropic">Anthropic</SelectItem>
                   {/* <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem> */}
+                  <SelectItem value="local">Local (localhost:1234)</SelectItem>
+                  <SelectItem value="vercel">Vercel AI</SelectItem>
                 </SelectContent>
               </Select>
             </div>

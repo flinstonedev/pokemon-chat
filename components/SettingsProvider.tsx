@@ -2,18 +2,24 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-export type LLMProvider = "openai" | "anthropic" | "zai";
+export type LLMProvider = "openai" | "anthropic" | "zai" | "local" | "vercel";
 export type ChatModel =
   | "gpt-4o-mini"
   | "gpt-5-mini"
   | "claude-sonnet-4-5-20250929"
   | "claude-haiku-4-5-20251001"
-  | "glm-4.6";
+  | "glm-4.6"
+  | "local-model"
+  | "claude-3-5-haiku-20241022"
+  | "moonshotai/kimi-k2-turbo";
 export type UIGeneratorModel =
   | "gpt-5-mini"
   | "claude-sonnet-4-5-20250929"
   | "claude-haiku-4-5-20251001"
-  | "glm-4.6";
+  | "glm-4.6"
+  | "local-model"
+  | "claude-3-5-haiku-20241022"
+  | "moonshotai/kimi-k2-turbo";
 
 export interface SettingsContextType {
   chatProvider: LLMProvider;
