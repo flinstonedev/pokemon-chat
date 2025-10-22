@@ -43,12 +43,13 @@ export const PaginatedList = ({
     else if (state.data.pokemon?.results) {
       items = state.data.pokemon.results;
     }
-    // Check for pokemon as a single object (not .results)
+    // Check for pokemon as a single object (not .results) - MUST have valid id (not null)
     else if (
       state.data.pokemon &&
       typeof state.data.pokemon === "object" &&
       !Array.isArray(state.data.pokemon) &&
-      state.data.pokemon.id
+      state.data.pokemon.id !== null &&
+      state.data.pokemon.id !== undefined
     ) {
       items = [state.data.pokemon];
     }
@@ -112,7 +113,14 @@ export const PaginatedList = ({
           (t: any) => t.pokemon_v2_type?.name || "unknown"
         );
       } else if (item.types) {
-        types = Array.isArray(item.types) ? item.types : [item.types];
+        // Handle types as array of objects with {slot, type: {name}}
+        const typeArray = Array.isArray(item.types) ? item.types : [item.types];
+        types = typeArray.map((t: any) => {
+          if (typeof t === 'string') return t;
+          if (t?.type?.name) return t.type.name;
+          if (t?.name) return t.name;
+          return "unknown";
+        });
       }
 
       return (
@@ -253,12 +261,13 @@ export const SearchableList = ({
       items = state.data.pokemon.results;
       console.log("[SearchableList] Using pokemon.results, count:", items.length);
     }
-    // Check for pokemon as a single object (not .results)
+    // Check for pokemon as a single object (not .results) - MUST have valid id (not null)
     else if (
       state.data.pokemon &&
       typeof state.data.pokemon === "object" &&
       !Array.isArray(state.data.pokemon) &&
-      state.data.pokemon.id
+      state.data.pokemon.id !== null &&
+      state.data.pokemon.id !== undefined
     ) {
       items = [state.data.pokemon];
       console.log("[SearchableList] Using pokemon as single object");
@@ -299,7 +308,9 @@ export const SearchableList = ({
 
   // Fetch data when search query changes
   useEffect(() => {
-    if (actions?.fetchData && actions.fetchData.type === "graphql-query") {
+    // Only execute search if there's actual text in the search box
+    // Empty string searches often return no/null results from GraphQL APIs
+    if (actions?.fetchData && actions.fetchData.type === "graphql-query" && debouncedQuery.trim().length > 0) {
       const fetchAction = actions.fetchData as GraphQLQueryAction;
       const searchAction: GraphQLQueryAction = {
         ...fetchAction,
@@ -328,7 +339,14 @@ export const SearchableList = ({
           (t: any) => t.pokemon_v2_type?.name || "unknown"
         );
       } else if (item.types) {
-        types = Array.isArray(item.types) ? item.types : [item.types];
+        // Handle types as array of objects with {slot, type: {name}}
+        const typeArray = Array.isArray(item.types) ? item.types : [item.types];
+        types = typeArray.map((t: any) => {
+          if (typeof t === 'string') return t;
+          if (t?.type?.name) return t.type.name;
+          if (t?.name) return t.name;
+          return "unknown";
+        });
       }
 
       return (
@@ -439,12 +457,13 @@ export const DataTable = ({ component }: DataTableProps) => {
     else if (state.data.pokemon?.results) {
       items = state.data.pokemon.results;
     }
-    // Check for pokemon as a single object (not .results)
+    // Check for pokemon as a single object (not .results) - MUST have valid id (not null)
     else if (
       state.data.pokemon &&
       typeof state.data.pokemon === "object" &&
       !Array.isArray(state.data.pokemon) &&
-      state.data.pokemon.id
+      state.data.pokemon.id !== null &&
+      state.data.pokemon.id !== undefined
     ) {
       items = [state.data.pokemon];
     }

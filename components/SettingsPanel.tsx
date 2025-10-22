@@ -17,8 +17,9 @@ import {
 
 const CHAT_MODELS = {
   openai: [
-    { value: "gpt-4o-mini" as const, label: "GPT-4o-mini" },
-    { value: "gpt-5-mini" as const, label: "GPT-5-mini" },
+    // Commented out - only showing Anthropic providers
+    // { value: "gpt-4o-mini" as const, label: "GPT-4o-mini" },
+    // { value: "gpt-5-mini" as const, label: "GPT-5-mini" },
   ],
   anthropic: [
     { value: "claude-haiku-4-5-20251001" as const, label: "Claude Haiku 4.5" },
@@ -28,12 +29,16 @@ const CHAT_MODELS = {
     },
   ],
   zai: [
-    { value: "glm-4.6" as const, label: "GLM-4.6" },
+    // Commented out - only showing Anthropic providers
+    // { value: "glm-4.6" as const, label: "GLM-4.6" },
   ],
 };
 
 const UI_GENERATOR_MODELS = {
-  openai: [{ value: "gpt-5-mini" as const, label: "GPT-5-mini" }],
+  openai: [
+    // Commented out - only showing Anthropic providers
+    // { value: "gpt-5-mini" as const, label: "GPT-5-mini" }
+  ],
   anthropic: [
     { value: "claude-haiku-4-5-20251001" as const, label: "Claude Haiku 4.5" },
     {
@@ -42,7 +47,8 @@ const UI_GENERATOR_MODELS = {
     },
   ],
   zai: [
-    { value: "glm-4.6" as const, label: "GLM-4.6" },
+    // Commented out - only showing Anthropic providers
+    // { value: "glm-4.6" as const, label: "GLM-4.6" },
   ],
 };
 
@@ -127,9 +133,9 @@ export function SettingsPanel() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="openai">OpenAI</SelectItem>
+                  {/* <SelectItem value="openai">OpenAI</SelectItem> */}
                   <SelectItem value="anthropic">Anthropic</SelectItem>
-                  <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem>
+                  {/* <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem> */}
                 </SelectContent>
               </Select>
             </div>
@@ -186,9 +192,9 @@ export function SettingsPanel() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="openai">OpenAI</SelectItem>
+                  {/* <SelectItem value="openai">OpenAI</SelectItem> */}
                   <SelectItem value="anthropic">Anthropic</SelectItem>
-                  <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem>
+                  {/* <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem> */}
                 </SelectContent>
               </Select>
             </div>
