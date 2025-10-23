@@ -109,13 +109,12 @@ export const PaginatedList = ({
       let types: string[] = [];
       if (item.pokemon_v2_pokemontypes) {
         types = item.pokemon_v2_pokemontypes.map(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (t: any) => t.pokemon_v2_type?.name || "unknown"
+          (t: { pokemon_v2_type?: { name?: string } }) => t.pokemon_v2_type?.name || "unknown"
         );
       } else if (item.types) {
         // Handle types as array of objects with {slot, type: {name}}
         const typeArray = Array.isArray(item.types) ? item.types : [item.types];
-        types = typeArray.map((t: any) => {
+        types = typeArray.map((t: string | { type?: { name?: string }; name?: string }) => {
           if (typeof t === 'string') return t;
           if (t?.type?.name) return t.type.name;
           if (t?.name) return t.name;
@@ -335,13 +334,12 @@ export const SearchableList = ({
       let types: string[] = [];
       if (item.pokemon_v2_pokemontypes) {
         types = item.pokemon_v2_pokemontypes.map(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (t: any) => t.pokemon_v2_type?.name || "unknown"
+          (t: { pokemon_v2_type?: { name?: string } }) => t.pokemon_v2_type?.name || "unknown"
         );
       } else if (item.types) {
         // Handle types as array of objects with {slot, type: {name}}
         const typeArray = Array.isArray(item.types) ? item.types : [item.types];
-        types = typeArray.map((t: any) => {
+        types = typeArray.map((t: string | { type?: { name?: string }; name?: string }) => {
           if (typeof t === 'string') return t;
           if (t?.type?.name) return t.type.name;
           if (t?.name) return t.name;

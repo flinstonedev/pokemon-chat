@@ -5,7 +5,7 @@ import {
   PokemonAgentResponseSchema,
   POKEMON_SYSTEM_PROMPT,
 } from "@/lib/pokemon-ui-schema";
-import { respond } from "@/lib/ui-agent";
+import { respond, type LLMProviderType } from "@/lib/ui-agent";
 import {
   hasPaginationSupport as checkPaginationSupport,
   hasSearchSupport as checkSearchSupport,
@@ -159,8 +159,8 @@ Choose the best component type based on the data structure.
         schema: PokemonAgentResponseSchema,
         systemPrompt: POKEMON_SYSTEM_PROMPT,
         llm: {
-          // For Vercel, pass model string directly
-          provider: model as any,
+          // For Vercel, pass model string directly as provider
+          provider: model as unknown as LLMProviderType,
           model: model,
           temperature: 0.7,
           useChat: false,
