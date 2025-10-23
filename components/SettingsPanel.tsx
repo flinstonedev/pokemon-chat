@@ -33,13 +33,15 @@ const CHAT_MODELS = {
     // { value: "glm-4.6" as const, label: "GLM-4.6" },
   ],
   local: [
+    // Keep this in the array to prevent errors when reading from localStorage,
+    // but hide from UI in production via conditional rendering
     { value: "local-model" as const, label: "Local Model" },
   ],
   vercel: [
     { value: "claude-3-5-haiku-20241022" as const, label: "Claude 3.5 Haiku" },
     { value: "moonshotai/kimi-k2-turbo" as const, label: "Kimi K2 Turbo" },
   ],
-};
+} as const;
 
 const UI_GENERATOR_MODELS = {
   openai: [
@@ -58,13 +60,15 @@ const UI_GENERATOR_MODELS = {
     // { value: "glm-4.6" as const, label: "GLM-4.6" },
   ],
   local: [
+    // Keep this in the array to prevent errors when reading from localStorage,
+    // but hide from UI in production via conditional rendering
     { value: "local-model" as const, label: "Local Model" },
   ],
   vercel: [
     { value: "claude-3-5-haiku-20241022" as const, label: "Claude 3.5 Haiku" },
     { value: "moonshotai/kimi-k2-turbo" as const, label: "Kimi K2 Turbo" },
   ],
-};
+} as const;
 
 export function SettingsPanel() {
   const [isOpen, setIsOpen] = useState(false);
@@ -82,7 +86,7 @@ export function SettingsPanel() {
   // Auto-select valid model when chat provider changes
   useEffect(() => {
     const availableModels = CHAT_MODELS[chatProvider];
-    if (!availableModels.find((m) => m.value === chatModel)) {
+    if (!availableModels.find((m) => m.value === chatModel) && availableModels[0]) {
       setChatModel(availableModels[0].value);
     }
   }, [chatProvider, chatModel, setChatModel]);
@@ -90,7 +94,7 @@ export function SettingsPanel() {
   // Auto-select valid model when UI generator provider changes
   useEffect(() => {
     const availableModels = UI_GENERATOR_MODELS[uiGeneratorProvider];
-    if (!availableModels.find((m) => m.value === uiGeneratorModel)) {
+    if (!availableModels.find((m) => m.value === uiGeneratorModel) && availableModels[0]) {
       setUIGeneratorModel(availableModels[0].value);
     }
   }, [uiGeneratorProvider, uiGeneratorModel, setUIGeneratorModel]);
