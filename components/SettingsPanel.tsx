@@ -150,7 +150,9 @@ export function SettingsPanel() {
                   {/* <SelectItem value="openai">OpenAI</SelectItem> */}
                   <SelectItem value="anthropic">Anthropic</SelectItem>
                   {/* <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem> */}
-                  <SelectItem value="local">Local (localhost:1234)</SelectItem>
+                  {process.env.NODE_ENV !== "production" && (
+                    <SelectItem value="local">Local (localhost:1234)</SelectItem>
+                  )}
                   <SelectItem value="vercel">Vercel AI</SelectItem>
                 </SelectContent>
               </Select>
@@ -211,7 +213,9 @@ export function SettingsPanel() {
                   {/* <SelectItem value="openai">OpenAI</SelectItem> */}
                   <SelectItem value="anthropic">Anthropic</SelectItem>
                   {/* <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem> */}
-                  <SelectItem value="local">Local (localhost:1234)</SelectItem>
+                  {process.env.NODE_ENV !== "production" && (
+                    <SelectItem value="local">Local (localhost:1234)</SelectItem>
+                  )}
                   <SelectItem value="vercel">Vercel AI</SelectItem>
                 </SelectContent>
               </Select>

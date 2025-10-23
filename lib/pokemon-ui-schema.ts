@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ActionSchema } from "./ui-action-schema";
 
 /**
- * Pokemon-specific UI schema for dynamic-ui-agent
+ * Pokemon-specific UI schema
  * This schema defines the structure for Pokemon-related UI components
  * Includes both static and interactive components with data-fetching capabilities
  */
