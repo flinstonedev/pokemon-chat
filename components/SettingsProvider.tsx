@@ -11,7 +11,12 @@ export type ChatModel =
   | "glm-4.6"
   | "local-model"
   | "claude-3-5-haiku-20241022"
-  | "moonshotai/kimi-k2-turbo";
+  | "moonshotai/kimi-k2-turbo"
+  | "openai/gpt-5-nano"
+  | "openai/gpt-5-mini"
+  | "google/gemini-2.5-pro"
+  | "xai/grok-4-fast-reasoning"
+  | "anthropic/claude-haiku-4.5";
 export type UIGeneratorModel =
   | "gpt-5-mini"
   | "claude-sonnet-4-5-20250929"
@@ -19,7 +24,12 @@ export type UIGeneratorModel =
   | "glm-4.6"
   | "local-model"
   | "claude-3-5-haiku-20241022"
-  | "moonshotai/kimi-k2-turbo";
+  | "moonshotai/kimi-k2-turbo"
+  | "openai/gpt-5-nano"
+  | "openai/gpt-5-mini"
+  | "google/gemini-2.5-pro"
+  | "xai/grok-4-fast-reasoning"
+  | "anthropic/claude-haiku-4.5";
 
 export interface SettingsContextType {
   chatProvider: LLMProvider;
@@ -37,12 +47,14 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 );
 
 const STORAGE_KEY = "pokemon-chat-settings";
+const SETTINGS_VERSION_KEY = "pokemon-chat-settings-version";
+const CURRENT_VERSION = "2"; // Increment this when defaults change
 
 const DEFAULT_SETTINGS = {
-  chatProvider: "openai" as const,
-  chatModel: "gpt-4o-mini" as const,
-  uiGeneratorProvider: "openai" as const,
-  uiGeneratorModel: "gpt-5-mini" as const,
+  chatProvider: "vercel" as const,
+  chatModel: "anthropic/claude-haiku-4.5" as const,
+  uiGeneratorProvider: "vercel" as const,
+  uiGeneratorModel: "anthropic/claude-haiku-4.5" as const,
 };
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
@@ -58,14 +70,32 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
+      const storedVersion = localStorage.getItem(SETTINGS_VERSION_KEY);
+      let finalSettings = DEFAULT_SETTINGS;
+
+      // Check if we need to migrate to new version
+      const needsMigration = storedVersion !== CURRENT_VERSION;
+
+      if (stored && !needsMigration) {
         try {
           const parsed = JSON.parse(stored);
-          setSettings({ ...DEFAULT_SETTINGS, ...parsed });
+          // Only merge if no migration needed and settings exist
+          finalSettings = { ...DEFAULT_SETTINGS, ...parsed };
         } catch (error) {
           console.error("Failed to parse settings:", error);
+          // If parsing fails, use defaults
+          finalSettings = DEFAULT_SETTINGS;
         }
+      } else if (needsMigration) {
+        // Migration: reset to new defaults
+        console.log("Migrating settings to version", CURRENT_VERSION);
+        finalSettings = DEFAULT_SETTINGS;
       }
+
+      // Save the final settings and version to localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(finalSettings));
+      localStorage.setItem(SETTINGS_VERSION_KEY, CURRENT_VERSION);
+      setSettings(finalSettings);
       setIsLoaded(true);
     }
   }, []);

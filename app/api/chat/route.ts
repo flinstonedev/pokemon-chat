@@ -12,7 +12,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
-export const maxDuration = 30;
+export const maxDuration = 120; // 2 minutes for complex MCP workflows with multiple tool calls
 
 export async function POST(req: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,10 +36,6 @@ export async function POST(req: NextRequest) {
       model?: string;
     } = await req.json();
 
-    if (process.env.NODE_ENV !== "production") {
-      console.log("📨 Received messages:", messages.length, "messages");
-      console.log("🤖 Using provider:", provider, "model:", model);
-    }
 
     // Initialize MCP client with the actual MCP server
     let mcpTools = {};
@@ -57,25 +53,8 @@ export async function POST(req: NextRequest) {
         name: "pokemon-chat-client",
       });
 
-      if (process.env.NODE_ENV !== "production") {
-        console.log("✅ MCP client created successfully");
-      }
-
       // Get available tools from the MCP server
       mcpTools = await mcpClient.tools();
-
-      if (process.env.NODE_ENV !== "production") {
-        console.log(
-          "✅ MCP tools loaded:",
-          Object.keys(mcpTools).length,
-          "tools available"
-        );
-        console.log(
-          "Available tools:",
-          Object.keys(mcpTools).slice(0, 10),
-          "..."
-        );
-      }
     } catch (mcpError) {
       console.error("⚠️ MCP setup failed:", mcpError);
       // Continue without MCP tools if connection fails
@@ -458,18 +437,11 @@ PHASE 4 - CLEANUP (MCP tool):
         messages: convertToModelMessages(messages),
         tools: allTools,
         stopWhen: stepCountIs(100),
-        onFinish: async ({ usage }) => {
-          if (process.env.NODE_ENV !== "production") {
-            console.log("✅ Stream completed. Usage:", usage);
-          }
-
+        onFinish: async () => {
           // Clean up MCP client
           if (mcpClient) {
             try {
               await mcpClient.close();
-              if (process.env.NODE_ENV !== "production") {
-                console.log("✅ MCP client closed");
-              }
             } catch (error) {
               console.error("Error closing MCP client:", error);
             }
@@ -507,18 +479,11 @@ PHASE 4 - CLEANUP (MCP tool):
       messages: convertToModelMessages(messages),
       tools: allTools,
       stopWhen: stepCountIs(100),
-      onFinish: async ({ usage }) => {
-        if (process.env.NODE_ENV !== "production") {
-          console.log("✅ Stream completed. Usage:", usage);
-        }
-
+      onFinish: async () => {
         // Clean up MCP client
         if (mcpClient) {
           try {
             await mcpClient.close();
-            if (process.env.NODE_ENV !== "production") {
-              console.log("✅ MCP client closed");
-            }
           } catch (error) {
             console.error("Error closing MCP client:", error);
           }
@@ -529,7 +494,7 @@ PHASE 4 - CLEANUP (MCP tool):
     // Return UI message stream response (AI SDK 5.0)
     return result.toUIMessageStreamResponse();
   } catch (error) {
-    console.error("❌ Error in POST handler:", error);
+    console.error("Error in POST handler:", error);
 
     // Clean up MCP client on error
     if (mcpClient) {

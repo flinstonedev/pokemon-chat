@@ -38,6 +38,11 @@ const CHAT_MODELS = {
     { value: "local-model" as const, label: "Local Model" },
   ],
   vercel: [
+    { value: "anthropic/claude-haiku-4.5" as const, label: "Claude Haiku 4.5" },
+    { value: "openai/gpt-5-nano" as const, label: "GPT-5 Nano" },
+    { value: "openai/gpt-5-mini" as const, label: "GPT-5 Mini" },
+    { value: "google/gemini-2.5-pro" as const, label: "Gemini 2.5 Pro" },
+    { value: "xai/grok-4-fast-reasoning" as const, label: "Grok 4 Fast Reasoning" },
     { value: "claude-3-5-haiku-20241022" as const, label: "Claude 3.5 Haiku" },
     { value: "moonshotai/kimi-k2-turbo" as const, label: "Kimi K2 Turbo" },
   ],
@@ -65,6 +70,11 @@ const UI_GENERATOR_MODELS = {
     { value: "local-model" as const, label: "Local Model" },
   ],
   vercel: [
+    { value: "anthropic/claude-haiku-4.5" as const, label: "Claude Haiku 4.5" },
+    { value: "openai/gpt-5-nano" as const, label: "GPT-5 Nano" },
+    { value: "openai/gpt-5-mini" as const, label: "GPT-5 Mini" },
+    { value: "google/gemini-2.5-pro" as const, label: "Gemini 2.5 Pro" },
+    { value: "xai/grok-4-fast-reasoning" as const, label: "Grok 4 Fast Reasoning" },
     { value: "claude-3-5-haiku-20241022" as const, label: "Claude 3.5 Haiku" },
     { value: "moonshotai/kimi-k2-turbo" as const, label: "Kimi K2 Turbo" },
   ],
