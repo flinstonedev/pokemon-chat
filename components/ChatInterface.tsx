@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type ToolUIPart } from "ai";
-import { Loader2, Send, Bot } from "lucide-react";
+import { Loader2, Send, Bot, Sparkles } from "lucide-react";
 import { usePokemonResults } from "./PokemonResultsProvider";
 import { useSettings } from "./SettingsProvider";
 import { useState } from "react";
@@ -27,6 +27,17 @@ import {
   PromptInputTextarea,
   PromptInputSubmit,
 } from "@/components/ai-elements/prompt-input";
+import { SuggestionBrowser } from "./SuggestionBrowser";
+import { UIComponentSuggestion } from "@/lib/exploration-types";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export function ChatInterface() {
   const { addResult } = usePokemonResults();
@@ -38,6 +49,47 @@ export function ChatInterface() {
   const [loadingVisualizations, setLoadingVisualizations] = useState<
     Set<string>
   >(new Set());
+  const [explorerDialogOpen, setExplorerDialogOpen] = useState(false);
+
+  // Function to handle adding a suggestion to chat
+  const handleAddSuggestion = (suggestion: UIComponentSuggestion) => {
+    console.log("[ChatInterface] Adding suggestion to chat:", suggestion);
+
+    // Create a formatted message that includes all necessary information
+    // The LLM will recognize this pattern and use the provided query directly
+    const variablesJson = JSON.stringify(
+      Object.entries(suggestion.variables).reduce((acc, [key, val]) => {
+        acc[key] = val.default;
+        return acc;
+      }, {} as Record<string, any>),
+      null,
+      2
+    );
+
+    const message = `Use this pre-built query to create a ${suggestion.componentType} component:
+
+Title: ${suggestion.title}
+Description: ${suggestion.description}
+
+GraphQL Query:
+\`\`\`graphql
+${suggestion.graphqlQuery}
+\`\`\`
+
+Variables:
+\`\`\`json
+${variablesJson}
+\`\`\`
+
+Please execute this query and create the interactive component.`;
+
+    // Send the message
+    sendMessage({ text: message });
+    setInput("");
+
+    // Close the dialog
+    setExplorerDialogOpen(false);
+  };
 
   // Function to visualize Pokemon data
   const visualizePokemonData = async (
@@ -480,7 +532,31 @@ export function ChatInterface() {
         )}
 
         <div className="border-border/50 bg-surface-2 border-t p-6 backdrop-blur-md">
-          <div className="mx-auto max-w-4xl">
+          <div className="mx-auto max-w-4xl space-y-3">
+            {/* Explore Data Button */}
+            <Dialog open={explorerDialogOpen} onOpenChange={setExplorerDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Explore Pokemon Data
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Explore Pokemon Data</DialogTitle>
+                  <DialogDescription>
+                    Choose from pre-built queries to instantly create interactive components
+                  </DialogDescription>
+                </DialogHeader>
+                <SuggestionBrowser onAddToChat={handleAddSuggestion} />
+              </DialogContent>
+            </Dialog>
+
+            {/* Chat Input */}
             <PromptInput
               onSubmit={(message) => {
                 if (message.text && message.text.trim()) {
