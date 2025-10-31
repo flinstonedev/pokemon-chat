@@ -191,6 +191,69 @@ const DataTable = z.object({
   actions: z.record(ActionSchema).optional(),
 });
 
+// Analytical components for complex visualizations
+const ComparisonGrid = z.object({
+  type: z.literal("comparison-grid"),
+  componentId: z.string().min(1),
+  component: z.literal("comparison-grid"),
+  props: z.object({
+    comparisonCount: z.number().int().positive().max(10).default(3),
+  }),
+  actions: z.record(ActionSchema).optional(),
+});
+
+const FilterPanel = z.object({
+  type: z.literal("filter-panel"),
+  componentId: z.string().min(1),
+  component: z.literal("filter-panel"),
+  props: z.object({
+    filterFields: z.array(
+      z.object({
+        name: z.string(),
+        label: z.string().optional(),
+        placeholder: z.string().optional(),
+      })
+    ).default([]),
+  }),
+  actions: z.record(ActionSchema).optional(),
+});
+
+const ChartView = z.object({
+  type: z.literal("chart-view"),
+  componentId: z.string().min(1),
+  component: z.literal("chart-view"),
+  props: z.object({
+    title: z.string().optional(),
+    chartType: z.enum(["bar", "line"]).default("bar"),
+    chartField: z.string().default("value"),
+    labelField: z.string().default("name"),
+  }),
+  actions: z.record(ActionSchema).optional(),
+});
+
+const MatrixView = z.object({
+  type: z.literal("matrix-view"),
+  componentId: z.string().min(1),
+  component: z.literal("matrix-view"),
+  props: z.object({
+    title: z.string().optional(),
+    rowField: z.string().default("row"),
+    colField: z.string().default("col"),
+    valueField: z.string().default("value"),
+  }),
+  actions: z.record(ActionSchema).optional(),
+});
+
+const DetailPanel = z.object({
+  type: z.literal("detail-panel"),
+  componentId: z.string().min(1),
+  component: z.literal("detail-panel"),
+  props: z.object({
+    sections: z.array(z.string()).default(["overview", "details"]),
+  }),
+  actions: z.record(ActionSchema).optional(),
+});
+
 // Recursive container type
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const PokemonUIElementSchema: any = z.discriminatedUnion("type", [
@@ -209,6 +272,11 @@ export const PokemonUIElementSchema: any = z.discriminatedUnion("type", [
   PaginatedList,
   SearchableList,
   DataTable,
+  ComparisonGrid,
+  FilterPanel,
+  ChartView,
+  MatrixView,
+  DetailPanel,
   z.object({
     type: z.literal("container"),
     id: z.string().optional(),
@@ -247,6 +315,31 @@ export const UIActionSchema = z.object({
 
 export type UIAction = z.infer<typeof UIActionSchema>;
 
+// Exploration suggestion schema
+export const ExplorationSuggestionSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  category: z.enum(["exploration", "comparison", "visualization", "analysis"]).default("exploration"),
+  complexity: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
+  graphqlQuery: z.string(),
+  variables: z.record(z.object({
+    type: z.string(),
+    default: z.union([z.string(), z.number(), z.boolean()]).optional(),
+  })),
+  componentType: z.enum(["paginated-list", "searchable-list", "data-table", "chart", "comparison"]),
+  tags: z.array(z.string()).default([]),
+});
+
+export type ExplorationSuggestion = z.infer<typeof ExplorationSuggestionSchema>;
+
+// Exploration response schema
+export const ExplorationResponseSchema = z.object({
+  suggestions: z.array(ExplorationSuggestionSchema),
+  errors: z.array(z.string()).optional(),
+});
+
+export type ExplorationResponse = z.infer<typeof ExplorationResponseSchema>;
+
 // Main Pokemon Agent Response schema
 export const PokemonAgentResponseSchema = z.object({
   title: z.string().optional(),
@@ -274,6 +367,13 @@ Interactive components (can fetch and display data):
 - paginated-list: Display a paginated list of items with next/previous buttons
 - searchable-list: Display a searchable list with a search input
 - data-table: Display data in a sortable table
+
+Analytical components (for complex visualizations):
+- comparison-grid: Side-by-side comparison of items with stats visualization (comparisonCount: number of items to compare)
+- filter-panel: Multi-criteria filtering UI with collapsible filter panel (filterFields: array of {name, label, placeholder})
+- chart-view: Bar/line charts for distributions and analytics (chartType, chartField, labelField, title)
+- matrix-view: Grid layout for relationships like type effectiveness (rowField, colField, valueField, title)
+- detail-panel: Expandable deep-dive view with tabs and master-detail layout (sections: array of section names)
 
 **CRITICAL: When creating interactive components, you MUST reuse the exact GraphQL query from the data context.**
 The conversational agent has already built and tested a working query using MCP tools.
@@ -304,6 +404,33 @@ Also available generic components:
 3. **data-table** - Use when:
    - Data has multiple columns with different data types
    - Sorting or tabular display is beneficial
+
+4. **comparison-grid** - Use for analytical comparisons:
+   - Comparing stats/attributes side-by-side
+   - Multi-Pokemon analysis
+   - Query returns items with comparable fields (stats, types, etc.)
+
+5. **filter-panel** - Use for multi-criteria searches:
+   - Query supports multiple filter variables
+   - Users need to combine different filters
+   - Advanced search with multiple dimensions
+
+6. **chart-view** - Use for data distributions:
+   - Visualizing stat distributions
+   - Power/accuracy rankings
+   - Aggregate data visualization
+   - Query returns numeric fields for charting
+
+7. **matrix-view** - Use for relationship data:
+   - Type effectiveness matrices
+   - Damage relation grids
+   - Any row x column relationship data
+   - Query returns relationship triples (source, target, value)
+
+8. **detail-panel** - Use for rich single-item views:
+   - Deep-dive into individual Pokemon/moves/abilities
+   - Multiple sections of related data
+   - Master-detail pattern with selection list
 
 **Implementation rules:**
 - Always check query metadata FIRST before choosing components

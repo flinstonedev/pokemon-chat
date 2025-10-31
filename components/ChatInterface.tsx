@@ -5,7 +5,7 @@ import { DefaultChatTransport, type ToolUIPart } from "ai";
 import { Loader2, Send, Bot } from "lucide-react";
 import { usePokemonResults } from "./PokemonResultsProvider";
 import { useSettings } from "./SettingsProvider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { PokemonAgentResponse } from "@/lib/pokemon-ui-schema";
 import { InteractiveUIRenderer } from "./InteractiveUIRenderer";
 import { Message, MessageContent } from "@/components/ai-elements/message";
@@ -27,6 +27,65 @@ import {
   PromptInputTextarea,
   PromptInputSubmit,
 } from "@/components/ai-elements/prompt-input";
+
+// Initial prompt to trigger autonomous agent exploration
+const INITIAL_PROMPT = `You are an autonomous Pokemon UI agent with Query Sculptor tools.
+
+MISSION: Explore the Pokemon GraphQL API and propose DIVERSE, COMPLEX component options for the user to choose from.
+
+⚠️ IMPORTANT: DO NOT build components yet - just PROPOSE them!
+
+PHASE 1 - COMPREHENSIVE SCHEMA DISCOVERY:
+1) Introspect ALL entity types thoroughly:
+   - Root query fields and what they return
+   - ALL types: Pokemon, Move, Ability, Type, Generation, EvolutionChain, Item, Berry, Location, etc.
+   - Nested fields within each type (go DEEP - 2-3 levels)
+   - Arguments available on each field
+   - Relationships between entities
+
+2) Map out RICH DATA OPPORTUNITIES:
+   - Which queries return nested/related data?
+   - What fields have interesting sub-fields? (e.g., pokemon.abilities[].ability.effect)
+   - What computed/derived data exists? (stats, damage_relations, effectiveness)
+   - What filtering/sorting is available?
+   - Where can you JOIN multiple entity types in one query?
+
+PHASE 2 - PROPOSE COMPONENT OPTIONS (5-8 diverse proposals):
+
+For EACH proposed component, describe:
+1. **Component Name** - Clear, descriptive name
+2. **What it does** - What analytical question it answers or exploration it enables
+3. **Data complexity** - What nested data, relationships, or analytics it includes
+4. **Component type** - Which UI component type would be used (comparison-grid, filter-panel, chart-view, matrix-view, detail-panel, etc.)
+5. **Why it's valuable** - What insights users would gain
+
+🎯 COMPONENT COMPLEXITY REQUIREMENTS - Each proposal must have AT LEAST 2 of:
+- Multiple related entities in ONE query (joins/nested data)
+- Comparison/analytical capabilities (stats, effectiveness, rankings)
+- Rich nested data structures (abilities + effects, moves + power + type)
+- Interactive filtering with multiple criteria
+- Data aggregation or computed insights
+- Relationship traversal (evolution chains, type interactions)
+
+🚫 FORBIDDEN PROPOSALS:
+- Simple paginated lists with just names and IDs
+- Single-level queries without nested data
+- Components without interactive variables
+- Duplicate functionality
+
+PHASE 3 - PRESENT OPTIONS TO USER:
+
+After introspection and analysis, present your proposals in a clear, numbered list format.
+
+Then ask: "Which component would you like me to build first? (Choose a number or ask me to build multiple)"
+
+DO NOT BUILD ANYTHING YET - wait for the user's selection!
+
+START NOW: 
+1. Introspect the API deeply
+2. Analyze what complex components are possible
+3. Propose 5-8 diverse, analytical component options
+4. Ask the user which to build!`;
 
 export function ChatInterface() {
   const { addResult } = usePokemonResults();
@@ -338,31 +397,58 @@ export function ChatInterface() {
 
   const isLoading = status === "submitted" || status === "streaming";
 
+  // Handler to start exploration
+  const startExploration = () => {
+    sendMessage({ text: INITIAL_PROMPT });
+  };
+
   return (
     <div className="bg-gradient-surface flex h-full">
       {/* Left section - Chat */}
       <div className="border-border/50 flex flex-1 flex-col border-r">
+        {/* Welcome screen with exploration button */}
         {messages.length === 0 && (
-          <div className="flex flex-1 flex-col items-center justify-center p-6 text-center">
-            <div className="bg-primary bg-gradient-primary mb-6 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg">
-              <Bot className="text-primary-foreground h-8 w-8" />
+          <div className="flex flex-1 flex-col items-center justify-center p-8">
+            <div className="text-center max-w-2xl">
+              <div className="bg-primary bg-gradient-primary mb-6 inline-flex h-20 w-20 items-center justify-center rounded-3xl shadow-xl">
+                <Bot className="text-primary-foreground h-10 w-10" />
+              </div>
+              <h1 className="text-foreground mb-4 text-4xl font-bold">
+                Pokemon GraphQL Explorer
+              </h1>
+              <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
+                Unleash an AI agent to explore the Pokemon GraphQL API and build
+                interactive visualizations. The agent will introspect the schema,
+                construct complex queries, and generate multiple production-quality
+                components for browsing Pokemon, moves, abilities, types, and more.
+              </p>
+              <button
+                onClick={startExploration}
+                disabled={isLoading}
+                className="bg-primary bg-gradient-primary text-primary-foreground hover:shadow-2xl disabled:opacity-50 inline-flex items-center gap-3 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg transition-all hover:scale-105"
+              >
+                <Bot className="h-6 w-6" />
+                Start GraphQL Exploration
+              </button>
+              <p className="text-muted-foreground mt-6 text-sm">
+                The agent will build 5-7+ diverse interactive components
+              </p>
             </div>
-            <h2 className="text-foreground mb-2 text-2xl font-bold">
-              Pokemon Chat Assistant
-            </h2>
-            <p className="text-muted-foreground max-w-md">
-              Ask me anything about Pokemon! I can help you explore the Pokemon
-              API using GraphQL queries.
-            </p>
           </div>
         )}
 
+        {/* Chat messages */}
         {messages.length > 0 && (
           <div className="flex-1 overflow-hidden">
             <Conversation className="h-full">
               <ConversationContent className="p-6">
                 <div className="mx-auto max-w-4xl">
-                  {messages.map((message) => {
+                  {messages
+                    .filter((message, index, self) => 
+                      // Remove duplicate messages with same ID
+                      index === self.findIndex((m) => m.id === message.id)
+                    )
+                    .map((message) => {
                     // Separate tool parts from text parts
                     // Hide presentPokemonData from tool list (it's handled separately)
                     const toolParts = message.parts.filter(

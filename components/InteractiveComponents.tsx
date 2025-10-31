@@ -9,9 +9,11 @@ import type {
 } from "@/lib/ui-action-schema";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Loader2, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Search, Filter, X } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 
 /**
  * Paginated list component
@@ -574,6 +576,135 @@ export const DataTable = ({ component }: DataTableProps) => {
               No data available
             </div>
           )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/**
+ * ComparisonGrid component - Side-by-side comparison with visualization
+ */
+interface ComparisonGridProps {
+  component: InteractiveComponent;
+}
+
+export const ComparisonGrid = ({ component }: ComparisonGridProps) => {
+  const { componentId, props, actions } = component;
+  const state = useComponentState(componentId);
+
+  // Extract items from various data structures
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let items: any[] = [];
+  if (state.data) {
+    if (state.data.pokemon_v2_pokemon) {
+      items = state.data.pokemon_v2_pokemon;
+    } else if (Array.isArray(state.data.pokemon)) {
+      items = state.data.pokemon;
+    } else if (state.data.items) {
+      items = state.data.items;
+    } else if (Array.isArray(state.data)) {
+      items = state.data;
+    }
+  }
+
+  // Limit to comparison count
+  const comparisonCount = props.comparisonCount || 3;
+  const compareItems = items.slice(0, comparisonCount);
+
+  // Fetch data on mount
+  useEffect(() => {
+    if (actions?.fetchData) {
+      state.execute(actions.fetchData, { actions });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Extract stats for visualization
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const extractStats = (item: any) => {
+    const stats = [];
+    if (item.pokemon_v2_pokemonstats) {
+      for (const stat of item.pokemon_v2_pokemonstats) {
+        stats.push({
+          name: stat.pokemon_v2_stat?.name || "unknown",
+          value: stat.base_stat || 0,
+        });
+      }
+    } else if (item.stats && Array.isArray(item.stats)) {
+      for (const stat of item.stats) {
+        stats.push({
+          name: stat.stat?.name || stat.name || "unknown",
+          value: stat.base_stat || stat.value || 0,
+        });
+      }
+    }
+    return stats;
+  };
+
+  return (
+    <div className="space-y-4">
+      {state.loading && (
+        <div className="flex items-center justify-center p-8">
+          <Loader2 className="text-primary h-8 w-8 animate-spin" />
+        </div>
+      )}
+
+      {state.error && (
+        <div className="border-destructive bg-destructive/10 text-destructive rounded-lg border p-4">
+          {state.error}
+        </div>
+      )}
+
+      {!state.loading && !state.error && compareItems.length > 0 && (
+        <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${compareItems.length}, 1fr)` }}>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          {compareItems.map((item: any, index: number) => {
+            const stats = extractStats(item);
+            const name = item.name || `Item ${index + 1}`;
+            const types = item.pokemon_v2_pokemontypes?.map((t: { pokemon_v2_type?: { name?: string } }) => 
+              t.pokemon_v2_type?.name
+            ) || item.types?.map((t: { type?: { name?: string }; name?: string }) => 
+              t.type?.name || t.name
+            ) || [];
+
+            return (
+              <Card key={index}>
+                <CardHeader>
+                  <CardTitle className="capitalize">{name}</CardTitle>
+                  {types.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {types.map((type: string, i: number) => (
+                        <Badge key={i} variant="secondary" className="capitalize text-xs">
+                          {type}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  {stats.length > 0 && (
+                    <div className="space-y-2">
+                      {stats.map((stat, i) => (
+                        <div key={i}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="capitalize">{stat.name}</span>
+                            <span className="font-semibold">{stat.value}</span>
+                          </div>
+                          <div className="bg-muted h-2 rounded-full overflow-hidden">
+                            <div
+                              className="bg-primary h-full transition-all"
+                              style={{ width: `${(stat.value / 255) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

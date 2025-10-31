@@ -16,7 +16,8 @@ export type ChatModel =
   | "openai/gpt-5-mini"
   | "google/gemini-2.5-pro"
   | "xai/grok-4-fast-reasoning"
-  | "anthropic/claude-haiku-4.5";
+  | "anthropic/claude-haiku-4.5"
+  | "minimax/minimax-m2";
 export type UIGeneratorModel =
   | "gpt-5-mini"
   | "claude-sonnet-4-5-20250929"
@@ -29,7 +30,8 @@ export type UIGeneratorModel =
   | "openai/gpt-5-mini"
   | "google/gemini-2.5-pro"
   | "xai/grok-4-fast-reasoning"
-  | "anthropic/claude-haiku-4.5";
+  | "anthropic/claude-haiku-4.5"
+  | "minimax/minimax-m2";
 
 export interface SettingsContextType {
   chatProvider: LLMProvider;

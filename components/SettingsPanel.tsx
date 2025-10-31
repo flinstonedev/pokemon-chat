@@ -45,6 +45,7 @@ const CHAT_MODELS = {
     { value: "xai/grok-4-fast-reasoning" as const, label: "Grok 4 Fast Reasoning" },
     { value: "claude-3-5-haiku-20241022" as const, label: "Claude 3.5 Haiku" },
     { value: "moonshotai/kimi-k2-turbo" as const, label: "Kimi K2 Turbo" },
+    { value: "minimax/minimax-m2" as const, label: "MiniMax M2" },
   ],
 } as const;
 
@@ -77,6 +78,7 @@ const UI_GENERATOR_MODELS = {
     { value: "xai/grok-4-fast-reasoning" as const, label: "Grok 4 Fast Reasoning" },
     { value: "claude-3-5-haiku-20241022" as const, label: "Claude 3.5 Haiku" },
     { value: "moonshotai/kimi-k2-turbo" as const, label: "Kimi K2 Turbo" },
+    { value: "minimax/minimax-m2" as const, label: "MiniMax M2" },
   ],
 } as const;
 

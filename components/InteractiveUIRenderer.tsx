@@ -5,7 +5,14 @@ import {
   PaginatedList,
   SearchableList,
   DataTable,
+  ComparisonGrid,
 } from "./InteractiveComponents";
+import {
+  FilterPanel,
+  ChartView,
+  MatrixView,
+  DetailPanel,
+} from "./AnalyticalComponents";
 import { PokemonUIRenderer } from "./PokemonUIRenderer";
 
 /**
@@ -38,7 +45,16 @@ export const InteractiveUIRenderer = ({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const RenderElement = ({ element }: { element: any }) => {
   // Known interactive component types
-  const interactiveTypes = ["paginated-list", "searchable-list", "data-table"];
+  const interactiveTypes = [
+    "paginated-list",
+    "searchable-list",
+    "data-table",
+    "comparison-grid",
+    "filter-panel",
+    "chart-view",
+    "matrix-view",
+    "detail-panel",
+  ];
   
   // Check if it's an interactive component:
   // - Has componentId AND (has actions OR is a known interactive type)
@@ -75,6 +91,21 @@ const RenderInteractiveComponent = ({
 
     case "data-table":
       return <DataTable component={component} />;
+
+    case "comparison-grid":
+      return <ComparisonGrid component={component} />;
+
+    case "filter-panel":
+      return <FilterPanel component={component} />;
+
+    case "chart-view":
+      return <ChartView component={component} />;
+
+    case "matrix-view":
+      return <MatrixView component={component} />;
+
+    case "detail-panel":
+      return <DetailPanel component={component} />;
 
     default:
       // Fallback to static rendering

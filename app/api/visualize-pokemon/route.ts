@@ -159,7 +159,7 @@ Choose the best component type based on the data structure.
         schema: PokemonAgentResponseSchema,
         systemPrompt: POKEMON_SYSTEM_PROMPT,
         llm: {
-          // For Vercel, pass model string directly as provider
+          // For Vercel, pass model string directly - it uses model registry format
           provider: model as unknown as LLMProviderType,
           model: model,
           temperature: 0.7,
@@ -223,8 +223,16 @@ Choose the best component type based on the data structure.
     return NextResponse.json(result);
   } catch (error) {
     console.error("Pokemon visualization error:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error("Error details:", { errorMessage, errorStack });
+    
     return NextResponse.json(
-      { error: "Failed to visualize Pokemon data" },
+      { 
+        error: "Failed to visualize Pokemon data",
+        details: errorMessage,
+        stack: process.env.NODE_ENV !== "production" ? errorStack : undefined,
+      },
       { status: 500 }
     );
   }
