@@ -537,7 +537,7 @@ export function ChatInterface() {
                               <MessageContent>
                                 {textParts.map((part, index) => (
                                   <Response key={`${message.id}-text-${index}`}>
-                                    {part.type === "text" ? part.text : null}
+                                    {part.type === "text" ? part.text : undefined}
                                   </Response>
                                 ))}
                               </MessageContent>
