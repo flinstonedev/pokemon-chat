@@ -2,11 +2,11 @@ import { openai, createOpenAI } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
 import {
   streamText,
-  experimental_createMCPClient,
   stepCountIs,
   convertToModelMessages,
   UIMessage,
 } from "ai";
+import { experimental_createMCPClient } from "@ai-sdk/mcp";
 import { z } from "zod";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { NextRequest } from "next/server";
