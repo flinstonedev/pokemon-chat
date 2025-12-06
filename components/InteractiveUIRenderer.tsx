@@ -55,7 +55,7 @@ const RenderElement = ({ element }: { element: any }) => {
     "matrix-view",
     "detail-panel",
   ];
-  
+
   // Check if it's an interactive component:
   // - Has componentId AND (has actions OR is a known interactive type)
   const isInteractive =

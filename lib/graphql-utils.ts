@@ -38,7 +38,7 @@ export function detectSearchVariable(query: string): string | null {
   const variables = extractVariables(query);
 
   // Priority order for search variable detection
-  const searchKeywords = ['search', 'query', 'name', 'filter', 'text'];
+  const searchKeywords = ["search", "query", "name", "filter", "text"];
 
   // First, check for exact matches with search keywords
   for (const keyword of searchKeywords) {
@@ -58,7 +58,7 @@ export function detectSearchVariable(query: string): string | null {
 
   // Finally, check for any String type variable (likely for search)
   for (const [varName, varType] of Object.entries(variables)) {
-    if (varType === 'String' || varType === 'String!') {
+    if (varType === "String" || varType === "String!") {
       return varName;
     }
   }
@@ -70,7 +70,7 @@ export function detectSearchVariable(query: string): string | null {
  * Checks if a query has pagination support (uses $limit and $offset)
  */
 export function hasPaginationSupport(query: string): boolean {
-  return query.includes('$limit') && query.includes('$offset');
+  return query.includes("$limit") && query.includes("$offset");
 }
 
 /**
@@ -82,12 +82,12 @@ export function hasPaginationSupport(query: string): boolean {
  */
 export function hasSearchSupport(query: string): boolean {
   // Check for explicit search patterns
-  if (query.includes('$search')) {
+  if (query.includes("$search")) {
     return true;
   }
 
   // Check for like/ilike operators (common in Hasura/Postgres)
-  if (query.includes('_ilike') || query.includes('_like')) {
+  if (query.includes("_ilike") || query.includes("_like")) {
     return true;
   }
 

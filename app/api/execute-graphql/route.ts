@@ -21,7 +21,10 @@ export async function POST(request: Request) {
 
     if (!graphqlEndpoint) {
       return NextResponse.json(
-        { error: "GraphQL endpoint not configured. Set GRAPHQL_API_ENDPOINT environment variable." },
+        {
+          error:
+            "GraphQL endpoint not configured. Set GRAPHQL_API_ENDPOINT environment variable.",
+        },
         { status: 500 }
       );
     }
@@ -32,8 +35,12 @@ export async function POST(request: Request) {
     };
 
     // Add bearer token if available (for the configured endpoint)
-    if (graphqlEndpoint === process.env.GRAPHQL_API_ENDPOINT && process.env.GRAPHQL_API_BEARER_TOKEN) {
-      headers["Authorization"] = `Bearer ${process.env.GRAPHQL_API_BEARER_TOKEN}`;
+    if (
+      graphqlEndpoint === process.env.GRAPHQL_API_ENDPOINT &&
+      process.env.GRAPHQL_API_BEARER_TOKEN
+    ) {
+      headers["Authorization"] =
+        `Bearer ${process.env.GRAPHQL_API_BEARER_TOKEN}`;
     }
 
     const response = await fetch(graphqlEndpoint, {

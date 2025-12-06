@@ -5,7 +5,7 @@ import { DefaultChatTransport, type ToolUIPart } from "ai";
 import { Loader2, Send, Bot } from "lucide-react";
 import { usePokemonResults } from "./PokemonResultsProvider";
 import { useSettings } from "./SettingsProvider";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { PokemonAgentResponse } from "@/lib/pokemon-ui-schema";
 import { InteractiveUIRenderer } from "./InteractiveUIRenderer";
 import { Message, MessageContent } from "@/components/ai-elements/message";
@@ -178,24 +178,38 @@ export function ChatInterface() {
               hasOutput: "output" in part,
               hasResult: "result" in part,
             });
-            console.log(`[ChatInterface] Full part ${index}:`, JSON.stringify(part, null, 2));
+            console.log(
+              `[ChatInterface] Full part ${index}:`,
+              JSON.stringify(part, null, 2)
+            );
           }
 
           // Check for presentPokemonData tool first (preferred method)
           // AI SDK 5.0 custom tools use type: "tool-<toolname>" format
           if (
             part.type === "tool-presentPokemonData" ||
-            (part.type === "tool-result" && "toolName" in part && part.toolName === "presentPokemonData") ||
-            (part.type === "dynamic-tool" && "toolName" in part && part.toolName === "presentPokemonData")
+            (part.type === "tool-result" &&
+              "toolName" in part &&
+              part.toolName === "presentPokemonData") ||
+            (part.type === "dynamic-tool" &&
+              "toolName" in part &&
+              part.toolName === "presentPokemonData")
           ) {
             console.log("[ChatInterface] Found presentPokemonData tool!");
 
             try {
               // AI SDK 5.0 uses 'result' instead of 'output'
-              const toolOutput = "result" in part ? part.result : ("output" in part ? part.output : null);
+              const toolOutput =
+                "result" in part
+                  ? part.result
+                  : "output" in part
+                    ? part.output
+                    : null;
 
               if (!toolOutput) {
-                console.error("[ChatInterface] presentPokemonData tool has no result or output!");
+                console.error(
+                  "[ChatInterface] presentPokemonData tool has no result or output!"
+                );
                 return;
               }
 
@@ -204,7 +218,10 @@ export function ChatInterface() {
                   ? JSON.parse(toolOutput)
                   : toolOutput;
 
-              console.log("[ChatInterface] presentPokemonData result:", JSON.stringify(result, null, 2));
+              console.log(
+                "[ChatInterface] presentPokemonData result:",
+                JSON.stringify(result, null, 2)
+              );
 
               if (result?.data) {
                 console.log(
@@ -213,10 +230,7 @@ export function ChatInterface() {
 
                 // Extract query metadata if available
                 const queryMetadata = result.queryMetadata || undefined;
-                console.log(
-                  "[ChatInterface] Query metadata:",
-                  queryMetadata
-                );
+                console.log("[ChatInterface] Query metadata:", queryMetadata);
 
                 // Add to results context
                 addResult({
@@ -228,7 +242,10 @@ export function ChatInterface() {
                 // Visualize the Pokemon data with UI agent, passing query metadata
                 visualizePokemonData(result.data, message.id, queryMetadata);
               } else {
-                console.warn("[ChatInterface] presentPokemonData result has no data field:", result);
+                console.warn(
+                  "[ChatInterface] presentPokemonData result has no data field:",
+                  result
+                );
               }
             } catch (error) {
               console.error(
@@ -295,8 +312,12 @@ export function ChatInterface() {
 
                   // If query has default values like $limit: Int = 20, extract them
                   if (Object.keys(variables).length === 0) {
-                    const limitMatch = result.data.queryString.match(/\$limit:\s*Int\s*=\s*(\d+)/);
-                    const offsetMatch = result.data.queryString.match(/\$offset:\s*Int\s*=\s*(\d+)/);
+                    const limitMatch = result.data.queryString.match(
+                      /\$limit:\s*Int\s*=\s*(\d+)/
+                    );
+                    const offsetMatch = result.data.queryString.match(
+                      /\$offset:\s*Int\s*=\s*(\d+)/
+                    );
                     if (limitMatch || offsetMatch) {
                       variables = {
                         limit: limitMatch ? parseInt(limitMatch[1]) : 20,
@@ -327,7 +348,8 @@ export function ChatInterface() {
                   );
                   if (result.metadata.query || result.metadata.queryString) {
                     queryMetadata = {
-                      query: result.metadata.query || result.metadata.queryString,
+                      query:
+                        result.metadata.query || result.metadata.queryString,
                       variables: result.metadata.variables || {},
                     };
                     console.log(
@@ -409,7 +431,7 @@ export function ChatInterface() {
         {/* Welcome screen with exploration button */}
         {messages.length === 0 && (
           <div className="flex flex-1 flex-col items-center justify-center p-8">
-            <div className="text-center max-w-2xl">
+            <div className="max-w-2xl text-center">
               <div className="bg-primary bg-gradient-primary mb-6 inline-flex h-20 w-20 items-center justify-center rounded-3xl shadow-xl">
                 <Bot className="text-primary-foreground h-10 w-10" />
               </div>
@@ -418,14 +440,15 @@ export function ChatInterface() {
               </h1>
               <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
                 Unleash an AI agent to explore the Pokemon GraphQL API and build
-                interactive visualizations. The agent will introspect the schema,
-                construct complex queries, and generate multiple production-quality
-                components for browsing Pokemon, moves, abilities, types, and more.
+                interactive visualizations. The agent will introspect the
+                schema, construct complex queries, and generate multiple
+                production-quality components for browsing Pokemon, moves,
+                abilities, types, and more.
               </p>
               <button
                 onClick={startExploration}
                 disabled={isLoading}
-                className="bg-primary bg-gradient-primary text-primary-foreground hover:shadow-2xl disabled:opacity-50 inline-flex items-center gap-3 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg transition-all hover:scale-105"
+                className="bg-primary bg-gradient-primary text-primary-foreground inline-flex items-center gap-3 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg transition-all hover:scale-105 hover:shadow-2xl disabled:opacity-50"
               >
                 <Bot className="h-6 w-6" />
                 Start GraphQL Exploration
@@ -444,110 +467,114 @@ export function ChatInterface() {
               <ConversationContent className="p-6">
                 <div className="mx-auto max-w-4xl">
                   {messages
-                    .filter((message, index, self) => 
-                      // Remove duplicate messages with same ID
-                      index === self.findIndex((m) => m.id === message.id)
+                    .filter(
+                      (message, index, self) =>
+                        // Remove duplicate messages with same ID
+                        index === self.findIndex((m) => m.id === message.id)
                     )
                     .map((message) => {
-                    // Separate tool parts from text parts
-                    // Hide presentPokemonData from tool list (it's handled separately)
-                    const toolParts = message.parts.filter(
-                      (part) =>
-                        (part.type === "dynamic-tool" ||
-                          part.type.startsWith("tool-")) &&
-                        !(
-                          "toolName" in part &&
-                          part.toolName === "presentPokemonData"
-                        )
-                    );
-                    const textParts = message.parts.filter(
-                      (part) => part.type === "text"
-                    );
+                      // Separate tool parts from text parts
+                      // Hide presentPokemonData from tool list (it's handled separately)
+                      const toolParts = message.parts.filter(
+                        (part) =>
+                          (part.type === "dynamic-tool" ||
+                            part.type.startsWith("tool-")) &&
+                          !(
+                            "toolName" in part &&
+                            part.toolName === "presentPokemonData"
+                          )
+                      );
+                      const textParts = message.parts.filter(
+                        (part) => part.type === "text"
+                      );
 
-                    return (
-                      <div key={message.id} className="mb-6">
-                        {/* Render tool calls separately without MessageContent wrapper */}
-                        {toolParts.length > 0 && (
-                          <div className="mb-3 space-y-2">
-                            {toolParts.map((part, index) => {
-                              const toolPart = part as ToolUIPart;
-                              const toolName =
-                                "toolName" in toolPart
-                                  ? String(toolPart.toolName)
-                                  : "tool";
-                              const displayName = toolName
-                                .split("-")
-                                .map(
-                                  (word: string) =>
-                                    word.charAt(0).toUpperCase() + word.slice(1)
-                                )
-                                .join(" ");
+                      return (
+                        <div key={message.id} className="mb-6">
+                          {/* Render tool calls separately without MessageContent wrapper */}
+                          {toolParts.length > 0 && (
+                            <div className="mb-3 space-y-2">
+                              {toolParts.map((part, index) => {
+                                const toolPart = part as ToolUIPart;
+                                const toolName =
+                                  "toolName" in toolPart
+                                    ? String(toolPart.toolName)
+                                    : "tool";
+                                const displayName = toolName
+                                  .split("-")
+                                  .map(
+                                    (word: string) =>
+                                      word.charAt(0).toUpperCase() +
+                                      word.slice(1)
+                                  )
+                                  .join(" ");
 
-                              return (
-                                <Tool
-                                  key={`${message.id}-tool-${index}`}
-                                  defaultOpen={false}
-                                >
-                                  <ToolHeader
-                                    title={displayName}
-                                    type={toolPart.type}
-                                    state={toolPart.state}
-                                  />
-                                  <ToolContent>
-                                    <ToolInput input={toolPart.input} />
-                                    <ToolOutput
-                                      output={toolPart.output}
-                                      errorText={toolPart.errorText}
+                                return (
+                                  <Tool
+                                    key={`${message.id}-tool-${index}`}
+                                    defaultOpen={false}
+                                  >
+                                    <ToolHeader
+                                      title={displayName}
+                                      type={toolPart.type}
+                                      state={toolPart.state}
                                     />
-                                  </ToolContent>
-                                </Tool>
+                                    <ToolContent>
+                                      <ToolInput input={toolPart.input} />
+                                      <ToolOutput
+                                        output={toolPart.output}
+                                        errorText={toolPart.errorText}
+                                      />
+                                    </ToolContent>
+                                  </Tool>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {/* Render text response in MessageContent */}
+                          {textParts.length > 0 && (
+                            <Message from={message.role}>
+                              <MessageContent>
+                                {textParts.map((part, index) => (
+                                  <Response key={`${message.id}-text-${index}`}>
+                                    {part.type === "text" ? part.text : null}
+                                  </Response>
+                                ))}
+                              </MessageContent>
+                            </Message>
+                          )}
+
+                          {/* Render Pokemon visualization loading indicator */}
+                          {loadingVisualizations.has(message.id) && (
+                            <div className="border-border/50 bg-card/50 mt-4 flex items-center gap-3 rounded-lg border p-4">
+                              <Loader2 className="text-primary h-5 w-5 animate-spin" />
+                              <span className="text-muted-foreground text-sm">
+                                Generating visualization...
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Render Pokemon visualization if available */}
+                          {visualizations.has(message.id) &&
+                            (() => {
+                              console.log(
+                                "[Render] Rendering visualization for message:",
+                                message.id,
+                                visualizations.get(message.id)
                               );
-                            })}
-                          </div>
-                        )}
-
-                        {/* Render text response in MessageContent */}
-                        {textParts.length > 0 && (
-                          <Message from={message.role}>
-                            <MessageContent>
-                              {textParts.map((part, index) => (
-                                <Response key={`${message.id}-text-${index}`}>
-                                  {part.type === "text" ? part.text : null}
-                                </Response>
-                              ))}
-                            </MessageContent>
-                          </Message>
-                        )}
-
-                        {/* Render Pokemon visualization loading indicator */}
-                        {loadingVisualizations.has(message.id) && (
-                          <div className="border-border/50 bg-card/50 mt-4 flex items-center gap-3 rounded-lg border p-4">
-                            <Loader2 className="text-primary h-5 w-5 animate-spin" />
-                            <span className="text-muted-foreground text-sm">
-                              Generating visualization...
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Render Pokemon visualization if available */}
-                        {visualizations.has(message.id) &&
-                          (() => {
-                            console.log(
-                              "[Render] Rendering visualization for message:",
-                              message.id,
-                              visualizations.get(message.id)
-                            );
-                            return (
-                              <div className="mt-4">
-                                <InteractiveUIRenderer
-                                  elements={visualizations.get(message.id)!.ui}
-                                />
-                              </div>
-                            );
-                          })()}
-                      </div>
-                    );
-                  })}
+                              return (
+                                <div className="mt-4">
+                                  <InteractiveUIRenderer
+                                    elements={
+                                      visualizations.get(message.id)!.ui
+                                    }
+                                  />
+                                </div>
+                              );
+                            })()}
+                        </div>
+                      );
+                    })}
                   {isLoading && (
                     <Message from="assistant">
                       <MessageContent>

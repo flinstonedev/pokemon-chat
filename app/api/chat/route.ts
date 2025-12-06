@@ -36,7 +36,6 @@ export async function POST(req: NextRequest) {
       model?: string;
     } = await req.json();
 
-
     // Initialize MCP client with the actual MCP server
     let mcpTools = {};
 
@@ -72,7 +71,9 @@ export async function POST(req: NextRequest) {
         variables: z
           .record(z.unknown())
           .optional()
-          .describe("Variables for the GraphQL query (e.g., { limit: 20, offset: 0 })"),
+          .describe(
+            "Variables for the GraphQL query (e.g., { limit: 20, offset: 0 })"
+          ),
       }),
       execute: async ({
         query,
@@ -99,7 +100,8 @@ export async function POST(req: NextRequest) {
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(
-              errorData.error || `HTTP ${response.status}: ${response.statusText}`
+              errorData.error ||
+                `HTTP ${response.status}: ${response.statusText}`
             );
           }
 
@@ -196,8 +198,9 @@ export async function POST(req: NextRequest) {
     };
 
     // Use a shorter system prompt for local models with limited context
-    const systemMessage = provider === "local"
-      ? `You are a Pokemon chat assistant with GraphQL query tools.
+    const systemMessage =
+      provider === "local"
+        ? `You are a Pokemon chat assistant with GraphQL query tools.
 
 CRITICAL: For search/finder requests, use array-returning fields (like [Pokemon]) not single objects.
 Check return types during introspection: pokemon(name:): Pokemon is WRONG for search. Use fields that return arrays.
@@ -211,7 +214,7 @@ Workflow:
 4. Call presentPokemonData with the data
 
 Only answer Pokemon questions.`
-      : `You are a helpful AI assistant for a Pokemon chat application with access to GraphQL query building tools through the MCP server.
+        : `You are a helpful AI assistant for a Pokemon chat application with access to GraphQL query building tools through the MCP server.
 
 ⚠️ CRITICAL RULE FOR SEARCH/FINDER QUERIES ⚠️
 
@@ -474,7 +477,10 @@ PHASE 4 - CLEANUP (MCP tool):
     }
 
     const result = streamText({
-      model: (provider === "zai" || provider === "local") ? selectedProvider.chat(model) : selectedProvider(model),
+      model:
+        provider === "zai" || provider === "local"
+          ? selectedProvider.chat(model)
+          : selectedProvider(model),
       system: systemMessage,
       messages: convertToModelMessages(messages),
       tools: allTools,

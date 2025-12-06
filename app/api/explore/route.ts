@@ -1,151 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { experimental_createMCPClient } from "ai";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import { generateObject } from "ai";
-import { openai } from "@ai-sdk/openai";
-import { z } from "zod";
 import type { ExplorationSuggestion } from "@/lib/pokemon-ui-schema";
-
-export const maxDuration = 120; // 2 minutes for complex exploration
-
-// Schema for the exploration agent response
-const ExplorationAgentResponseSchema = z.object({
-  suggestions: z.array(z.object({
-    title: z.string(),
-    description: z.string(),
-    category: z.enum(["exploration", "comparison", "visualization", "analysis"]).default("exploration"),
-    complexity: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
-    graphqlQuery: z.string(),
-    variables: z.record(z.object({
-      type: z.string(),
-      default: z.union([z.string(), z.number(), z.boolean()]).optional(),
-    })),
-    componentType: z.enum(["paginated-list", "searchable-list", "data-table", "chart", "comparison"]),
-    tags: z.array(z.string()).default([]),
-  })),
-});
-
-/**
- * Exploration agent that uses AI with MCP QuerySculptor tools to discover and test
- * GraphQL queries, then returns UI component suggestions based on actual working queries.
- */
-export async function POST(req: Request) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let mcpClient: any = null;
-
-  try {
-    // Authenticate the user
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Initialize MCP client
-    try {
-      const MCP_URL =
-        process.env.MCP_URL ||
-        "https://agent-query-builder-toolbox.vercel.app/mcp";
-
-      mcpClient = await experimental_createMCPClient({
-        transport: new StreamableHTTPClientTransport(new URL(MCP_URL), {
-          sessionId: `pokemon-explore-${userId}-${Date.now()}`,
-        }),
-        name: "pokemon-explore-client",
-      });
-
-      // Get available tools from the MCP server
-      const mcpTools: Record<string, any> = await mcpClient.tools();
-      
-      if (!mcpTools || Object.keys(mcpTools).length === 0) {
-        throw new Error("No MCP tools available");
-      }
-
-      // System prompt for the exploration agent
-      const explorationPrompt = `You are an exploration agent for the Pokemon GraphQL API. Your job is to discover and test different query patterns that work with the API, then return UI component suggestions.
-
-CRITICAL WORKFLOW:
-1. Use introspect-schema to discover available fields in the GraphQL API
-2. Use start-query-session to begin building queries
-3. Test different query patterns:
-   - Paginated lists: queries with $limit:Int! and $offset:Int! variables
-   - Searchable lists: queries with $search:String! or filter arguments
-   - Comparison data: queries fetching multiple items or nested stats
-   - Charts/visualizations: queries for stat distributions, type effectiveness data
-4. For each working query, use get-current-query to get the query string
-5. Use end-query-session when done with each query
-6. Return suggestions in the exact format specified
-
-IMPORTANT RULES:
-- Only return suggestions for queries that actually work (you've validated them)
-- Each suggestion must include the exact GraphQL query string that works
-- Include the variables with their types and default values
-- Determine the appropriate componentType based on the query variables:
-  * paginated-list: if query has $limit and $offset variables
-  * searchable-list: if query has a String variable for search/filter
-  * data-table: if query is for comparison or tabular data
-- No fallback - if exploration fails, return empty suggestions array
-
-Return your results as a JSON object with a "suggestions" array. Each suggestion should have: title, description, category, complexity, graphqlQuery, variables (object with type and optional default), componentType, and tags.`;
-
-      // Use AI agent to explore the API
-      const result = await generateObject({
-        model: openai("gpt-4o"),
-        schema: ExplorationAgentResponseSchema,
-        prompt: explorationPrompt,
-        tools: mcpTools,
-        maxSteps: 50, // Allow many tool calls for exploration
-      });
-
-      // Clean up MCP client
-      if (mcpClient) {
-        try {
-          await mcpClient.close();
-        } catch (closeError) {
-          console.error("Error closing MCP client:", closeError);
-        }
-      }
-
-      return NextResponse.json({
-        suggestions: result.object.suggestions || [],
-      });
-    } catch (mcpError) {
-      console.error("⚠️ MCP setup failed:", mcpError);
-      
-      // Clean up on error
-      if (mcpClient) {
-        try {
-          await mcpClient.close();
-        } catch (closeError) {
-          console.error("Error closing MCP client:", closeError);
-        }
-      }
-
-      // No fallback - if exploration fails, it fails
-      return NextResponse.json(
-        {
-          suggestions: [],
-          errors: [
-            `Exploration failed: ${mcpError instanceof Error ? mcpError.message : String(mcpError)}`,
-          ],
-        },
-        { status: 500 }
-      );
-    }
-  } catch (error) {
-    console.error("Error in exploration:", error);
-
-    return NextResponse.json(
-      {
-        suggestions: [],
-        errors: [
-          `Internal error: ${error instanceof Error ? error.message : String(error)}`,
-        ],
-      },
-      { status: 500 }
-    );
-  }
-}
 
 export const maxDuration = 120; // 2 minutes for complex exploration
 
@@ -153,8 +11,7 @@ export const maxDuration = 120; // 2 minutes for complex exploration
  * Exploration agent that uses MCP QuerySculptor tools to discover and test
  * GraphQL queries, then returns UI component suggestions based on actual working queries.
  */
-export async function POST(req: Request) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function POST() {
   let mcpClient: any = null;
 
   try {
@@ -179,7 +36,7 @@ export async function POST(req: Request) {
 
       // Get available tools from the MCP server
       const mcpTools: Record<string, any> = await mcpClient.tools();
-      
+
       if (!mcpTools || Object.keys(mcpTools).length === 0) {
         throw new Error("No MCP tools available");
       }
@@ -200,39 +57,43 @@ export async function POST(req: Request) {
       );
 
       if (missingTools.length > 0) {
-        throw new Error(`Missing required MCP tools: ${missingTools.join(", ")}`);
+        throw new Error(
+          `Missing required MCP tools: ${missingTools.join(", ")}`
+        );
       }
 
       // Helper function to call MCP tools safely
       const callTool = async (toolName: string, args: any) => {
         try {
           // Try using the MCP client's callTool method directly
-          if (mcpClient.callTool && typeof mcpClient.callTool === 'function') {
+          if (mcpClient.callTool && typeof mcpClient.callTool === "function") {
             const result = await mcpClient.callTool(toolName, args);
             return result;
           }
-          
+
           // Try using the tool's execute method if available
           const tool = mcpTools[toolName];
           if (!tool) {
             throw new Error(`Tool ${toolName} not found`);
           }
-          
-          if (typeof tool === 'function') {
+
+          if (typeof tool === "function") {
             return await tool(args);
-          } else if (tool.execute && typeof tool.execute === 'function') {
+          } else if (tool.execute && typeof tool.execute === "function") {
             return await tool.execute(args);
-          } else if (tool.call && typeof tool.call === 'function') {
+          } else if (tool.call && typeof tool.call === "function") {
             return await tool.call(args);
           }
-          
+
           // If tool has a specific structure, try to extract the callable
-          if (tool.parameters && typeof tool === 'object') {
+          if (tool.parameters && typeof tool === "object") {
             // This is a tool definition, not a callable function
             // Try to use the MCP client's direct call method
-            throw new Error(`Tool ${toolName} is a definition, not callable. Use mcpClient.callTool directly.`);
+            throw new Error(
+              `Tool ${toolName} is a definition, not callable. Use mcpClient.callTool directly.`
+            );
           }
-          
+
           throw new Error(`Cannot call tool ${toolName}: unknown tool format`);
         } catch (error) {
           console.error(`Error calling tool ${toolName}:`, error);
@@ -251,29 +112,34 @@ export async function POST(req: Request) {
         const session1 = await callTool("start-query-session", {
           operationType: "query",
         });
-        console.log("start-query-session response:", JSON.stringify(session1, null, 2));
-        
+        console.log(
+          "start-query-session response:",
+          JSON.stringify(session1, null, 2)
+        );
+
         // Try multiple possible response structures
-        const sessionId1 = 
-          session1?.sessionId || 
-          session1?.data?.sessionId || 
+        const sessionId1 =
+          session1?.sessionId ||
+          session1?.data?.sessionId ||
           session1?.session?.sessionId ||
           session1?.content?.[0]?.text ||
-          (typeof session1 === 'string' ? session1 : null) ||
-          (session1?.result?.sessionId) ||
-          (session1?.response?.sessionId);
+          (typeof session1 === "string" ? session1 : null) ||
+          session1?.result?.sessionId ||
+          session1?.response?.sessionId;
 
         if (!sessionId1) {
           console.error("Session response structure:", session1);
-          throw new Error(`Could not get session ID from start-query-session. Response: ${JSON.stringify(session1)}`);
+          throw new Error(
+            `Could not get session ID from start-query-session. Response: ${JSON.stringify(session1)}`
+          );
         }
-        
+
         console.log("Extracted session ID:", sessionId1);
 
         // Introspect schema to find array-returning fields
         const schema = await callTool("introspect-schema", {});
         const queryType = schema?.data?.__schema?.queryType;
-        
+
         if (!queryType) {
           throw new Error("Could not introspect schema");
         }
@@ -339,7 +205,7 @@ export async function POST(req: Request) {
                 currentPath: fieldName,
                 fieldName: pokemonField,
               });
-            } catch (e) {
+            } catch {
               // Field might not exist, continue
             }
           }
@@ -363,7 +229,7 @@ export async function POST(req: Request) {
                 value: "$offset",
               });
             }
-          } catch (e) {
+          } catch {
             // Arguments might not be settable this way, try alternative
           }
 
@@ -379,7 +245,10 @@ export async function POST(req: Request) {
               prettyPrint: true,
             });
 
-            const queryString = queryResult?.query || queryResult?.data?.query || queryResult?.data?.queryString;
+            const queryString =
+              queryResult?.query ||
+              queryResult?.data?.query ||
+              queryResult?.data?.queryString;
             if (queryString) {
               suggestions.push({
                 title: "Pokemon Browser",
@@ -400,7 +269,9 @@ export async function POST(req: Request) {
           await callTool("end-query-session", { sessionId: sessionId1 });
         }
       } catch (error) {
-        errors.push(`Paginated list test failed: ${error instanceof Error ? error.message : String(error)}`);
+        errors.push(
+          `Paginated list test failed: ${error instanceof Error ? error.message : String(error)}`
+        );
       }
 
       // Test 2: Searchable list query
@@ -408,7 +279,10 @@ export async function POST(req: Request) {
         const session2 = await callTool("start-query-session", {
           operationType: "query",
         });
-        const sessionId2 = session2.sessionId || session2.data?.sessionId || session2.session?.sessionId;
+        const sessionId2 =
+          session2.sessionId ||
+          session2.data?.sessionId ||
+          session2.session?.sessionId;
 
         if (!sessionId2) {
           throw new Error("Could not get session ID from start-query-session");
@@ -417,7 +291,7 @@ export async function POST(req: Request) {
         const schema = await callTool("introspect-schema", {});
         const queryType = schema?.data?.__schema?.queryType;
         const fields = queryType?.fields || [];
-        
+
         const pokemonArrayFields = fields.filter((field: any) => {
           const returnType = field.type?.ofType || field.type;
           return (
@@ -481,7 +355,7 @@ export async function POST(req: Request) {
                 currentPath: fieldName,
                 fieldName: pokemonField,
               });
-            } catch (e) {
+            } catch {
               // Field might not exist
             }
           }
@@ -494,11 +368,12 @@ export async function POST(req: Request) {
 
           // Try to set search/filter arguments
           const args = fieldInfo?.args || fieldInfo?.data?.args || [];
-          const searchArg = args.find((arg: any) => 
-            arg.name === "search" || 
-            arg.name === "where" || 
-            arg.name === "filter" ||
-            arg.name === "name"
+          const searchArg = args.find(
+            (arg: any) =>
+              arg.name === "search" ||
+              arg.name === "where" ||
+              arg.name === "filter" ||
+              arg.name === "name"
           );
 
           if (searchArg) {
@@ -510,7 +385,10 @@ export async function POST(req: Request) {
                   argumentName: searchArg.name,
                   value: "$search",
                 });
-              } else if (searchArg.name === "where" || searchArg.name === "filter") {
+              } else if (
+                searchArg.name === "where" ||
+                searchArg.name === "filter"
+              ) {
                 // Try setting nested where filter
                 await callTool("set-input-obj-arg", {
                   sessionId: sessionId2,
@@ -520,7 +398,7 @@ export async function POST(req: Request) {
                   value: "$search",
                 });
               }
-            } catch (e) {
+            } catch {
               // Argument setting might fail
             }
           }
@@ -543,7 +421,7 @@ export async function POST(req: Request) {
                 value: "$offset",
               });
             }
-          } catch (e) {
+          } catch {
             // Continue
           }
 
@@ -557,7 +435,10 @@ export async function POST(req: Request) {
               prettyPrint: true,
             });
 
-            const queryString = queryResult?.query || queryResult?.data?.query || queryResult?.data?.queryString;
+            const queryString =
+              queryResult?.query ||
+              queryResult?.data?.query ||
+              queryResult?.data?.queryString;
             if (queryString) {
               suggestions.push({
                 title: "Pokemon Finder",
@@ -579,7 +460,9 @@ export async function POST(req: Request) {
           await callTool("end-query-session", { sessionId: sessionId2 });
         }
       } catch (error) {
-        errors.push(`Searchable list test failed: ${error instanceof Error ? error.message : String(error)}`);
+        errors.push(
+          `Searchable list test failed: ${error instanceof Error ? error.message : String(error)}`
+        );
       }
 
       // Test 3: Type-based filtering
@@ -587,7 +470,10 @@ export async function POST(req: Request) {
         const session3 = await callTool("start-query-session", {
           operationType: "query",
         });
-        const sessionId3 = session3.sessionId || session3.data?.sessionId || session3.session?.sessionId;
+        const sessionId3 =
+          session3.sessionId ||
+          session3.data?.sessionId ||
+          session3.session?.sessionId;
 
         if (!sessionId3) {
           throw new Error("Could not get session ID from start-query-session");
@@ -596,7 +482,7 @@ export async function POST(req: Request) {
         const schema = await callTool("introspect-schema", {});
         const queryType = schema?.data?.__schema?.queryType;
         const fields = queryType?.fields || [];
-        
+
         const pokemonArrayFields = fields.filter((field: any) => {
           const returnType = field.type?.ofType || field.type;
           return (
@@ -648,7 +534,7 @@ export async function POST(req: Request) {
                 currentPath: fieldName,
                 fieldName: pokemonField,
               });
-            } catch (e) {
+            } catch {
               // Continue
             }
           }
@@ -661,10 +547,12 @@ export async function POST(req: Request) {
 
           // Try to set type filter
           const args = fieldInfo?.args || fieldInfo?.data?.args || [];
-          const typeArg = args.find((arg: any) => 
-            arg.name === "type" || 
-            arg.name === "types" ||
-            (arg.name === "where" && arg.type?.inputFields?.some((f: any) => f.name === "type"))
+          const typeArg = args.find(
+            (arg: any) =>
+              arg.name === "type" ||
+              arg.name === "types" ||
+              (arg.name === "where" &&
+                arg.type?.inputFields?.some((f: any) => f.name === "type"))
           );
 
           if (typeArg) {
@@ -685,7 +573,7 @@ export async function POST(req: Request) {
                   value: "$type",
                 });
               }
-            } catch (e) {
+            } catch {
               // Continue
             }
           }
@@ -700,7 +588,7 @@ export async function POST(req: Request) {
                 value: "$limit",
               });
             }
-          } catch (e) {
+          } catch {
             // Continue
           }
 
@@ -714,7 +602,10 @@ export async function POST(req: Request) {
               prettyPrint: true,
             });
 
-            const queryString = queryResult?.query || queryResult?.data?.query || queryResult?.data?.queryString;
+            const queryString =
+              queryResult?.query ||
+              queryResult?.data?.query ||
+              queryResult?.data?.queryString;
             if (queryString) {
               suggestions.push({
                 title: "Pokemon by Type",
@@ -735,7 +626,9 @@ export async function POST(req: Request) {
           await callTool("end-query-session", { sessionId: sessionId3 });
         }
       } catch (error) {
-        errors.push(`Type filter test failed: ${error instanceof Error ? error.message : String(error)}`);
+        errors.push(
+          `Type filter test failed: ${error instanceof Error ? error.message : String(error)}`
+        );
       }
 
       // Clean up MCP client
@@ -754,7 +647,7 @@ export async function POST(req: Request) {
       });
     } catch (mcpError) {
       console.error("⚠️ MCP setup failed:", mcpError);
-      
+
       // Clean up on error
       if (mcpClient) {
         try {
@@ -789,4 +682,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

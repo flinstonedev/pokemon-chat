@@ -31,7 +31,8 @@ export async function POST(req: Request) {
       hasQueryMetadata: !!queryMetadata,
       dataKeys: data ? Object.keys(data) : [],
     });
-    console.log("🎨 [visualize-pokemon] Query Metadata:",
+    console.log(
+      "🎨 [visualize-pokemon] Query Metadata:",
       queryMetadata ? JSON.stringify(queryMetadata, null, 2) : "NONE"
     );
 
@@ -62,10 +63,17 @@ export async function POST(req: Request) {
 
     // Get endpoint from query metadata (optional - provided by LLM via presentPokemonData)
     // If not provided, use configured GRAPHQL_API_ENDPOINT
-    const endpoint = (queryMetadata as { endpoint?: string })?.endpoint || process.env.GRAPHQL_API_ENDPOINT;
+    const endpoint =
+      (queryMetadata as { endpoint?: string })?.endpoint ||
+      process.env.GRAPHQL_API_ENDPOINT;
 
     console.log("🎨 [visualize-pokemon] Using endpoint:", endpoint);
-    console.log("🎨 [visualize-pokemon] Endpoint source:", (queryMetadata as { endpoint?: string })?.endpoint ? "LLM-provided" : "env GRAPHQL_API_ENDPOINT");
+    console.log(
+      "🎨 [visualize-pokemon] Endpoint source:",
+      (queryMetadata as { endpoint?: string })?.endpoint
+        ? "LLM-provided"
+        : "env GRAPHQL_API_ENDPOINT"
+    );
 
     // If we have query metadata with pagination/search, directly construct the interactive component
     // This is faster and more reliable than asking the LLM
@@ -86,7 +94,8 @@ export async function POST(req: Request) {
           (queryMetadata.variables as any).limit) ||
         20;
 
-      let componentType: "paginated-list" | "searchable-list" = "paginated-list";
+      let componentType: "paginated-list" | "searchable-list" =
+        "paginated-list";
       let componentProps: Record<string, unknown> = {
         pageSize,
         renderItem: "pokemon-card",
@@ -132,17 +141,26 @@ export async function POST(req: Request) {
         componentType,
         componentId: interactiveComponent.componentId,
         hasActions: !!interactiveComponent.actions,
-        actionQuery: interactiveComponent.actions?.fetchData?.query?.substring(0, 100),
+        actionQuery: interactiveComponent.actions?.fetchData?.query?.substring(
+          0,
+          100
+        ),
         actionEndpoint: endpoint,
       });
-      console.log("🎨 [visualize-pokemon] ===== REQUEST END (INTERACTIVE) =====");
+      console.log(
+        "🎨 [visualize-pokemon] ===== REQUEST END (INTERACTIVE) ====="
+      );
 
       return NextResponse.json(result);
     }
 
     // Otherwise, use LLM to generate static visualization
-    console.log("🎨 [visualize-pokemon] ⚠️ NO INTERACTIVE SUPPORT - Using LLM for static visualization");
-    console.log("🎨 [visualize-pokemon] Reason: No $limit/$offset or $search variables detected");
+    console.log(
+      "🎨 [visualize-pokemon] ⚠️ NO INTERACTIVE SUPPORT - Using LLM for static visualization"
+    );
+    console.log(
+      "🎨 [visualize-pokemon] Reason: No $limit/$offset or $search variables detected"
+    );
 
     const prompt = `
 Visualize this Pokemon data using static components:
@@ -173,7 +191,9 @@ Choose the best component type based on the data structure.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         firstComponent: (result.ui as any[])[0],
       });
-      console.log("🎨 [visualize-pokemon] ===== REQUEST END (STATIC VERCEL) =====");
+      console.log(
+        "🎨 [visualize-pokemon] ===== REQUEST END (STATIC VERCEL) ====="
+      );
 
       return NextResponse.json(result);
     }
@@ -226,9 +246,9 @@ Choose the best component type based on the data structure.
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
     console.error("Error details:", { errorMessage, errorStack });
-    
+
     return NextResponse.json(
-      { 
+      {
         error: "Failed to visualize Pokemon data",
         details: errorMessage,
         stack: process.env.NODE_ENV !== "production" ? errorStack : undefined,

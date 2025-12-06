@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a Pokemon chat application built with Next.js, featuring an AI assistant that uses the MCP (Model Context Protocol) to interact with the Pokemon GraphQL API. The app demonstrates dynamic UI generation and interactive components powered by LLMs.
 
 **Key Technologies:**
+
 - Next.js 15 with React 19
 - Convex for backend (database, real-time data)
 - Clerk for authentication
@@ -17,6 +18,7 @@ This is a Pokemon chat application built with Next.js, featuring an AI assistant
 ## Development Commands
 
 ### Running the Application
+
 ```bash
 npm run dev              # Start both frontend (Next.js) and backend (Convex) in parallel
 npm run dev:frontend     # Start Next.js dev server only
@@ -24,6 +26,7 @@ npm run dev:backend      # Start Convex dev server only
 ```
 
 ### Code Quality
+
 ```bash
 npm run lint             # Run ESLint
 npm run type-check       # Run TypeScript compiler without emitting files
@@ -33,6 +36,7 @@ npm run validate         # Run type-check, lint, and format:check
 ```
 
 ### Building
+
 ```bash
 npm run build            # Build Next.js for production
 npm start                # Start production server
@@ -141,11 +145,13 @@ User Input → Chat API (MCP Tools) → LLM builds query → execute-query tool
 ### Convex Backend
 
 **Schema** (`convex/schema.ts`):
+
 - `messages` table: Stores chat messages with role, content, thread association
 - `threads` table: Conversation threads with user ownership
 - Indexes: `by_threadId`, `by_userId`, `by_createdAt`
 
 **Function Guidelines** (see `.cursor/rules/convex_rules.mdc`):
+
 - Always use new function syntax with validators
 - Use `query`, `mutation`, `action` for public APIs
 - Use `internalQuery`, `internalMutation`, `internalAction` for private functions
@@ -157,12 +163,15 @@ User Input → Chat API (MCP Tools) → LLM builds query → execute-query tool
 ### Adding New Interactive Components
 
 1. Define component schema in `lib/pokemon-ui-schema.ts`:
+
 ```typescript
 const MyComponent = z.object({
   type: z.literal("my-component"),
   componentId: z.string().min(1),
   component: z.literal("my-component"),
-  props: z.object({ /* props */ }),
+  props: z.object({
+    /* props */
+  }),
   actions: z.record(ActionSchema).optional(),
 });
 ```
@@ -174,6 +183,7 @@ const MyComponent = z.object({
 ### Working with GraphQL Queries
 
 **CRITICAL**: Always use GraphQL variables for dynamic values:
+
 - Pagination: Use `$limit: Int!` and `$offset: Int!`
 - Search: Use `$search: String!`
 - Filters: Use `$filter: ...!`
@@ -181,6 +191,7 @@ const MyComponent = z.object({
 This enables the UI system to detect capabilities and create interactive components.
 
 **Example:**
+
 ```graphql
 query GetPokemon($limit: Int!, $offset: Int!) {
   pokemon_v2_pokemon(limit: $limit, offset: $offset) {
@@ -208,6 +219,7 @@ The `presentPokemonData` tool is mandatory after query execution to trigger visu
 ## Environment Setup
 
 Required environment variables:
+
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk authentication
 - `CLERK_SECRET_KEY` - Clerk server secret
 - `NEXT_PUBLIC_CONVEX_URL` - Convex deployment URL
@@ -219,18 +231,21 @@ Required environment variables:
 ## Code Style
 
 ### Convex Functions
+
 - Follow guidelines in `.cursor/rules/convex_rules.mdc`
 - Always use file-based routing
 - Use strict typing with `Id<"tableName">` from generated types
 - Include validators for all args and returns
 
 ### React Components
+
 - Use client components (`"use client"`) for interactivity
 - Server components for authentication checks
 - Prefer composition over prop drilling
 - Use Radix UI primitives for accessible components
 
 ### TypeScript
+
 - Strict mode enabled
 - Use discriminated unions for component types
 - Prefer `interface` for object shapes
@@ -238,6 +253,7 @@ Required environment variables:
 - Import types from `@/*` alias
 
 ### Styling
+
 - TailwindCSS 4.0 utility classes
 - Theme system with CSS variables (see component classes)
 - Responsive design with mobile-first approach
@@ -257,17 +273,20 @@ To verify interactive components work:
 ## Common Issues
 
 ### MCP Connection Failures
+
 - MCP client creation happens per request
 - Failures are logged but don't crash the app
 - App continues without MCP tools if connection fails
 
 ### Interactive Components Not Loading
+
 - Verify `UIComponentProvider` wraps the app in layout
 - Check GraphQL query has proper variables ($limit, $offset)
 - Check browser console for validation errors
 - Ensure endpoint is whitelisted in `lib/graphql-validator.ts`
 
 ### Rate Limiting
+
 - Default: 10 requests/minute per component
 - Tracked per componentId
 - Clear errors shown in UI

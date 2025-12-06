@@ -34,17 +34,20 @@ An intelligent Pokemon chat application that demonstrates the power of Model Con
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd pokemon-chat
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env.local
 ```
@@ -77,16 +80,19 @@ NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
 4. Set up Convex:
 
 First, log in to Convex:
+
 ```bash
 npx convex login
 ```
 
 Then initialize your project:
+
 ```bash
 npx convex dev
 ```
 
 This will:
+
 - Create a new Convex project
 - Set up your deployment
 - Automatically populate `NEXT_PUBLIC_CONVEX_URL` and `CONVEX_DEPLOYMENT`
@@ -99,6 +105,7 @@ This will:
 - Add `CLERK_JWT_ISSUER_DOMAIN` from your Clerk dashboard (found in API Keys → JWT Templates)
 
 6. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -119,6 +126,7 @@ Simply ask questions about Pokemon:
 - "Create a searchable list of all Pokemon"
 
 The AI assistant will:
+
 1. Use MCP tools to build GraphQL queries
 2. Execute queries against the Pokemon API
 3. Generate interactive UI components to display results
@@ -138,6 +146,7 @@ The app automatically creates interactive components based on queries:
 ### Settings
 
 Click the settings icon to:
+
 - Switch between OpenAI and Anthropic models
 - Choose specific models (GPT-4o, Claude Sonnet, etc.)
 - Configure chat and UI generation separately

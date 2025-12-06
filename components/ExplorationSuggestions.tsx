@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import type { ExplorationSuggestion } from "@/lib/pokemon-ui-schema";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles } from "lucide-react";
@@ -23,7 +28,7 @@ export function ExplorationSuggestions({
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
         <p className="text-muted-foreground text-sm">
           Exploring the Pokemon GraphQL API...
         </p>
@@ -72,7 +77,7 @@ export function ExplorationSuggestions({
   return (
     <div className="space-y-4 p-6">
       <div className="mb-6 flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-primary" />
+        <Sparkles className="text-primary h-5 w-5" />
         <h2 className="text-foreground text-xl font-semibold">
           Explore Pokemon Data
         </h2>
@@ -111,7 +116,7 @@ export function ExplorationSuggestions({
               </div>
               <div className="mb-4 text-xs">
                 <span className="text-muted-foreground">Component:</span>{" "}
-                <span className="font-mono text-foreground">
+                <span className="text-foreground font-mono">
                   {suggestion.componentType}
                 </span>
               </div>
@@ -124,10 +129,10 @@ export function ExplorationSuggestions({
       </div>
       {errors.length > 0 && (
         <div className="mt-4 rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-4">
-          <p className="text-yellow-700 dark:text-yellow-400 mb-2 text-sm font-semibold">
+          <p className="mb-2 text-sm font-semibold text-yellow-700 dark:text-yellow-400">
             Warnings:
           </p>
-          <ul className="text-yellow-600 dark:text-yellow-500 list-disc list-inside space-y-1 text-sm">
+          <ul className="list-inside list-disc space-y-1 text-sm text-yellow-600 dark:text-yellow-500">
             {errors.map((error, index) => (
               <li key={index}>{error}</li>
             ))}
@@ -137,4 +142,3 @@ export function ExplorationSuggestions({
     </div>
   );
 }
-

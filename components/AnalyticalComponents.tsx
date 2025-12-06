@@ -12,7 +12,11 @@ import { Loader2, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
 
 /**
  * FilterPanel component - Multi-criteria filtering UI
@@ -76,18 +80,22 @@ export const FilterPanel = ({ component, renderItem }: FilterPanelProps) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const defaultRenderItem = (item: any, index: number) => {
     const name = item.name || `Item ${index + 1}`;
-    const types = item.pokemon_v2_pokemontypes?.map((t: { pokemon_v2_type?: { name?: string } }) => 
-      t.pokemon_v2_type?.name
-    ) || item.types?.map((t: { type?: { name?: string }; name?: string }) => 
-      t.type?.name || t.name
-    ) || [];
+    const types =
+      item.pokemon_v2_pokemontypes?.map(
+        (t: { pokemon_v2_type?: { name?: string } }) => t.pokemon_v2_type?.name
+      ) ||
+      item.types?.map(
+        (t: { type?: { name?: string }; name?: string }) =>
+          t.type?.name || t.name
+      ) ||
+      [];
 
     return (
       <Card key={index} className="max-w-[400px] min-w-[280px]">
         <CardHeader>
           <CardTitle className="capitalize">{name}</CardTitle>
           {types.length > 0 && (
-            <div className="flex gap-2 mt-2">
+            <div className="mt-2 flex gap-2">
               {types.map((type: string, i: number) => (
                 <Badge key={i} variant="secondary" className="capitalize">
                   {type}
@@ -113,18 +121,18 @@ export const FilterPanel = ({ component, renderItem }: FilterPanelProps) => {
               </div>
               <div className="flex gap-2">
                 {Object.keys(filters).length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearFilters}
-                  >
+                  <Button variant="ghost" size="sm" onClick={clearFilters}>
                     <X className="mr-1 h-4 w-4" />
                     Clear
                   </Button>
                 )}
                 <CollapsibleTrigger asChild>
                   <Button variant="ghost" size="sm">
-                    {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    {isOpen ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
                   </Button>
                 </CollapsibleTrigger>
               </div>
@@ -140,9 +148,13 @@ export const FilterPanel = ({ component, renderItem }: FilterPanelProps) => {
                       {field.label || field.name}
                     </label>
                     <Input
-                      placeholder={field.placeholder || `Filter by ${field.name}...`}
+                      placeholder={
+                        field.placeholder || `Filter by ${field.name}...`
+                      }
                       value={filters[field.name] || ""}
-                      onChange={(e) => handleFilterChange(field.name, e.target.value)}
+                      onChange={(e) =>
+                        handleFilterChange(field.name, e.target.value)
+                      }
                     />
                   </div>
                 ))}
@@ -169,7 +181,9 @@ export const FilterPanel = ({ component, renderItem }: FilterPanelProps) => {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {items.map((item: any, index: number) =>
-            renderItem ? renderItem(item, index) : defaultRenderItem(item, index)
+            renderItem
+              ? renderItem(item, index)
+              : defaultRenderItem(item, index)
           )}
         </div>
       )}
@@ -255,12 +269,12 @@ export const ChartView = ({ component }: ChartViewProps) => {
                   return (
                     <div key={index} className="space-y-1">
                       <div className="flex justify-between text-sm">
-                        <span className="capitalize font-medium">{label}</span>
+                        <span className="font-medium capitalize">{label}</span>
                         <span className="text-muted-foreground">{value}</span>
                       </div>
-                      <div className="bg-muted h-6 rounded-md overflow-hidden">
+                      <div className="bg-muted h-6 overflow-hidden rounded-md">
                         <div
-                          className="bg-primary h-full flex items-center justify-end pr-2 text-xs text-white font-semibold transition-all"
+                          className="bg-primary flex h-full items-center justify-end pr-2 text-xs font-semibold text-white transition-all"
                           style={{ width: `${percentage}%` }}
                         >
                           {percentage > 15 && `${percentage.toFixed(0)}%`}
@@ -318,7 +332,9 @@ export const MatrixView = ({ component }: MatrixViewProps) => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getCell = (row: any, col: any) => {
-    const cell = items.find((item) => item[rowField] === row && item[colField] === col);
+    const cell = items.find(
+      (item) => item[rowField] === row && item[colField] === col
+    );
     return cell ? cell[valueField] : null;
   };
 
@@ -357,9 +373,12 @@ export const MatrixView = ({ component }: MatrixViewProps) => {
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
-                    <th className="border p-2 bg-muted text-left text-sm font-medium"></th>
+                    <th className="bg-muted border p-2 text-left text-sm font-medium"></th>
                     {cols.map((col, i) => (
-                      <th key={i} className="border p-2 bg-muted text-center text-sm font-medium capitalize">
+                      <th
+                        key={i}
+                        className="bg-muted border p-2 text-center text-sm font-medium capitalize"
+                      >
                         {String(col)}
                       </th>
                     ))}
@@ -368,7 +387,7 @@ export const MatrixView = ({ component }: MatrixViewProps) => {
                 <tbody>
                   {rows.map((row, i) => (
                     <tr key={i}>
-                      <td className="border p-2 bg-muted text-sm font-medium capitalize">
+                      <td className="bg-muted border p-2 text-sm font-medium capitalize">
                         {String(row)}
                       </td>
                       {cols.map((col, j) => {
@@ -378,7 +397,9 @@ export const MatrixView = ({ component }: MatrixViewProps) => {
                             key={j}
                             className={`border p-2 text-center text-sm ${getCellColor(value)}`}
                           >
-                            {value !== null && value !== undefined ? String(value) : "-"}
+                            {value !== null && value !== undefined
+                              ? String(value)
+                              : "-"}
                           </td>
                         );
                       })}
@@ -405,6 +426,7 @@ export const DetailPanel = ({ component }: DetailPanelProps) => {
   const { componentId, props, actions } = component;
   const state = useComponentState(componentId);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState(props.sections?.[0] || "overview");
 
   // Extract items
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -476,18 +498,26 @@ export const DetailPanel = ({ component }: DetailPanelProps) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue={sections[0]}>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList>
                   {sections.map((section: string) => (
-                    <TabsTrigger key={section} value={section} className="capitalize">
+                    <TabsTrigger
+                      key={section}
+                      value={section}
+                      className="capitalize"
+                    >
                       {section}
                     </TabsTrigger>
                   ))}
                 </TabsList>
                 {sections.map((section: string) => (
-                  <TabsContent key={section} value={section} className="space-y-4">
+                  <TabsContent
+                    key={section}
+                    value={section}
+                    className="space-y-4"
+                  >
                     <div className="rounded-lg border p-4">
-                      <pre className="text-xs overflow-auto">
+                      <pre className="overflow-auto text-xs">
                         {JSON.stringify(selectedItem, null, 2)}
                       </pre>
                     </div>
@@ -501,4 +531,3 @@ export const DetailPanel = ({ component }: DetailPanelProps) => {
     </div>
   );
 };
-

@@ -207,13 +207,15 @@ const FilterPanel = z.object({
   componentId: z.string().min(1),
   component: z.literal("filter-panel"),
   props: z.object({
-    filterFields: z.array(
-      z.object({
-        name: z.string(),
-        label: z.string().optional(),
-        placeholder: z.string().optional(),
-      })
-    ).default([]),
+    filterFields: z
+      .array(
+        z.object({
+          name: z.string(),
+          label: z.string().optional(),
+          placeholder: z.string().optional(),
+        })
+      )
+      .default([]),
   }),
   actions: z.record(ActionSchema).optional(),
 });
@@ -319,14 +321,26 @@ export type UIAction = z.infer<typeof UIActionSchema>;
 export const ExplorationSuggestionSchema = z.object({
   title: z.string(),
   description: z.string(),
-  category: z.enum(["exploration", "comparison", "visualization", "analysis"]).default("exploration"),
-  complexity: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
+  category: z
+    .enum(["exploration", "comparison", "visualization", "analysis"])
+    .default("exploration"),
+  complexity: z
+    .enum(["beginner", "intermediate", "advanced"])
+    .default("beginner"),
   graphqlQuery: z.string(),
-  variables: z.record(z.object({
-    type: z.string(),
-    default: z.union([z.string(), z.number(), z.boolean()]).optional(),
-  })),
-  componentType: z.enum(["paginated-list", "searchable-list", "data-table", "chart", "comparison"]),
+  variables: z.record(
+    z.object({
+      type: z.string(),
+      default: z.union([z.string(), z.number(), z.boolean()]).optional(),
+    })
+  ),
+  componentType: z.enum([
+    "paginated-list",
+    "searchable-list",
+    "data-table",
+    "chart",
+    "comparison",
+  ]),
   tags: z.array(z.string()).default([]),
 });
 

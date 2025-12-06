@@ -48,15 +48,17 @@ export async function respond<TSchema extends ZodSchema>(
   try {
     // Use generateObject from AI SDK v5
     let modelInstance;
-    
+
     // Check if provider is a string (Vercel model registry format like "openai:gpt-4o")
-    if (typeof provider === 'string') {
+    if (typeof provider === "string") {
       // For string-based model identifiers, use directly
       modelInstance = provider;
     } else {
       // For provider objects, call as function
       // Force chat API if useChat is true (needed for ZAI and other providers that don't support Responses API)
-      modelInstance = llmConfig.useChat ? provider.chat(modelName) : provider(modelName);
+      modelInstance = llmConfig.useChat
+        ? provider.chat(modelName)
+        : provider(modelName);
     }
 
     const result = await generateObject({

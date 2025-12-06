@@ -9,11 +9,9 @@ import type {
 } from "@/lib/ui-action-schema";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Loader2, ChevronLeft, ChevronRight, Search, Filter, X } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 
 /**
  * Paginated list component
@@ -69,7 +67,11 @@ export const PaginatedList = ({
     }
   }
 
-  const totalCount = state.data?.pokemons?.count || state.data?.pokemon?.count || state.data?.totalCount || items.length;
+  const totalCount =
+    state.data?.pokemons?.count ||
+    state.data?.pokemon?.count ||
+    state.data?.totalCount ||
+    items.length;
   const totalPages = Math.ceil(totalCount / pageSize);
 
   // Fetch data on mount or page change
@@ -111,17 +113,20 @@ export const PaginatedList = ({
       let types: string[] = [];
       if (item.pokemon_v2_pokemontypes) {
         types = item.pokemon_v2_pokemontypes.map(
-          (t: { pokemon_v2_type?: { name?: string } }) => t.pokemon_v2_type?.name || "unknown"
+          (t: { pokemon_v2_type?: { name?: string } }) =>
+            t.pokemon_v2_type?.name || "unknown"
         );
       } else if (item.types) {
         // Handle types as array of objects with {slot, type: {name}}
         const typeArray = Array.isArray(item.types) ? item.types : [item.types];
-        types = typeArray.map((t: string | { type?: { name?: string }; name?: string }) => {
-          if (typeof t === 'string') return t;
-          if (t?.type?.name) return t.type.name;
-          if (t?.name) return t.name;
-          return "unknown";
-        });
+        types = typeArray.map(
+          (t: string | { type?: { name?: string }; name?: string }) => {
+            if (typeof t === "string") return t;
+            if (t?.type?.name) return t.type.name;
+            if (t?.name) return t.name;
+            return "unknown";
+          }
+        );
       }
 
       return (
@@ -255,12 +260,18 @@ export const SearchableList = ({
     // Check for pokemons.results (custom GraphQL Pokedex structure - plural)
     if (state.data.pokemons?.results) {
       items = state.data.pokemons.results;
-      console.log("[SearchableList] Using pokemons.results, count:", items.length);
+      console.log(
+        "[SearchableList] Using pokemons.results, count:",
+        items.length
+      );
     }
     // Check for pokemon.results (custom GraphQL Pokedex structure - singular with results)
     else if (state.data.pokemon?.results) {
       items = state.data.pokemon.results;
-      console.log("[SearchableList] Using pokemon.results, count:", items.length);
+      console.log(
+        "[SearchableList] Using pokemon.results, count:",
+        items.length
+      );
     }
     // Check for pokemon as a single object (not .results) - MUST have valid id (not null)
     else if (
@@ -276,12 +287,18 @@ export const SearchableList = ({
     // Check for pokemon as an array
     else if (Array.isArray(state.data.pokemon)) {
       items = state.data.pokemon;
-      console.log("[SearchableList] Using pokemon as array, count:", items.length);
+      console.log(
+        "[SearchableList] Using pokemon as array, count:",
+        items.length
+      );
     }
     // Check for pokemon_v2_pokemon (beta.pokeapi.co structure)
     else if (state.data.pokemon_v2_pokemon) {
       items = state.data.pokemon_v2_pokemon;
-      console.log("[SearchableList] Using pokemon_v2_pokemon, count:", items.length);
+      console.log(
+        "[SearchableList] Using pokemon_v2_pokemon, count:",
+        items.length
+      );
     } else if (state.data.items) {
       items = state.data.items;
       console.log("[SearchableList] Using items, count:", items.length);
@@ -311,7 +328,11 @@ export const SearchableList = ({
   useEffect(() => {
     // Only execute search if there's actual text in the search box
     // Empty string searches often return no/null results from GraphQL APIs
-    if (actions?.fetchData && actions.fetchData.type === "graphql-query" && debouncedQuery.trim().length > 0) {
+    if (
+      actions?.fetchData &&
+      actions.fetchData.type === "graphql-query" &&
+      debouncedQuery.trim().length > 0
+    ) {
       const fetchAction = actions.fetchData as GraphQLQueryAction;
       const searchAction: GraphQLQueryAction = {
         ...fetchAction,
@@ -336,17 +357,20 @@ export const SearchableList = ({
       let types: string[] = [];
       if (item.pokemon_v2_pokemontypes) {
         types = item.pokemon_v2_pokemontypes.map(
-          (t: { pokemon_v2_type?: { name?: string } }) => t.pokemon_v2_type?.name || "unknown"
+          (t: { pokemon_v2_type?: { name?: string } }) =>
+            t.pokemon_v2_type?.name || "unknown"
         );
       } else if (item.types) {
         // Handle types as array of objects with {slot, type: {name}}
         const typeArray = Array.isArray(item.types) ? item.types : [item.types];
-        types = typeArray.map((t: string | { type?: { name?: string }; name?: string }) => {
-          if (typeof t === 'string') return t;
-          if (t?.type?.name) return t.type.name;
-          if (t?.name) return t.name;
-          return "unknown";
-        });
+        types = typeArray.map(
+          (t: string | { type?: { name?: string }; name?: string }) => {
+            if (typeof t === "string") return t;
+            if (t?.type?.name) return t.type.name;
+            if (t?.name) return t.name;
+            return "unknown";
+          }
+        );
       }
 
       return (
@@ -657,25 +681,37 @@ export const ComparisonGrid = ({ component }: ComparisonGridProps) => {
       )}
 
       {!state.loading && !state.error && compareItems.length > 0 && (
-        <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${compareItems.length}, 1fr)` }}>
+        <div
+          className="grid gap-4"
+          style={{ gridTemplateColumns: `repeat(${compareItems.length}, 1fr)` }}
+        >
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {compareItems.map((item: any, index: number) => {
             const stats = extractStats(item);
             const name = item.name || `Item ${index + 1}`;
-            const types = item.pokemon_v2_pokemontypes?.map((t: { pokemon_v2_type?: { name?: string } }) => 
-              t.pokemon_v2_type?.name
-            ) || item.types?.map((t: { type?: { name?: string }; name?: string }) => 
-              t.type?.name || t.name
-            ) || [];
+            const types =
+              item.pokemon_v2_pokemontypes?.map(
+                (t: { pokemon_v2_type?: { name?: string } }) =>
+                  t.pokemon_v2_type?.name
+              ) ||
+              item.types?.map(
+                (t: { type?: { name?: string }; name?: string }) =>
+                  t.type?.name || t.name
+              ) ||
+              [];
 
             return (
               <Card key={index}>
                 <CardHeader>
                   <CardTitle className="capitalize">{name}</CardTitle>
                   {types.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
+                    <div className="mt-2 flex flex-wrap gap-1">
                       {types.map((type: string, i: number) => (
-                        <Badge key={i} variant="secondary" className="capitalize text-xs">
+                        <Badge
+                          key={i}
+                          variant="secondary"
+                          className="text-xs capitalize"
+                        >
                           {type}
                         </Badge>
                       ))}
@@ -687,11 +723,11 @@ export const ComparisonGrid = ({ component }: ComparisonGridProps) => {
                     <div className="space-y-2">
                       {stats.map((stat, i) => (
                         <div key={i}>
-                          <div className="flex justify-between text-sm mb-1">
+                          <div className="mb-1 flex justify-between text-sm">
                             <span className="capitalize">{stat.name}</span>
                             <span className="font-semibold">{stat.value}</span>
                           </div>
-                          <div className="bg-muted h-2 rounded-full overflow-hidden">
+                          <div className="bg-muted h-2 overflow-hidden rounded-full">
                             <div
                               className="bg-primary h-full transition-all"
                               style={{ width: `${(stat.value / 255) * 100}%` }}

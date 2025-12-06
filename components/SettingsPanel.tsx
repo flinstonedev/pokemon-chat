@@ -42,7 +42,10 @@ const CHAT_MODELS = {
     { value: "openai/gpt-5-nano" as const, label: "GPT-5 Nano" },
     { value: "openai/gpt-5-mini" as const, label: "GPT-5 Mini" },
     { value: "google/gemini-2.5-pro" as const, label: "Gemini 2.5 Pro" },
-    { value: "xai/grok-4-fast-reasoning" as const, label: "Grok 4 Fast Reasoning" },
+    {
+      value: "xai/grok-4-fast-reasoning" as const,
+      label: "Grok 4 Fast Reasoning",
+    },
     { value: "claude-3-5-haiku-20241022" as const, label: "Claude 3.5 Haiku" },
     { value: "moonshotai/kimi-k2-turbo" as const, label: "Kimi K2 Turbo" },
     { value: "minimax/minimax-m2" as const, label: "MiniMax M2" },
@@ -75,7 +78,10 @@ const UI_GENERATOR_MODELS = {
     { value: "openai/gpt-5-nano" as const, label: "GPT-5 Nano" },
     { value: "openai/gpt-5-mini" as const, label: "GPT-5 Mini" },
     { value: "google/gemini-2.5-pro" as const, label: "Gemini 2.5 Pro" },
-    { value: "xai/grok-4-fast-reasoning" as const, label: "Grok 4 Fast Reasoning" },
+    {
+      value: "xai/grok-4-fast-reasoning" as const,
+      label: "Grok 4 Fast Reasoning",
+    },
     { value: "claude-3-5-haiku-20241022" as const, label: "Claude 3.5 Haiku" },
     { value: "moonshotai/kimi-k2-turbo" as const, label: "Kimi K2 Turbo" },
     { value: "minimax/minimax-m2" as const, label: "MiniMax M2" },
@@ -98,7 +104,10 @@ export function SettingsPanel() {
   // Auto-select valid model when chat provider changes
   useEffect(() => {
     const availableModels = CHAT_MODELS[chatProvider];
-    if (!availableModels.find((m) => m.value === chatModel) && availableModels[0]) {
+    if (
+      !availableModels.find((m) => m.value === chatModel) &&
+      availableModels[0]
+    ) {
       setChatModel(availableModels[0].value);
     }
   }, [chatProvider, chatModel, setChatModel]);
@@ -106,7 +115,10 @@ export function SettingsPanel() {
   // Auto-select valid model when UI generator provider changes
   useEffect(() => {
     const availableModels = UI_GENERATOR_MODELS[uiGeneratorProvider];
-    if (!availableModels.find((m) => m.value === uiGeneratorModel) && availableModels[0]) {
+    if (
+      !availableModels.find((m) => m.value === uiGeneratorModel) &&
+      availableModels[0]
+    ) {
       setUIGeneratorModel(availableModels[0].value);
     }
   }, [uiGeneratorProvider, uiGeneratorModel, setUIGeneratorModel]);
@@ -156,7 +168,9 @@ export function SettingsPanel() {
               <Select
                 value={chatProvider}
                 onValueChange={(value) =>
-                  setChatProvider(value as "openai" | "anthropic" | "zai" | "local" | "vercel")
+                  setChatProvider(
+                    value as "openai" | "anthropic" | "zai" | "local" | "vercel"
+                  )
                 }
               >
                 <SelectTrigger className="border-border/50 bg-surface-1 text-foreground">
@@ -167,7 +181,9 @@ export function SettingsPanel() {
                   <SelectItem value="anthropic">Anthropic</SelectItem>
                   {/* <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem> */}
                   {process.env.NODE_ENV !== "production" && (
-                    <SelectItem value="local">Local (localhost:1234)</SelectItem>
+                    <SelectItem value="local">
+                      Local (localhost:1234)
+                    </SelectItem>
                   )}
                   <SelectItem value="vercel">Vercel AI</SelectItem>
                 </SelectContent>
@@ -219,7 +235,9 @@ export function SettingsPanel() {
               <Select
                 value={uiGeneratorProvider}
                 onValueChange={(value) =>
-                  setUIGeneratorProvider(value as "openai" | "anthropic" | "zai" | "local" | "vercel")
+                  setUIGeneratorProvider(
+                    value as "openai" | "anthropic" | "zai" | "local" | "vercel"
+                  )
                 }
               >
                 <SelectTrigger className="border-border/50 bg-surface-1 text-foreground">
@@ -230,7 +248,9 @@ export function SettingsPanel() {
                   <SelectItem value="anthropic">Anthropic</SelectItem>
                   {/* <SelectItem value="zai">ZAI (Zhipu AI)</SelectItem> */}
                   {process.env.NODE_ENV !== "production" && (
-                    <SelectItem value="local">Local (localhost:1234)</SelectItem>
+                    <SelectItem value="local">
+                      Local (localhost:1234)
+                    </SelectItem>
                   )}
                   <SelectItem value="vercel">Vercel AI</SelectItem>
                 </SelectContent>
