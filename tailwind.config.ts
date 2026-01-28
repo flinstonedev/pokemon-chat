@@ -53,7 +53,6 @@ const config: Config = {
   },
   plugins: [
     require("tailwindcss-animate"),
-    require("@assistant-ui/react/tailwindcss"),
     // Custom plugin for gradient utilities
     plugin(({ addUtilities }) => {
       addUtilities({

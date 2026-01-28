@@ -16,8 +16,8 @@ const firaCode = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: "Pokemon Chat",
-  description: "Chat with your favorite Pokemon!",
+  title: "GraphQL Chat",
+  description: "Chat with any GraphQL API!",
   icons: {
     icon: "/favicon.svg",
   },
@@ -50,13 +50,9 @@ export default function RootLayout({
                 <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
                   <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
                     <div className="text-sm">
-                      <p>
-                        &copy; {new Date().getFullYear()} QuerySculptor Pokemon
-                        API Demo
-                      </p>
+                      <p>&copy; {new Date().getFullYear()} GraphQL Chat</p>
                       <p className="text-muted-foreground mt-1">
-                        Showcasing QuerySculptor MCP capabilities with Pokemon
-                        data
+                        Powered by QuerySculptor MCP
                       </p>
                     </div>
                     <div className="flex space-x-6 text-sm">
@@ -79,11 +75,7 @@ export default function RootLayout({
                     </div>
                   </div>
                   <div className="border-border/50 text-muted-foreground mt-4 border-t pt-4 text-center text-xs">
-                    <p>
-                      Pokemon is a trademark of Nintendo/Game Freak/The Pokemon
-                      Company. This demo is not affiliated with or endorsed by
-                      Nintendo.
-                    </p>
+                    <p>Built with Next.js, Vercel AI SDK, and MCP.</p>
                   </div>
                 </div>
               </footer>

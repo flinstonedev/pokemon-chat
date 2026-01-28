@@ -1,114 +1,31 @@
 "use client";
 
-import type { InteractiveComponent } from "@/lib/ui-action-schema";
-import {
-  PaginatedList,
-  SearchableList,
-  DataTable,
-  ComparisonGrid,
-} from "./InteractiveComponents";
-import {
-  FilterPanel,
-  ChartView,
-  MatrixView,
-  DetailPanel,
-} from "./AnalyticalComponents";
-import { PokemonUIRenderer } from "./PokemonUIRenderer";
+import { ComponentAgentResponse } from "@/lib/generic-ui-schema";
+import { ComponentUIRenderer } from "./ComponentUIRenderer";
+import { useResults } from "./ResultsProvider";
 
-/**
- * Enhanced UI renderer that supports both static and interactive components
- */
-interface InteractiveUIRendererProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  elements: any[];
+// Extended response type that includes echoed data from visualize-data API
+interface ModelResponseWithData extends ComponentAgentResponse {
+  data?: Record<string, unknown>;
 }
 
-export const InteractiveUIRenderer = ({
-  elements,
-}: InteractiveUIRendererProps) => {
-  if (!elements || elements.length === 0) {
+interface InteractiveUIRendererProps {
+  modelResponse: ModelResponseWithData;
+}
+
+export function InteractiveUIRenderer({
+  modelResponse,
+}: InteractiveUIRendererProps) {
+  const { latestResult } = useResults();
+
+  if (!modelResponse || !modelResponse.ui) {
     return null;
   }
 
+  // Use data from the model response (if echoed) or fallback to latestResult from context
+  const componentData = modelResponse.data || latestResult?.data || {};
+
   return (
-    <div className="space-y-6">
-      {elements.map((element, index) => (
-        <RenderElement key={index} element={element} />
-      ))}
-    </div>
+    <ComponentUIRenderer component={modelResponse.ui} data={componentData} />
   );
-};
-
-/**
- * Renders a single element (static or interactive)
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const RenderElement = ({ element }: { element: any }) => {
-  // Known interactive component types
-  const interactiveTypes = [
-    "paginated-list",
-    "searchable-list",
-    "data-table",
-    "comparison-grid",
-    "filter-panel",
-    "chart-view",
-    "matrix-view",
-    "detail-panel",
-  ];
-
-  // Check if it's an interactive component:
-  // - Has componentId AND (has actions OR is a known interactive type)
-  const isInteractive =
-    element.componentId &&
-    (element.actions ||
-      interactiveTypes.includes(element.type) ||
-      interactiveTypes.includes(element.component));
-
-  if (isInteractive) {
-    return (
-      <RenderInteractiveComponent component={element as InteractiveComponent} />
-    );
-  }
-
-  // Otherwise, render as a static Pokemon UI element
-  return <PokemonUIRenderer elements={[element]} />;
-};
-
-/**
- * Renders an interactive component
- */
-const RenderInteractiveComponent = ({
-  component,
-}: {
-  component: InteractiveComponent;
-}) => {
-  switch (component.component) {
-    case "paginated-list":
-      return <PaginatedList component={component} />;
-
-    case "searchable-list":
-      return <SearchableList component={component} />;
-
-    case "data-table":
-      return <DataTable component={component} />;
-
-    case "comparison-grid":
-      return <ComparisonGrid component={component} />;
-
-    case "filter-panel":
-      return <FilterPanel component={component} />;
-
-    case "chart-view":
-      return <ChartView component={component} />;
-
-    case "matrix-view":
-      return <MatrixView component={component} />;
-
-    case "detail-panel":
-      return <DetailPanel component={component} />;
-
-    default:
-      // Fallback to static rendering
-      return <PokemonUIRenderer elements={[component]} />;
-  }
-};
+}

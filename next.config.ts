@@ -2,10 +2,33 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // Restrict remote image patterns to known safe domains
+    // Add additional domains as needed for your GraphQL API responses
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**",
+        hostname: "raw.githubusercontent.com",
+        pathname: "/PokeAPI/**",
+      },
+      {
+        protocol: "https",
+        hostname: "img.pokemondb.net",
+      },
+      {
+        protocol: "https",
+        hostname: "assets.pokemon.com",
+      },
+      {
+        protocol: "https",
+        hostname: "pokeapi.co",
+      },
+      {
+        protocol: "https",
+        hostname: "img.clerk.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.clerk.dev",
       },
     ],
   },

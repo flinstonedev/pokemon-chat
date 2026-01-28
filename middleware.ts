@@ -1,9 +1,28 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher(["/api/assistant-chat(.*)"]);
+// Define routes that require authentication
+// All API routes are protected by default except public ones
+const isProtectedRoute = createRouteMatcher([
+  "/api/chat(.*)",
+  "/api/execute-graphql(.*)",
+  "/api/visualize-data(.*)",
+  "/api/assistant-chat(.*)",
+]);
+
+// Public routes that don't require authentication
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/privacy",
+  "/terms",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) await auth.protect();
+  // Protect all non-public routes
+  if (isProtectedRoute(req)) {
+    await auth.protect();
+  }
 });
 
 export const config = {

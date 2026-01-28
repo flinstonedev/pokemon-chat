@@ -9,10 +9,10 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { ChatInterface } from "../components/ChatInterface";
-import { PokemonResultsProvider } from "../components/PokemonResultsProvider";
+import { ResultsProvider } from "../components/ResultsProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { SettingsPanel } from "@/components/SettingsPanel";
-import { Bot } from "lucide-react";
+import { Database } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Ensure this page is always dynamically rendered so auth state and Clerk
@@ -29,25 +29,18 @@ export default function HomePage() {
           </div>
           <div className="bg-card border-border max-w-md rounded-2xl border p-8 text-center shadow-2xl">
             <div className="bg-primary bg-gradient-primary mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg">
-              <Bot className="text-primary-foreground h-8 w-8" />
+              <Database className="text-primary-foreground h-8 w-8" />
             </div>
             <h1 className="text-foreground mb-4 text-3xl font-bold">
-              Pokemon Chat with MCP Tools
+              GraphQL Chat
             </h1>
             <p className="text-muted-foreground mb-6">
-              Experience QuerySculptor capabilities with the{" "}
-              <a
-                href="https://graphql-pokeapi.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:text-primary/80 underline"
-              >
-                Pokemon API
-              </a>
+              Connect to any GraphQL API and explore data with AI-generated
+              visualizations.
             </p>
             <SignInButton mode="modal" fallbackRedirectUrl="/">
               <button className="bg-primary bg-gradient-primary text-primary-foreground transform rounded-lg px-8 py-3 text-lg font-semibold shadow-lg transition-all hover:scale-105 hover:opacity-90">
-                Sign In to Try it Out!
+                Sign In to Start
               </button>
             </SignInButton>
           </div>
@@ -61,10 +54,10 @@ export default function HomePage() {
             <div className="mx-auto flex max-w-7xl items-center justify-between p-4">
               <div>
                 <h1 className="text-primary text-2xl font-bold">
-                  Pokemon Chat with MCP Tools
+                  GraphQL Chat
                 </h1>
                 <p className="text-muted-foreground text-sm">
-                  Powered by QuerySculptor MCP Server
+                  Powered by QuerySculptor MCP
                 </p>
               </div>
               <div className="flex items-center gap-4">
@@ -82,9 +75,9 @@ export default function HomePage() {
 
           {/* Chat Interface */}
           <div className="flex-1 overflow-hidden">
-            <PokemonResultsProvider>
+            <ResultsProvider>
               <ChatInterface />
-            </PokemonResultsProvider>
+            </ResultsProvider>
           </div>
         </div>
       </SignedIn>

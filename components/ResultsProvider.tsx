@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from "react";
 
-export interface PokemonResult {
+export interface QueryResult {
   id: string;
   type: "list" | "details" | "search" | "error";
   data: Record<string, unknown>;
@@ -10,30 +10,24 @@ export interface PokemonResult {
   timestamp: number;
 }
 
-interface PokemonResultsContextType {
-  results: PokemonResult[];
-  addResult: (result: Omit<PokemonResult, "id" | "timestamp">) => void;
+interface ResultsContextType {
+  results: QueryResult[];
+  addResult: (result: Omit<QueryResult, "id" | "timestamp">) => void;
   clearResults: () => void;
-  latestResult: PokemonResult | null;
+  latestResult: QueryResult | null;
 }
 
-const PokemonResultsContext = createContext<
-  PokemonResultsContextType | undefined
->(undefined);
+const ResultsContext = createContext<ResultsContextType | undefined>(undefined);
 
-export function PokemonResultsProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [results, setResults] = useState<PokemonResult[]>([]);
+export function ResultsProvider({ children }: { children: React.ReactNode }) {
+  const [results, setResults] = useState<QueryResult[]>([]);
 
   const addResult = useCallback(
-    (result: Omit<PokemonResult, "id" | "timestamp">) => {
+    (result: Omit<QueryResult, "id" | "timestamp">) => {
       const timestamp = Date.now();
-      const newResult: PokemonResult = {
+      const newResult: QueryResult = {
         ...result,
-        id: `${timestamp}-${Math.random().toString(36).substring(2, 11)}`, // More unique ID
+        id: `${timestamp}-${Math.random().toString(36).substring(2, 11)}`,
         timestamp,
       };
 
@@ -46,7 +40,7 @@ export function PokemonResultsProvider({
         );
 
         if (isDuplicate) {
-          return prev; // Don't add duplicate
+          return prev;
         }
 
         return [newResult, ...prev.slice(0, 9)]; // Keep last 10 results
@@ -62,20 +56,18 @@ export function PokemonResultsProvider({
   const latestResult = results[0] || null;
 
   return (
-    <PokemonResultsContext.Provider
+    <ResultsContext.Provider
       value={{ results, addResult, clearResults, latestResult }}
     >
       {children}
-    </PokemonResultsContext.Provider>
+    </ResultsContext.Provider>
   );
 }
 
-export function usePokemonResults() {
-  const context = useContext(PokemonResultsContext);
+export function useResults() {
+  const context = useContext(ResultsContext);
   if (context === undefined) {
-    throw new Error(
-      "usePokemonResults must be used within a PokemonResultsProvider"
-    );
+    throw new Error("useResults must be used within a ResultsProvider");
   }
   return context;
 }

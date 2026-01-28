@@ -3,35 +3,10 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 export type LLMProvider = "openai" | "anthropic" | "zai" | "local" | "vercel";
-export type ChatModel =
-  | "gpt-4o-mini"
-  | "gpt-5-mini"
-  | "claude-sonnet-4-5-20250929"
-  | "claude-haiku-4-5-20251001"
-  | "glm-4.6"
-  | "local-model"
-  | "claude-3-5-haiku-20241022"
-  | "moonshotai/kimi-k2-turbo"
-  | "openai/gpt-5-nano"
-  | "openai/gpt-5-mini"
-  | "google/gemini-2.5-pro"
-  | "xai/grok-4-fast-reasoning"
-  | "anthropic/claude-haiku-4.5"
-  | "minimax/minimax-m2";
-export type UIGeneratorModel =
-  | "gpt-5-mini"
-  | "claude-sonnet-4-5-20250929"
-  | "claude-haiku-4-5-20251001"
-  | "glm-4.6"
-  | "local-model"
-  | "claude-3-5-haiku-20241022"
-  | "moonshotai/kimi-k2-turbo"
-  | "openai/gpt-5-nano"
-  | "openai/gpt-5-mini"
-  | "google/gemini-2.5-pro"
-  | "xai/grok-4-fast-reasoning"
-  | "anthropic/claude-haiku-4.5"
-  | "minimax/minimax-m2";
+
+// Support multiple model formats: direct API models, Vercel AI format, etc.
+export type ChatModel = string;
+export type UIGeneratorModel = string;
 
 export interface SettingsContextType {
   chatProvider: LLMProvider;
@@ -50,13 +25,13 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 
 const STORAGE_KEY = "pokemon-chat-settings";
 const SETTINGS_VERSION_KEY = "pokemon-chat-settings-version";
-const CURRENT_VERSION = "2"; // Increment this when defaults change
+const CURRENT_VERSION = "3"; // Increment this when defaults change
 
 const DEFAULT_SETTINGS = {
-  chatProvider: "vercel" as const,
-  chatModel: "anthropic/claude-haiku-4.5" as const,
-  uiGeneratorProvider: "vercel" as const,
-  uiGeneratorModel: "anthropic/claude-haiku-4.5" as const,
+  chatProvider: "openai" as const,
+  chatModel: "gpt-4o" as const, // Use a reliable model
+  uiGeneratorProvider: "openai" as const,
+  uiGeneratorModel: "gpt-4o" as const,
 };
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {

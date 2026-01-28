@@ -2,10 +2,10 @@ import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z, type ZodSchema } from "zod";
-import {
-  PokemonAgentResponseSchema,
-  POKEMON_SYSTEM_PROMPT,
-} from "./pokemon-ui-schema";
+import { ComponentAgentResponseSchema } from "./generic-ui-schema";
+
+const DEFAULT_SYSTEM_PROMPT = "You are a generic UI builder.";
+const DEFAULT_SCHEMA = ComponentAgentResponseSchema;
 
 export type LLMProviderType = typeof openai | typeof anthropic;
 
@@ -37,8 +37,8 @@ export async function respond<TSchema extends ZodSchema>(
   userPrompt: string,
   config?: AgentConfig<TSchema>
 ): Promise<z.infer<TSchema>> {
-  const systemPrompt = config?.systemPrompt ?? POKEMON_SYSTEM_PROMPT;
-  const schema = (config?.schema ?? PokemonAgentResponseSchema) as TSchema;
+  const systemPrompt = config?.systemPrompt ?? DEFAULT_SYSTEM_PROMPT;
+  const schema = (config?.schema ?? DEFAULT_SCHEMA) as TSchema;
   const llmConfig = { ...DEFAULT_LLM_CONFIG, ...config?.llm };
 
   // Resolve the model

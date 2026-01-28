@@ -7,7 +7,6 @@ import type {
 import {
   validateGraphQLQuery,
   validateGraphQLVariables,
-  validateGraphQLEndpoint,
 } from "./graphql-validator";
 
 /**
@@ -128,11 +127,8 @@ export const createActionExecutor = (config: ActionExecutorConfig = {}) => {
       return { success: false, error: variablesValidation.error };
     }
 
-    // Validate endpoint
-    const endpointValidation = validateGraphQLEndpoint(action.endpoint);
-    if (!endpointValidation.valid) {
-      return { success: false, error: endpointValidation.error };
-    }
+    // Note: Custom endpoints are no longer supported for security (SSRF prevention)
+    // The server will only use the configured GRAPHQL_API_ENDPOINT
 
     // Check rate limit
     if (!rateLimiter.isAllowed(componentId)) {
@@ -147,6 +143,7 @@ export const createActionExecutor = (config: ActionExecutorConfig = {}) => {
 
     try {
       // Execute query via dedicated GraphQL endpoint
+      // Note: Custom endpoints are no longer supported - server uses configured endpoint only
       const response = await fetch(graphqlUrl, {
         method: "POST",
         headers: {
@@ -155,7 +152,6 @@ export const createActionExecutor = (config: ActionExecutorConfig = {}) => {
         body: JSON.stringify({
           query: action.query,
           variables: action.variables || {},
-          endpoint: action.endpoint, // Pass through endpoint if specified
         }),
       });
 
