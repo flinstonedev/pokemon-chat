@@ -121,13 +121,15 @@ export const Response = memo(
         className
       )}
       controls={false}
-      components={{
-        p: CustomParagraph,
-        ol: CustomOrderedList,
-        ul: CustomUnorderedList,
-        a: CustomLink,
-        ...components,
-      }}
+      components={
+        {
+          p: CustomParagraph,
+          ol: CustomOrderedList,
+          ul: CustomUnorderedList,
+          a: CustomLink,
+          ...components,
+        } as ResponseProps["components"]
+      }
       {...props}
     />
   ),
