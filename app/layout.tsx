@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fira_Code } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { SettingsProvider } from "@/components/SettingsProvider";
@@ -9,9 +9,34 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { UIComponentProvider } from "@/components/UIComponentProvider";
 
-const firaCode = Fira_Code({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+const firaCode = localFont({
+  src: [
+    {
+      path: "../public/fonts/FiraCode-Light.woff2",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/FiraCode-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/FiraCode-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/FiraCode-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/FiraCode-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
   display: "swap",
 });
 
